@@ -74,4 +74,33 @@ import Testing
 
         #expect(actual == expected)
     }
+
+    @Test func InstanceFunction() {
+        let input: String = """
+        struct S {
+            func foo(arg1: Int, arg2: String, arg3: Double, arg4: Bool, arg5: Int, arg6: String, arg7: Double) -> Void) {
+                print("Hello, World!")
+            }
+        }
+        """
+        let expected: String = """
+        struct S {
+            func foo(
+                arg1: Int,
+                arg2: String,
+                arg3: Double,
+                arg4: Bool,
+                arg5: Int,
+                arg6: String,
+                arg7: Double
+            ) -> Void {
+                print("Hello, World!")
+            }
+        }
+        """
+
+        let actual: String = RectangleCorrector.correct(input, maxLength: 40)
+
+        #expect(actual == expected)
+    }
 }
