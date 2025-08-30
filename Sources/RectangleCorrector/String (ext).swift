@@ -10,6 +10,6 @@ extension String {
             end = index(before: end)
         }
 
-        return String(self[start...end])
+        return String(self[start ... end])
     }
 }

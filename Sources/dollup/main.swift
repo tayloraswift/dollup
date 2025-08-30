@@ -8,7 +8,7 @@ struct Dollup: ParsableCommand {
     var file: String
 
     @Option(name: .shortAndLong, help: "The maximum line length.")
-    var maxLength: Int = 100
+    var maxLength: Int = 96
 
     mutating func run() throws {
         let url = URL(fileURLWithPath: file)
