@@ -1,0 +1,32 @@
+// swift-tools-version:6.1
+import PackageDescription
+
+let package = Package(
+    name: "Dollup",
+    platforms: [
+        .macOS(.v15)
+    ],
+    dependencies: [
+        .package(url: "https://github.com/apple/swift-argument-parser", from: "1.0.0"),
+        .package(url: "https://github.com/tayloraswift/swift-io", branch: "master"),
+        .package(url: "https://github.com/apple/swift-syntax.git", from: "601.0.1")
+    ],
+    targets: [
+        .executableTarget(
+            name: "dollup",
+            dependencies: [
+                .product(name: "ArgumentParser", package: "swift-argument-parser"),
+                .product(name: "SystemIO", package: "swift-io"),
+                "RectangleCorrector"
+            ]),
+        .target(
+            name: "RectangleCorrector",
+            dependencies: [
+                .product(name: "SwiftSyntax", package: "swift-syntax"),
+                .product(name: "SwiftParser", package: "swift-syntax")
+            ]),
+        .testTarget(
+            name: "RectangleCorrectorTests",
+            dependencies: ["RectangleCorrector"]),
+    ]
+)
