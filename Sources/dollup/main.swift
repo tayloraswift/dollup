@@ -11,9 +11,9 @@ struct Dollup: ParsableCommand {
     var maxLength: Int = 96
 
     mutating func run() throws {
-        let url = URL(fileURLWithPath: file)
-        let originalContent = try String(contentsOf: url, encoding: .utf8)
-        let formattedContent = RectangleCorrector.correct(originalContent, maxLength: maxLength)
+        let url: URL = .init(fileURLWithPath: file)
+        let originalContent: String = try .init(contentsOf: url, encoding: .utf8)
+        let formattedContent: String = RectangleCorrector.correct(originalContent, maxLength: maxLength)
         try formattedContent.write(to: url, atomically: true, encoding: .utf8)
     }
 }
