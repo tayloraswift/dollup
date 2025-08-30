@@ -3,9 +3,9 @@ import SwiftParser
 
 public struct RectangleCorrector {
     public static func correct(_ content: String, maxLength: Int) -> String {
-        let tree = Parser.parse(source: content)
-        let rewriter = RectangleRewriter(maxLength: maxLength)
-        let result = rewriter.visit(tree)
+        let tree: SourceFileSyntax = Parser.parse(source: content)
+        let rewriter: RectangleRewriter = .init(maxLength: maxLength)
+        let result: SourceFileSyntax = rewriter.visit(tree)
         return result.description
     }
 }
@@ -19,26 +19,26 @@ class RectangleRewriter: SyntaxRewriter {
     }
 
     override func visit(_ node: FunctionCallExprSyntax) -> ExprSyntax {
-        let line = node.description.trimmingWhitespace()
+        let line: String = node.description.trimmingWhitespace()
         if line.count > maxLength {
             if let trailingClosure = node.trailingClosure {
-                let newStatements = trailingClosure.statements.map { stmt in
+                let newStatements: [CodeBlockItemSyntax] = trailingClosure.statements.map { stmt in
                     stmt.with(\.leadingTrivia, .newline.appending(Trivia.spaces(4)))
                         .with(\.trailingTrivia, []) // Ensure no trailing trivia on statements
                 }
 
-                let newLeftBrace = TokenSyntax(.leftBrace, leadingTrivia: .space, trailingTrivia: [], presence: .present)
-                let newRightBrace = TokenSyntax(.rightBrace, leadingTrivia: .newline, trailingTrivia: [], presence: .present)
+                let newLeftBrace: TokenSyntax = .init(.leftBrace, leadingTrivia: .space, trailingTrivia: [], presence: .present)
+                let newRightBrace: TokenSyntax = .init(.rightBrace, leadingTrivia: .newline, trailingTrivia: [], presence: .present)
 
-                let newClosure = ClosureExprSyntax(
+                let newClosure: ClosureExprSyntax = .init(
                     leftBrace: newLeftBrace,
                     statements: CodeBlockItemListSyntax(newStatements),
                     rightBrace: newRightBrace
                 )
 
-                var newNode = node.with(\.trailingClosure, newClosure)
+                var newNode: FunctionCallExprSyntax = node.with(\.trailingClosure, newClosure)
                 if let rightParen = newNode.rightParen {
-                    newNode = FunctionCallExprSyntax(
+                    newNode = .init(
                         calledExpression: newNode.calledExpression,
                         leftParen: newNode.leftParen,
                         arguments: newNode.arguments,
@@ -51,11 +51,11 @@ class RectangleRewriter: SyntaxRewriter {
             }
 
             var newArgs: [LabeledExprSyntax] = []
-            for arg in node.arguments {
-                let newArg = arg.with(\.trailingTrivia, .spaces(0))
+            for arg: LabeledExprSyntax in node.arguments {
+                let newArg: LabeledExprSyntax = arg.with(\.trailingTrivia, .spaces(0))
                 newArgs.append(newArg.with(\.leadingTrivia, .newline.appending(Trivia.spaces(4))))
             }
-            let newNode = node.with(\.arguments, LabeledExprListSyntax(newArgs))
+            let newNode: FunctionCallExprSyntax = node.with(\.arguments, LabeledExprListSyntax(newArgs))
                                 .with(\.rightParen, node.rightParen?.with(\.leadingTrivia, .newline))
             return ExprSyntax(newNode)
         }
@@ -63,17 +63,20 @@ class RectangleRewriter: SyntaxRewriter {
     }
 
     override func visit(_ node: FunctionDeclSyntax) -> DeclSyntax {
-        let line = node.description.trimmingWhitespace()
+        let line: String = node.description.trimmingWhitespace()
         if line.count > maxLength {
             var newParams: [FunctionParameterSyntax] = []
-            for param in node.signature.parameterClause.parameters {
-                let newParam = param.with(\.trailingTrivia, .spaces(0))
+            for param: FunctionParameterSyntax in node.signature.parameterClause.parameters {
+                let newParam: FunctionParameterSyntax = param.with(\.trailingTrivia, .spaces(0))
                 newParams.append(newParam.with(\.leadingTrivia, .newline.appending(Trivia.spaces(4))))
             }
-            let newParameters = FunctionParameterListSyntax(newParams)
-            let newParameterClause = node.signature.parameterClause.with(\.parameters, newParameters).with(\.rightParen, node.signature.parameterClause.rightParen.with(\.leadingTrivia, .newline))
-            let newSignature = node.signature.with(\.parameterClause, newParameterClause)
-            let newNode = node.with(\.signature, newSignature)
+            let newParameters: FunctionParameterListSyntax = .init(newParams)
+            let newParameterClause: FunctionParameterClauseSyntax = node.signature.parameterClause
+                .with(\.parameters, newParameters)
+                .with(\.rightParen, node.signature.parameterClause.rightParen
+                    .with(\.leadingTrivia, .newline))
+            let newSignature: FunctionSignatureSyntax = node.signature.with(\.parameterClause, newParameterClause)
+            let newNode: FunctionDeclSyntax = node.with(\.signature, newSignature)
             return DeclSyntax(newNode)
         }
         return super.visit(node)
