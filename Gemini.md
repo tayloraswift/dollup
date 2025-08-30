@@ -9,7 +9,7 @@ Your primary goal is to perform correct, robust transformations. Avoid trial-and
 ### 1. Analyze Before Modifying
 
 Before you write any code to fix a bug, your first step **must** be to diagnose the problem by inspecting the Abstract Syntax Tree (AST).
--   Insert a `print(node.debugDescription)` statement into the relevant `SyntaxRewriter`'s `visit` method to dump the structure of the problematic node.
+-   Insert a `dump(node)` statement into the relevant `SyntaxRewriter`'s `visit` method to dump the structure of the problematic node.
 -   Run the tests and analyze the printed output to pinpoint the exact token that has incorrect trivia or structure.
 -   State your diagnosis before proposing a solution.
 
