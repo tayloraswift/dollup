@@ -134,4 +134,30 @@ import BlockIndentFormatter
 
         #expect(actual == expected)
     }
+
+    @Test func WhileLoopBodyIndentation() {
+        let input: String = """
+        while i < 10 {
+            myFunction(arg1: 1, arg2: 2, arg3: 3, arg4: 4, arg5: 5, arg6: 6, arg7: 7, arg8: 8)
+        }
+        """
+        let expected: String = """
+        while i < 10 {
+            myFunction(
+                arg1: 1,
+                arg2: 2,
+                arg3: 3,
+                arg4: 4,
+                arg5: 5,
+                arg6: 6,
+                arg7: 7,
+                arg8: 8
+            )
+        }
+        """
+
+        let actual: String = BlockIndentFormatter.correct(input, length: 80)
+
+        #expect(actual == expected)
+    }
 }

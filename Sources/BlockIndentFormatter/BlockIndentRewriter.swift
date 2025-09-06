@@ -81,8 +81,19 @@ extension BlockIndentRewriter {
     private func isInConditonalScope(_ node: Syntax) -> Bool {
         var currentNode: Syntax? = node
         while let parent = currentNode?.parent {
-            if parent.kind == .ifExpr || parent.kind == .whileStmt {
-                return true
+            if let ifStmt: IfExprSyntax = parent.as(IfExprSyntax.self) {
+                // Check if the node is within the bounds of the conditions clause.
+                if node.position >= ifStmt.conditions.position &&
+                   node.endPosition <= ifStmt.conditions.endPosition {
+                    return true
+                }
+            } else if let whileStmt: WhileStmtSyntax = parent.as(WhileStmtSyntax.self) {
+                // Check if the node is within the bounds of the conditions clause.
+                if node.position >= whileStmt.conditions.position &&
+                   node.endPosition <= whileStmt.conditions.endPosition {
+                    return true
+                }
+
             }
             currentNode = parent
         }
