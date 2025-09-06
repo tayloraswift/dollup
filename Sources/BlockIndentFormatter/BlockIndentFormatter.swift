@@ -1,3 +1,5 @@
+/// This pass detects Google-style “code rectangles”, and reformats Swift code to fit within a
+/// specified maximum line length.
 public struct BlockIndentFormatter {
     public static func correct(_ content: String, length: Int) -> String {
         // We perform the rewrite iteratively until no more changes are made.
