@@ -110,12 +110,14 @@ import BlockIndentFormatter
     @Test func IfLet() {
         let input: String = """
         // This line is too long
+
         if  let users = fetchUsers(from: "production", sortedBy: "lastName", activeSince: Date.now, withPermissions: .admin) {
             print(users)
         }
         """
         let expected: String = """
         // This line is too long
+
         if  let users = fetchUsers(
                 from: "production",
                 sortedBy: "lastName",

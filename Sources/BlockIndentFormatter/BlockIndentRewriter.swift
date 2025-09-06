@@ -5,13 +5,13 @@ class BlockIndentRewriter: SyntaxRewriter {
     private let length: Int
     private let source: String
     private let sourceTree: SourceFileSyntax
-    private var lines: [String]
+    private var lines: [Substring]
 
     init(length: Int, source: String) {
         self.length = length
         self.source = source
         self.sourceTree = Parser.parse(source: source)
-        self.lines = source.split(separator: "\n", omittingEmptySubsequences: false).map(String.init)
+        self.lines = source.split(separator: "\n", omittingEmptySubsequences: false)
         super.init()
     }
 
@@ -64,7 +64,7 @@ extension BlockIndentRewriter {
 }
 extension BlockIndentRewriter {
     // A helper to get the full line of text for a given syntax node.
-    private func getLine(for node: some SyntaxProtocol) -> (number: Int, content: String)? {
+    private func getLine(for node: some SyntaxProtocol) -> (number: Int, content: Substring)? {
         let location: SourceLocation = node.startLocation(
             converter: .init(fileName: "", tree: self.sourceTree)
         )
