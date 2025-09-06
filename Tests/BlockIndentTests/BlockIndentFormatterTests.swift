@@ -63,20 +63,22 @@ import BlockIndentFormatter
         #expect(actual == expected)
     }
 
-    // @Test func TrailingClosureFormatting() {
-    //     let input: String = """
-    //     myFunction(arg1: 1, arg2: 2, arg3: 3) { print(\"hello\") }
-    //     """
-    //     let expected: String = """
-    //     myFunction(arg1: 1, arg2: 2, arg3: 3) {
-    //         print(\"hello\")
-    //     }
-    //     """
+    @Test func TrailingClosureFormatting() {
+        let input: String = """
+        myFunction(arg1: 1, arg2: 2) { print("this is a very long line that should be wrapped") }
+        """
+        let expected: String = """
+        myFunction(arg1: 1, arg2: 2) {
+            print(
+                "this is a very long line that should be wrapped"
+            )
+        }
+        """
 
-    //     let actual: String = RectangleCorrector.correct(input, length: 40)
+        let actual: String = BlockIndentFormatter.correct(input, length: 40)
 
-    //     #expect(actual == expected)
-    // }
+        #expect(actual == expected)
+    }
 
     @Test func InstanceFunction() {
         let input: String = """
