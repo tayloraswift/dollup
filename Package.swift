@@ -17,16 +17,21 @@ let package = Package(
             dependencies: [
                 .product(name: "ArgumentParser", package: "swift-argument-parser"),
                 .product(name: "SystemIO", package: "swift-io"),
-                "RectangleCorrector"
+                .product(name: "System_ArgumentParser", package: "swift-io"),
+                .target(name: "BlockIndentFormatter"),
             ]),
         .target(
-            name: "RectangleCorrector",
+            name: "BlockIndentFormatter",
             dependencies: [
                 .product(name: "SwiftSyntax", package: "swift-syntax"),
                 .product(name: "SwiftParser", package: "swift-syntax")
-            ]),
+            ]
+        ),
         .testTarget(
-            name: "RectangleCorrectorTests",
-            dependencies: ["RectangleCorrector"]),
+            name: "BlockIndentFormatterTests",
+            dependencies: [
+                .target(name: "BlockIndentFormatter"),
+            ],
+        )
     ]
 )
