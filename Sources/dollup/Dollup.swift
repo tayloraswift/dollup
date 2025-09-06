@@ -3,7 +3,7 @@ import SystemIO
 import System_ArgumentParser
 import BlockIndentFormatter
 
-struct Dollup: ParsableCommand {
+@main struct Dollup: ParsableCommand {
     @Argument(help: "The swift file to format.")
     var file: FilePath
 
