@@ -13,13 +13,7 @@ Before you write any code to fix a bug, your first step **must** be to diagnose 
 -   Run the tests and analyze the printed output to pinpoint the exact token that has incorrect trivia or structure.
 -   State your diagnosis before proposing a solution.
 
-### 2. Prioritize Rebuilding Nodes over Patching Trivia
-
-SwiftSyntax nodes are **immutable**. Do not attempt to fix formatting by applying a long chain of small trivia modifications to an existing node. This approach is fragile and often fails.
--   **Your default strategy is to rebuild the parent node.**
--   For example, to fix a trailing closure's formatting, you will construct a completely new `FunctionCallExprSyntax` with a new, perfectly formatted `ClosureExprSyntax`.
-
-### 3. Execution Plan
+### 2. Execution Plan
 
 For any given task, your plan should resemble the following:
 1.  **Diagnose:** Identify the failing node and `dump` its AST structure.
