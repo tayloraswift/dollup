@@ -31,7 +31,7 @@ let package = Package(
             ]
         ),
         .testTarget(
-            name: "BlockIndentFormatterTests",
+            name: "BlockIndentTests",
             dependencies: [
                 .target(name: "BlockIndentFormatter"),
             ],
