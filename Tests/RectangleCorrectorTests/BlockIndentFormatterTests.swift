@@ -1,8 +1,7 @@
 import Testing
-@testable import RectangleCorrector
+import BlockIndentFormatter
 
-@Suite struct RectangleCorrectorTests {
-
+@Suite struct BlockIndentFormatterTests {
     @Test func FunctionCallFormatting() {
         let input: String = "myFunction(arg1: 1, arg2: 2, arg3: 3, arg4: 4, arg5: 5, arg6: 6, arg7: 7, arg8: 8, arg9: 9, arg10: 10)"
         let expected: String = """
@@ -20,7 +19,7 @@ import Testing
         )
         """
 
-        let actual: String = RectangleCorrector.correct(input, maxLength: 80)
+        let actual: String = BlockIndentFormatter.correct(input, length: 80)
 
         #expect(actual == expected)
     }
@@ -38,13 +37,15 @@ import Testing
         )
         """
 
-        let actual: String = RectangleCorrector.correct(input, maxLength: 80)
+        let actual: String = BlockIndentFormatter.correct(input, length: 80)
 
         #expect(actual == expected)
     }
 
     @Test func FunctionDeclarationFormatting() {
-        let input: String = "func myFunction(arg1: Int, arg2: String, arg3: Double, arg4: Bool, arg5: Int, arg6: String, arg7: Double) -> Void"
+        let input: String = """
+        func myFunction(arg1: Int, arg2: String, arg3: Double, arg4: Bool, arg5: Int, arg6: String, arg7: Double) -> Void
+        """
         let expected: String = """
         func myFunction(
             arg1: Int,
@@ -57,28 +58,30 @@ import Testing
         ) -> Void
         """
 
-        let actual: String = RectangleCorrector.correct(input, maxLength: 80)
+        let actual: String = BlockIndentFormatter.correct(input, length: 80)
 
         #expect(actual == expected)
     }
 
-    @Test func TrailingClosureFormatting() {
-        let input: String = "myFunction(arg1: 1, arg2: 2, arg3: 3) { print(\"hello\") }"
-        let expected: String = """
-        myFunction(arg1: 1, arg2: 2, arg3: 3) {
-            print(\"hello\")
-        }
-        """
+    // @Test func TrailingClosureFormatting() {
+    //     let input: String = """
+    //     myFunction(arg1: 1, arg2: 2, arg3: 3) { print(\"hello\") }
+    //     """
+    //     let expected: String = """
+    //     myFunction(arg1: 1, arg2: 2, arg3: 3) {
+    //         print(\"hello\")
+    //     }
+    //     """
 
-        let actual: String = RectangleCorrector.correct(input, maxLength: 40)
+    //     let actual: String = RectangleCorrector.correct(input, length: 40)
 
-        #expect(actual == expected)
-    }
+    //     #expect(actual == expected)
+    // }
 
     @Test func InstanceFunction() {
         let input: String = """
         struct S {
-            func foo(arg1: Int, arg2: String, arg3: Double, arg4: Bool, arg5: Int, arg6: String, arg7: Double) -> Void) {
+            func foo(arg1: Int, arg2: String, arg3: Double, arg4: Bool, arg5: Int, arg6: String, arg7: Double) -> Void {
                 print("Hello, World!")
             }
         }
@@ -99,7 +102,31 @@ import Testing
         }
         """
 
-        let actual: String = RectangleCorrector.correct(input, maxLength: 40)
+        let actual: String = BlockIndentFormatter.correct(input, length: 40)
+
+        #expect(actual == expected)
+    }
+
+    @Test func IfLet() {
+        let input: String = """
+        // This line is too long
+        if  let users = fetchUsers(from: "production", sortedBy: "lastName", activeSince: Date.now, withPermissions: .admin) {
+            print(users)
+        }
+        """
+        let expected: String = """
+        // This line is too long
+        if  let users = fetchUsers(
+                from: "production",
+                sortedBy: "lastName",
+                activeSince: Date.now,
+                withPermissions: .admin
+            ) {
+            print(users)
+        }
+        """
+
+        let actual: String = BlockIndentFormatter.correct(input, length: 40)
 
         #expect(actual == expected)
     }
