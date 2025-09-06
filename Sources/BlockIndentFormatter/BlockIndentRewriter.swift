@@ -158,7 +158,10 @@ extension BlockIndentRewriter {
             .with(\.parameters, FunctionParameterListSyntax(newParams))
             .with(\.rightParen, newRightParen)
 
-        let newSignature: FunctionSignatureSyntax = node.signature.with(\.parameterClause, newParameterClause)
+        let newSignature: FunctionSignatureSyntax = node.signature.with(
+            \.parameterClause,
+            newParameterClause
+        )
         return DeclSyntax(node.with(\.signature, newSignature))
     }
 }
