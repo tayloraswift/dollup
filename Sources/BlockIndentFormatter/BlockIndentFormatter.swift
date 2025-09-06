@@ -12,7 +12,10 @@ public struct BlockIndentFormatter {
                 source: current
             )
             // Post-processing step: Clean up any trailing whitespace on each line.
-            let lines: [Substring] = "\(rewriter.format())".split(separator: "\n", omittingEmptySubsequences: false)
+            let lines: [Substring] = "\(rewriter.format())".split(
+                separator: "\n",
+                omittingEmptySubsequences: false
+            )
             let formatted: String = lines.map { $0.trimmingWhitespaceFromEnd() }.joined(separator: "\n")
 
             if  formatted != current {
