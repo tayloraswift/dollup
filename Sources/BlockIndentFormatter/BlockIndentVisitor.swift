@@ -8,12 +8,45 @@ class BlockIndentVisitor: SyntaxVisitor {
     private var lines: [Substring]
     private(set) var edits: [Edit] = []
 
+    /// A state variable to track if the visitor is currently inside a conditional statement's
+    /// condition clause that requires extra indentation (`if`, `while`).
+    private var isInCondition: Bool = false
+
     init(length: Int, source: String) {
         self.length = length
         self.source = source
         self.sourceTree = Parser.parse(source: source)
         self.lines = source.split(separator: "\n", omittingEmptySubsequences: false)
         super.init(viewMode: .sourceAccurate)
+    }
+
+    override func visit(_ node: IfExprSyntax) -> SyntaxVisitorContinueKind {
+        // Manually visit the conditions with the special indentation flag set.
+        isInCondition = true
+        walk(node.conditions)
+        isInCondition = false
+
+        // Visit the body and any 'else' clause normally.
+        walk(node.body)
+        if let elseClause = node.elseBody {
+            walk(elseClause)
+        }
+
+        // We handled the children ourselves.
+        return .skipChildren
+    }
+
+    override func visit(_ node: WhileStmtSyntax) -> SyntaxVisitorContinueKind {
+        // Manually visit the conditions with the special indentation flag set.
+        isInCondition = true
+        walk(node.conditions)
+        isInCondition = false
+
+        // Visit the body normally.
+        walk(node.body)
+
+        // We handled the children ourselves.
+        return .skipChildren
     }
 
     override func visit(_ node: FunctionCallExprSyntax) -> SyntaxVisitorContinueKind {
@@ -36,7 +69,7 @@ class BlockIndentVisitor: SyntaxVisitor {
         let baseIndent: Trivia
         let indentStep: Int = 4
 
-        if self.isInConditonalScope(Syntax(node)) {
+        if self.isInCondition {
             baseIndent = .spaces(column + indentStep) // Align with condition body.
         } else {
             baseIndent = .spaces(column)
@@ -106,27 +139,6 @@ extension BlockIndentVisitor {
         let lineNumber: Int = location.line - 1
         guard lineNumber < self.lines.count else { return nil }
         return (lineNumber, self.lines[lineNumber])
-    }
-
-    private func isInConditonalScope(_ node: Syntax) -> Bool {
-        var currentNode: Syntax? = node
-        while let parent = currentNode?.parent {
-            if let ifStmt: IfExprSyntax = parent.as(IfExprSyntax.self) {
-                // Check if the node is within the bounds of the conditions clause.
-                if node.position >= ifStmt.conditions.position &&
-                   node.endPosition <= ifStmt.conditions.endPosition {
-                    return true
-                }
-            } else if let whileStmt: WhileStmtSyntax = parent.as(WhileStmtSyntax.self) {
-                // Check if the node is within the bounds of the conditions clause.
-                if node.position >= whileStmt.conditions.position &&
-                   node.endPosition <= whileStmt.conditions.endPosition {
-                    return true
-                }
-            }
-            currentNode = parent
-        }
-        return false
     }
 
     private func argumentsAreLong(_ node: FunctionCallExprSyntax) -> Bool {
