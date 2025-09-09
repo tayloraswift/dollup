@@ -2,10 +2,14 @@ import SwiftSyntax
 import SwiftParser
 
 class BlockIndentVisitor: SyntaxVisitor {
+    private struct LineInfo {
+        let length: Int
+        let column: Int
+    }
+
     private let length: Int
-    private let source: String
     private let sourceTree: SourceFileSyntax
-    private var lines: [Substring]
+    private let lineInfo: [LineInfo]
     private(set) var edits: [Edit] = []
 
     /// A state variable to track if the visitor is currently inside a conditional statement's
@@ -14,12 +18,22 @@ class BlockIndentVisitor: SyntaxVisitor {
 
     init(length: Int, source: String) {
         self.length = length
-        self.source = source
         self.sourceTree = Parser.parse(source: source)
-        self.lines = source.split(separator: "\n", omittingEmptySubsequences: false)
+
+        // Pre-compute line metrics in a single pass to avoid re-calculation during visitation.
+        self.lineInfo = source.split(separator: "\n", omittingEmptySubsequences: false).map { line in
+            let trimmedLength = line.trimmingWhitespace().count
+            let indentationColumn: Int
+            if let firstCharIndex = line.firstIndex(where: { !$0.isWhitespace }) {
+                indentationColumn = line.distance(from: line.startIndex, to: firstCharIndex)
+            } else {
+                indentationColumn = 0
+            }
+            return LineInfo(length: trimmedLength, column: indentationColumn)
+        }
+
         super.init(viewMode: .sourceAccurate)
     }
-
     override func visit(_ node: IfExprSyntax) -> SyntaxVisitorContinueKind {
         // Manually visit the conditions with the special indentation flag set.
         isInCondition = true
@@ -50,22 +64,18 @@ class BlockIndentVisitor: SyntaxVisitor {
     }
 
     override func visit(_ node: FunctionCallExprSyntax) -> SyntaxVisitorContinueKind {
-        // We only want to format a node if it starts on an overly-long line.
-        guard let (_, line) = self.getLine(for: node),
-              line.trimmingWhitespace().count > self.length
+        let location = node.startLocation(converter: .init(fileName: "", tree: self.sourceTree))
+        let lineNumber = location.line - 1
+
+        // Use the pre-computed line length for a fast check.
+        guard lineNumber < self.lineInfo.count,
+              self.lineInfo[lineNumber].length > self.length
         else {
-            // This node is not on an overly-long line, so continue traversal.
             return .visitChildren
         }
 
         // Find the column of the first non-whitespace character on the line.
-        let column: Int
-        if let firstCharIndex = line.firstIndex(where: { !$0.isWhitespace }) {
-            column = line.distance(from: line.startIndex, to: firstCharIndex)
-        } else {
-            column = 0
-        }
-
+        let column = self.lineInfo[lineNumber].column
         let baseIndent: Trivia
         let indentStep: Int = 4
 
@@ -97,22 +107,17 @@ class BlockIndentVisitor: SyntaxVisitor {
     }
 
     override func visit(_ node: FunctionDeclSyntax) -> SyntaxVisitorContinueKind {
-        // We only want to format a node if it starts on an overly-long line.
-        guard let (_, line) = self.getLine(for: node),
-              line.trimmingWhitespace().count > self.length
+        let location = node.startLocation(converter: .init(fileName: "", tree: self.sourceTree))
+        let lineNumber = location.line - 1
+
+        // Use the pre-computed line length for a fast check.
+        guard lineNumber < self.lineInfo.count,
+              self.lineInfo[lineNumber].length > self.length
         else {
-            // This node is not on an overly-long line, so continue traversal.
             return .visitChildren
         }
 
-        // Find the column of the first non-whitespace character on the line.
-        let column: Int
-        if let firstCharIndex = line.firstIndex(where: { !$0.isWhitespace }) {
-            column = line.distance(from: line.startIndex, to: firstCharIndex)
-        } else {
-            column = 0
-        }
-
+        let column = self.lineInfo[lineNumber].column
         let baseIndent: Trivia = .spaces(column)
         let indentStep: Int = 4
         let newIndent: Trivia = baseIndent.appending(Trivia.spaces(indentStep))
@@ -131,16 +136,6 @@ class BlockIndentVisitor: SyntaxVisitor {
 }
 
 extension BlockIndentVisitor {
-    // A helper to get the full line of text for a given syntax node.
-    private func getLine(for node: some SyntaxProtocol) -> (number: Int, content: Substring)? {
-        let location: SourceLocation = node.startLocation(
-            converter: .init(fileName: "", tree: self.sourceTree)
-        )
-        let lineNumber: Int = location.line - 1
-        guard lineNumber < self.lines.count else { return nil }
-        return (lineNumber, self.lines[lineNumber])
-    }
-
     private func argumentsAreLong(_ node: FunctionCallExprSyntax) -> Bool {
         if node.arguments.isEmpty {
             return false
@@ -160,8 +155,9 @@ extension BlockIndentVisitor {
 
     private func shouldWrapTrailingClosure(_ node: FunctionCallExprSyntax) -> Bool {
         guard let closure = node.trailingClosure else { return false }
-        let startLine = getLine(for: closure.leftBrace)?.number
-        let endLine = getLine(for: closure.rightBrace)?.number
+        let locationConverter = SourceLocationConverter(fileName: "", tree: self.sourceTree)
+        let startLine = closure.leftBrace.startLocation(converter: locationConverter).line
+        let endLine = closure.rightBrace.endLocation(converter: locationConverter).line
         return startLine == endLine
     }
 
