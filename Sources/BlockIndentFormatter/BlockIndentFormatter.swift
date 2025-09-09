@@ -22,7 +22,10 @@ public struct BlockIndentFormatter {
 
             // Apply the edits in reverse order to avoid location shifts
             for edit: Edit in visitor.edits.reversed() {
-                let start: String.Index = current.utf8.index(current.utf8.startIndex, offsetBy: edit.start.utf8Offset)
+                let start: String.Index = current.utf8.index(
+                    current.utf8.startIndex,
+                    offsetBy: edit.start.utf8Offset
+                )
                 let end: String.Index = current.utf8.index(start, offsetBy: edit.length)
                 current.replaceSubrange(start..<end, with: edit.newText)
             }
