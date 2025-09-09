@@ -135,6 +135,45 @@ import BlockIndentFormatter
         #expect(actual == expected)
     }
 
+    @Test func IfLetElseLet() {
+        let input: String = """
+        // This line is too long
+
+        if let users = fetchUsers(from: "production", sortedBy: "lastName", activeSince: Date.now, withPermissions: .admin) {
+            print(users)
+        } else if let users = fetchUsers(from: "production", sortedBy: "lastName", activeSince: Date.now, withPermissions: .guest) {
+            print(users)
+        } else {
+            print("No users found")
+        }
+        """
+        let expected: String = """
+        // This line is too long
+
+        if let users = fetchUsers(
+                from: "production",
+                sortedBy: "lastName",
+                activeSince: Date.now,
+                withPermissions: .admin
+            ) {
+            print(users)
+        } else if let users = fetchUsers(
+                from: "production",
+                sortedBy: "lastName",
+                activeSince: Date.now,
+                withPermissions: .guest
+            ) {
+            print(users)
+        } else {
+            print("No users found")
+        }
+        """
+
+        let actual: String = BlockIndentFormatter.correct(input, length: 40)
+
+        #expect(actual == expected)
+    }
+
     @Test func WhileLoopBodyIndentation() {
         let input: String = """
         while i < 10 {
