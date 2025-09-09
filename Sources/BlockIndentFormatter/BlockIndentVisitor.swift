@@ -1,27 +1,28 @@
 import SwiftSyntax
 import SwiftParser
 
-class BlockIndentRewriter: SyntaxRewriter {
+class BlockIndentVisitor: SyntaxVisitor {
     private let length: Int
     private let source: String
     private let sourceTree: SourceFileSyntax
     private var lines: [Substring]
+    private(set) var edits: [Edit] = []
 
     init(length: Int, source: String) {
         self.length = length
         self.source = source
         self.sourceTree = Parser.parse(source: source)
         self.lines = source.split(separator: "\n", omittingEmptySubsequences: false)
-        super.init()
+        super.init(viewMode: .sourceAccurate)
     }
 
-    override func visitAny(_ node: Syntax) -> Syntax? {
+    override func visit(_ node: FunctionCallExprSyntax) -> SyntaxVisitorContinueKind {
         // We only want to format a node if it starts on an overly-long line.
         guard let (_, line) = self.getLine(for: node),
               line.trimmingWhitespace().count > self.length
         else {
             // This node is not on an overly-long line, so continue traversal.
-            return super.visitAny(node)
+            return .visitChildren
         }
 
         // Find the column of the first non-whitespace character on the line.
@@ -35,39 +36,68 @@ class BlockIndentRewriter: SyntaxRewriter {
         let baseIndent: Trivia
         let indentStep: Int = 4
 
-        if self.isInConditonalScope(node) {
+        if self.isInConditonalScope(Syntax(node)) {
             baseIndent = .spaces(column + indentStep) // Align with condition body.
         } else {
             baseIndent = .spaces(column)
         }
         let newIndent: Trivia = baseIndent.appending(Trivia.spaces(indentStep))
 
-        // Apply wrapping to known wrappable node types.
-        if let call: FunctionCallExprSyntax = node.as(FunctionCallExprSyntax.self) {
-            // Precedence: Always wrap long argument lists before wrapping trailing closures.
-            if self.argumentsAreLong(call) {
-                return Syntax(self.formatFunctionArguments(call,
-                    baseIndent: baseIndent,
-                    newIndent: newIndent))
-            } else if self.shouldWrapTrailingClosure(call) {
-                 return Syntax(self.formatTrailingClosure(call,
-                    baseIndent: baseIndent,
-                    newIndent: newIndent))
-            }
-        } else if let decl: FunctionDeclSyntax = node.as(FunctionDeclSyntax.self) {
-            return Syntax(self.formatFunctionDecl(decl,
-                baseIndent: baseIndent,
-                newIndent: newIndent))
+        let newText: String
+        // Precedence: Always wrap long argument lists before wrapping trailing closures.
+        if self.argumentsAreLong(node) {
+            newText = "\(self.formatFunctionArguments(node, baseIndent: baseIndent, newIndent: newIndent))"
+        } else if self.shouldWrapTrailingClosure(node) {
+            newText = "\(self.formatTrailingClosure(node, baseIndent: baseIndent, newIndent: newIndent))"
+        } else {
+            return .visitChildren
         }
 
-        // If this node isn't wrappable, let the superclass handle its children.
-        return super.visitAny(node)
+        let edit = Edit(
+            start: node.position,
+            length: node.totalLength.utf8Length,
+            newText: newText
+        )
+        self.edits.append(edit)
+
+        return .skipChildren
+    }
+
+    override func visit(_ node: FunctionDeclSyntax) -> SyntaxVisitorContinueKind {
+        // We only want to format a node if it starts on an overly-long line.
+        guard let (_, line) = self.getLine(for: node),
+              line.trimmingWhitespace().count > self.length
+        else {
+            // This node is not on an overly-long line, so continue traversal.
+            return .visitChildren
+        }
+
+        // Find the column of the first non-whitespace character on the line.
+        let column: Int
+        if let firstCharIndex = line.firstIndex(where: { !$0.isWhitespace }) {
+            column = line.distance(from: line.startIndex, to: firstCharIndex)
+        } else {
+            column = 0
+        }
+
+        let baseIndent: Trivia = .spaces(column)
+        let indentStep: Int = 4
+        let newIndent: Trivia = baseIndent.appending(Trivia.spaces(indentStep))
+
+        let newText = "\(self.formatFunctionDecl(node, baseIndent: baseIndent, newIndent: newIndent))"
+
+        let edit = Edit(
+            start: node.position,
+            length: node.totalLength.utf8Length,
+            newText: newText
+        )
+        self.edits.append(edit)
+
+        return .skipChildren
     }
 }
-extension BlockIndentRewriter {
-    func format() -> SourceFileSyntax { self.visit(self.sourceTree) }
-}
-extension BlockIndentRewriter {
+
+extension BlockIndentVisitor {
     // A helper to get the full line of text for a given syntax node.
     private func getLine(for node: some SyntaxProtocol) -> (number: Int, content: Substring)? {
         let location: SourceLocation = node.startLocation(
@@ -93,7 +123,6 @@ extension BlockIndentRewriter {
                    node.endPosition <= whileStmt.conditions.endPosition {
                     return true
                 }
-
             }
             currentNode = parent
         }
@@ -101,36 +130,24 @@ extension BlockIndentRewriter {
     }
 
     private func argumentsAreLong(_ node: FunctionCallExprSyntax) -> Bool {
-        // If there are no arguments, they can't be the problem.
         if node.arguments.isEmpty {
             return false
         }
-
-        // If there's no trailing closure, the arguments are the only thing
-        // that could make the line long.
         guard
         let _: ClosureExprSyntax = node.trailingClosure,
         let rightParen: TokenSyntax = node.rightParen else {
             return true
         }
-
-        // If there is a trailing closure, the arguments are only the problem if
-        // the line *up to the end of the argument list* is already too long.
         let locationConverter = SourceLocationConverter(fileName: "", tree: self.sourceTree)
         let startLocation = node.startLocation(converter: locationConverter)
         let endOfArgsLocation = rightParen.endLocation(converter: locationConverter)
-
-        // If arguments span multiple lines, they are already wrapped.
         guard startLocation.line == endOfArgsLocation.line else { return false }
-
         let lengthWithoutClosure = endOfArgsLocation.column - startLocation.column
-
         return lengthWithoutClosure > self.length
     }
 
     private func shouldWrapTrailingClosure(_ node: FunctionCallExprSyntax) -> Bool {
         guard let closure = node.trailingClosure else { return false }
-        // Only wrap closures that are currently on a single line.
         let startLine = getLine(for: closure.leftBrace)?.number
         let endLine = getLine(for: closure.rightBrace)?.number
         return startLine == endLine
@@ -144,7 +161,6 @@ extension BlockIndentRewriter {
         var newArgs: [LabeledExprSyntax] = []
         for (index, arg) in node.arguments.enumerated() {
             var newArg = arg.with(\.leadingTrivia, .newline.appending(newIndent))
-            // Ensure commas have correct trivia
             if index < node.arguments.count - 1 {
                 newArg = newArg.with(\.trailingComma, .commaToken())
             } else {
@@ -169,27 +185,18 @@ extension BlockIndentRewriter {
         newIndent: Trivia
     ) -> ExprSyntax {
         guard let trailingClosure = node.trailingClosure else { return ExprSyntax(node) }
-
-        // 1. Create a new version of the function call with no trailing space on its parenthesis.
         let newCall = node.with(\.rightParen, node.rightParen?.with(\.trailingTrivia, []))
-
         let newLeftBrace = trailingClosure.leftBrace
             .with(\.leadingTrivia, [.spaces(1)])
-
         let newStatements = trailingClosure.statements.map {
             $0.with(\.leadingTrivia, .newline.appending(newIndent))
         }
-
         let newRightBrace = trailingClosure.rightBrace
             .with(\.leadingTrivia, .newline.appending(baseIndent))
-
-
         let newClosure = trailingClosure
             .with(\.leftBrace, newLeftBrace)
             .with(\.statements, .init(newStatements))
             .with(\.rightBrace, newRightBrace)
-
-        // 3. Return the function call with the new, correctly formatted closure.
         return ExprSyntax(newCall.with(\.trailingClosure, newClosure))
     }
 
@@ -198,10 +205,8 @@ extension BlockIndentRewriter {
         baseIndent: Trivia,
         newIndent: Trivia
     ) -> DeclSyntax {
-
         let params: FunctionParameterListSyntax = node.signature.parameterClause.parameters
         var newParams: [FunctionParameterSyntax] = []
-
         for (index, param) in params.enumerated() {
             var newParam: FunctionParameterSyntax = param
                 .with(\.leadingTrivia, .newline.appending(newIndent))
@@ -213,14 +218,11 @@ extension BlockIndentRewriter {
             }
             newParams.append(newParam)
         }
-
         let newRightParen: TokenSyntax = node.signature.parameterClause.rightParen
             .with(\.leadingTrivia, .newline.appending(baseIndent))
-
         let newParameterClause: FunctionParameterClauseSyntax = node.signature.parameterClause
             .with(\.parameters, FunctionParameterListSyntax(newParams))
             .with(\.rightParen, newRightParen)
-
         let newSignature: FunctionSignatureSyntax = node.signature.with(
             \.parameterClause,
             newParameterClause
