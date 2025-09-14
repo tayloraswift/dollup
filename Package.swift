@@ -12,7 +12,7 @@ let package = Package(
     dependencies: [
         .package(url: "https://github.com/apple/swift-argument-parser", from: "1.0.0"),
         .package(url: "https://github.com/tayloraswift/swift-io", branch: "master"),
-        .package(url: "https://github.com/apple/swift-syntax.git", from: "601.0.1")
+        .package(url: "https://github.com/apple/swift-syntax", from: "601.0.1")
     ],
     targets: [
         .executableTarget(
@@ -38,3 +38,11 @@ let package = Package(
         )
     ]
 )
+for target: Target in package.targets {
+    {
+        $0 =
+            ($0 ?? []) + [
+                .enableUpcomingFeature("ExistentialAny")
+            ]
+    }(&target.swiftSettings)
+}
