@@ -1,6 +1,33 @@
-# Tips for Gemini
+# Guidelines for Gemini
 
-This project uses SwiftSyntax for code transformation. Adherence to the following strategies when modifying `.swift` files is mandatory.
+This project uses SwiftSyntax for code transformation. Adherence to the following guidelines when modifying `.swift` files is mandatory.
+
+# High level architecture
+
+The `dollup` tool consists of a number of “passes” which can run independently and individually, and are invoked by this executable target.
+Each pass should be implemented as a library target, and there should be as little code as possible in the `dollup` executable target.
+
+Library targets should be independent of filesystem and argument parsing dependencies, those should be introduced at the level of the executable target only.
+
+Use the `tayloraswift/swift-io` library for file system operations, and use the `apple/swift-argument-parser` library for command line argument parsing.
+
+
+## Toolchain and environment
+
+Write code that compiles with the latest stable Swift toolchain (Swift 6.1). Do not use obsolete toolchains.
+
+Use the latest stable version of SwiftSyntax, which is SwiftSyntax 601.
+
+
+## Coding style
+
+Follow the Style Guide located under `/Agent/StyleGuide.md`. This Style Guide is different from the more common “Swift API Design Guidelines”, and takes precedence over those guidelines.
+
+
+## Strategy for implementing new functionality
+
+Before you begin generating code, first reason about whether the new feature should reside in an independent formatting pass, or whether it should be integrated into an existing pass.
+
 
 ## Strategy for Working with SwiftSyntax
 
