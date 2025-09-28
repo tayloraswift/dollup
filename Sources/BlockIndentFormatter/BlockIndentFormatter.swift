@@ -4,42 +4,50 @@ import SwiftParser
 /// This pass detects Google-style “code rectangles”, and reformats Swift code to fit within a
 /// specified maximum line length.
 public struct BlockIndentFormatter {
-    public static func reindent(_ content: String, by indent: Int) -> String {
-        let tree: SourceFileSyntax = Parser.parse(source: content)
+    public static func reformat(_ source: inout String, indent: Int, width: Int) {
+        // it would not make much sense to check for line length violations if the indentation
+        // were not correct
+        source = self.reindent(source, by: indent)
+
+        while true {
+            let tree: SourceFileSyntax = Parser.parse(source: source)
+            let visitor: BlockIndentWrapper = .init(text: source, width: width)
+
+            visitor.walk(tree)
+
+            if  visitor.linebreaks.isEmpty {
+                break
+            }
+
+            var linebroken: String = ""
+            var i: String.Index = source.startIndex
+            for j: String.Index in visitor.linebreaks {
+                linebroken += source[i ..< j]
+                linebroken.append("\n")
+                i = j
+            }
+            if  i < source.endIndex {
+                linebroken += source[i ..< source.endIndex]
+            }
+
+            source = self.reindent(linebroken, by: indent)
+        }
+    }
+
+    public static func reindent(_ source: String, by indent: Int) -> String {
+        let tree: SourceFileSyntax = Parser.parse(source: source)
         let calculator: BlockIndentCalculator = .init()
 
         calculator.walk(tree)
 
-        let lines: [BlockIndentableLine?] = Self.lines(of: content)
-        return Self.indent(lines, in: calculator.regions, by: indent)
-    }
-
-    public static func correct(_ content: String, length: Int) -> String {
-        var current: String = content
-        while true {
-            let sourceTree = Parser.parse(source: current)
-            let visitor: BlockIndentVisitor = .init(length: length, source: current)
-            visitor.walk(sourceTree)
-
-            if visitor.edits.isEmpty {
-                // Post-processing step: Clean up any trailing whitespace on each line.
-                let lines: [Substring] = current.split(
-                    separator: "\n",
-                    omittingEmptySubsequences: false
-                )
-                return lines.map { $0.trimmingWhitespaceFromEnd() }.joined(separator: "\n")
-            }
-
-            // Apply the edits in reverse order to avoid location shifts
-            for edit: Edit in visitor.edits.reversed() {
-                let start: String.Index = current.utf8.index(
-                    current.utf8.startIndex,
-                    offsetBy: edit.start.utf8Offset
-                )
-                let end: String.Index = current.utf8.index(start, offsetBy: edit.length)
-                current.replaceSubrange(start..<end, with: edit.newText)
-            }
+        var lines: [BlockIndentableLine?] = Self.lines(of: source)
+        // because of how the indenter is written, it always adds a blank line at the end,
+        // which is desirable, but also requires us to remove any trailing blank lines to
+        // prevent the formatter from adding more and more blank lines at the end of the file
+        while case nil = lines.last {
+            lines.removeLast()
         }
+        return Self.indent(lines, in: calculator.regions, by: indent)
     }
 }
 extension BlockIndentFormatter {
