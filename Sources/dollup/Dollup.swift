@@ -19,9 +19,23 @@ import BlockIndentFormatter
     )
     var width: Int = 96
 
+    @Flag(
+        name: [.customShort("y"), .customLong("disable-integrity-check")],
+        help: """
+        Skip the integrity check that ensures the reformatted source is semantically \
+        equivalent to the original
+        """
+    )
+    var checkDisabled: Bool = false
+
     mutating func run() throws {
         var source: String = try self.file.read()
-        BlockIndentFormatter.reformat(&source, indent: self.indent, width: self.width)
+        BlockIndentFormatter.reformat(
+            &source,
+            indent: self.indent,
+            width: self.width,
+            check: !self.checkDisabled
+        )
         try self.file.overwrite(with: [UInt8].init(source.utf8)[...])
     }
 }
