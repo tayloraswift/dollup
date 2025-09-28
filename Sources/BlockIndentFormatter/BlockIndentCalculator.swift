@@ -369,6 +369,14 @@ extension BlockIndentCalculator {
         suffix: Substring? = nil
     ) {
         self.level += delta
-        self.regions.append(.init(start: start.utf8Offset, indent: self.level, prefix: prefix, suffix: suffix, escapable: !self.rawContext))
+        self.regions.append(
+            .init(
+                start: start.utf8Offset,
+                indent: self.level,
+                prefix: prefix,
+                suffix: suffix,
+                escapable: !self.rawContext
+            )
+        )
     }
 }
