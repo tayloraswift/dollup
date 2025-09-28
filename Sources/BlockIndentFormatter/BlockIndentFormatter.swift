@@ -84,7 +84,7 @@ public struct BlockIndentFormatter {
 
         calculator.walk(tree)
 
-        var lines: [BlockIndentableLine?] = Self.lines(of: source)
+        var lines: [Line?] = Self.lines(of: source)
         // because of how the indenter is written, it always adds a blank line at the end,
         // which is desirable, but also requires us to remove any trailing blank lines to
         // prevent the formatter from adding more and more blank lines at the end of the file
@@ -96,7 +96,7 @@ public struct BlockIndentFormatter {
 }
 extension BlockIndentFormatter {
     private static func indent(
-        _ lines: [BlockIndentableLine?],
+        _ lines: [Line?],
         in regions: [BlockIndentRegion],
         by indent: Int
     ) -> String {
@@ -110,7 +110,7 @@ extension BlockIndentFormatter {
         var next: BlockIndentRegion? = regions.next()
 
         return lines.reduce(into: "") {
-            if  let line: BlockIndentableLine = $1 {
+            if  let line: Line = $1 {
                 while let region: BlockIndentRegion = next, region.start <= line.start {
                     current = region
                     next = regions.next()
@@ -127,7 +127,7 @@ extension BlockIndentFormatter {
         }
     }
 
-    private static func lines(of source: String) -> [BlockIndentableLine?] {
+    private static func lines(of source: String) -> [Line?] {
         let lines: [Substring] = source.split(
             omittingEmptySubsequences: false,
             whereSeparator: \.isNewline
