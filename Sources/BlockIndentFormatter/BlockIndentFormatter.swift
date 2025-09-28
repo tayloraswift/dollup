@@ -191,33 +191,39 @@ extension BlockIndentFormatter {
                 next.1 = regions.1.next()
             }
 
-            for _: Int in 0 ..< current.0.indent * indent {
-                $0.append(" ")
-            }
-            if  let whitespace: Substring = current.0.prefix {
-                $0 += whitespace
-            }
-
-            $0 += $1.text
-
-            escaping:
-            if  let whitespace: Substring = current.1.suffix {
-                guard current.1.escapable else {
+            if $1.range.isEmpty,
+                case nil = current.0.prefix,
+                case nil = current.1.suffix {
+                // blank line, no prefix or suffix to preserve
+            } else {
+                for _: Int in 0 ..< current.0.indent * indent {
+                    $0.append(" ")
+                }
+                if  let whitespace: Substring = current.0.prefix {
                     $0 += whitespace
-                    break escaping
                 }
 
-                let last: String.Index = whitespace.index(before: whitespace.endIndex)
-                switch whitespace[last] {
-                case " ":
-                    // this would be unlikely to survive editor trimming
-                    $0 += whitespace[..<last]
-                    $0 += "\\u{20}"
-                case "\t":
-                    $0 += whitespace[..<last]
-                    $0 += "\\t"
-                default:
-                    $0 += whitespace
+                $0 += $1.text
+
+                escaping:
+                if  let whitespace: Substring = current.1.suffix {
+                    guard current.1.escapable else {
+                        $0 += whitespace
+                        break escaping
+                    }
+
+                    let last: String.Index = whitespace.index(before: whitespace.endIndex)
+                    switch whitespace[last] {
+                    case " ":
+                        // this would be unlikely to survive editor trimming
+                        $0 += whitespace[..<last]
+                        $0 += "\\u{20}"
+                    case "\t":
+                        $0 += whitespace[..<last]
+                        $0 += "\\t"
+                    default:
+                        $0 += whitespace
+                    }
                 }
             }
 
