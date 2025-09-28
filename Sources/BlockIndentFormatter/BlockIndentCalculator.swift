@@ -68,6 +68,18 @@ class BlockIndentCalculator: SyntaxVisitor {
         self.walk(deindenting: node.rightParen)
         return .skipChildren
     }
+    override func visit(_ node: AttributeSyntax) -> SyntaxVisitorContinueKind {
+        self.walk(node.atSign)
+        self.walk(node.attributeName)
+        if let left: TokenSyntax = node.leftParen {
+            self.walk(indenting: left)
+        }
+        self.walkIfPresent(node.arguments)
+        if let right: TokenSyntax = node.rightParen {
+            self.walk(deindenting: right)
+        }
+        return .skipChildren
+    }
     override func visit(_ node: ClosureParameterClauseSyntax) -> SyntaxVisitorContinueKind {
         self.walk(indenting: node.leftParen)
         self.walk(node.parameters)
