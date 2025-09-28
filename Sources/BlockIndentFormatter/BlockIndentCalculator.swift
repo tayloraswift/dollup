@@ -31,6 +31,7 @@ class BlockIndentCalculator: SyntaxVisitor {
     }
     override func visit(_ node: ClosureExprSyntax) -> SyntaxVisitorContinueKind {
         self.walk(indenting: node.leftBrace)
+        self.walkIfPresent(node.signature)
         self.walk(node.statements)
         self.walk(deindenting: node.rightBrace)
         return .skipChildren
@@ -67,6 +68,12 @@ class BlockIndentCalculator: SyntaxVisitor {
         self.walk(deindenting: node.rightParen)
         return .skipChildren
     }
+    override func visit(_ node: ClosureParameterClauseSyntax) -> SyntaxVisitorContinueKind {
+        self.walk(indenting: node.leftParen)
+        self.walk(node.parameters)
+        self.walk(deindenting: node.rightParen)
+        return .skipChildren
+    }
     override func visit(_ node: EnumCaseParameterClauseSyntax) -> SyntaxVisitorContinueKind {
         self.walk(indenting: node.leftParen)
         self.walk(node.parameters)
@@ -95,6 +102,26 @@ class BlockIndentCalculator: SyntaxVisitor {
         self.walkIfPresent(node.trailingClosure)
         self.walkIfPresent(node.additionalTrailingClosures)
 
+        return .skipChildren
+    }
+
+    override func visit(_ node: GenericArgumentClauseSyntax) -> SyntaxVisitorContinueKind {
+        self.walk(indenting: node.leftAngle)
+        self.walk(node.arguments)
+        self.walk(deindenting: node.rightAngle)
+        return .skipChildren
+    }
+    override func visit(_ node: GenericParameterClauseSyntax) -> SyntaxVisitorContinueKind {
+        self.walk(indenting: node.leftAngle)
+        self.walk(node.parameters)
+        self.walkIfPresent(node.genericWhereClause)
+        self.walk(deindenting: node.rightAngle)
+        return .skipChildren
+    }
+    override func visit(_ node: PrimaryAssociatedTypeClauseSyntax) -> SyntaxVisitorContinueKind {
+        self.walk(indenting: node.leftAngle)
+        self.walk(node.primaryAssociatedTypes)
+        self.walk(deindenting: node.rightAngle)
         return .skipChildren
     }
 
