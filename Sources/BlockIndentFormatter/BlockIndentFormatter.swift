@@ -4,13 +4,21 @@ import SwiftParser
 /// This pass detects Google-style “code rectangles”, and reformats Swift code to fit within a
 /// specified maximum line length.
 public struct BlockIndentFormatter {
-    public static func reformat(_ source: inout String, indent: Int, width: Int) {
+    public static func reformat(
+        _ source: inout String,
+        indent: Int,
+        width: Int,
+        check: Bool = true
+    ) {
+        let original: SourceFileSyntax? = check ? Parser.parse(source: source) : nil
+        var tree: SourceFileSyntax
+
         // it would not make much sense to check for line length violations if the indentation
         // were not correct
         source = self.reindent(source, by: indent)
+        tree = Parser.parse(source: source)
 
         while true {
-            let tree: SourceFileSyntax = Parser.parse(source: source)
             let visitor: BlockIndentWrapper = .init(text: source, width: width)
 
             visitor.walk(tree)
@@ -21,16 +29,52 @@ public struct BlockIndentFormatter {
 
             var linebroken: String = ""
             var i: String.Index = source.startIndex
-            for j: String.Index in visitor.linebreaks {
-                linebroken += source[i ..< j]
-                linebroken.append("\n")
-                i = j
+            for j: Linebreak in visitor.linebreaks {
+                linebroken += source[i ..< j.index]
+                linebroken.append("\(j.type)")
+                i = j.index
             }
             if  i < source.endIndex {
                 linebroken += source[i ..< source.endIndex]
             }
 
             source = self.reindent(linebroken, by: indent)
+            tree = Parser.parse(source: source)
+        }
+
+        guard
+        let original: TokenSequence = original?.tokens(viewMode: .sourceAccurate) else {
+            return
+        }
+
+        var expected: TokenSequence.Iterator = original.makeIterator()
+        for token in tree.tokens(viewMode: .sourceAccurate) {
+            guard let original: TokenSyntax = expected.next() else {
+                fatalError("reformatted source has more tokens than original!!!")
+            }
+
+            if token.trimmed.text == original.trimmed.text {
+                continue
+            }
+
+            switch (original.tokenKind, token.tokenKind) {
+            case (.stringQuote, .multilineStringQuote):
+                // allow replacing `"` with `"""`
+                continue
+
+            default:
+                fatalError(
+                    """
+                    reformatted source does not match original!!!
+                    expected: \(original.trimmed.text.debugDescription)
+                    found:    \(token.trimmed.text.debugDescription)
+                    """
+                )
+            }
+        }
+
+        guard case nil = expected.next() else {
+            fatalError("reformatted source has fewer tokens than original!!!")
         }
     }
 

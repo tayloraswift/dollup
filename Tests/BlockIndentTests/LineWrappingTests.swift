@@ -64,7 +64,9 @@ import BlockIndentFormatter
         let expected: String = """
         myFunction(arg1: 1, arg2: 2) {
             print(
-                "this is a very long line that should be wrapped"
+                \"""
+                this is a very long line that should be wrapped
+                \"""
             )
         }
         """
@@ -183,12 +185,15 @@ import BlockIndentFormatter
 
         #expect(BlockIndentFormatter.reformat(input, width: 80) == expected + "\n")
     }
-}
 
-extension BlockIndentFormatter {
-    static func reformat(_ source: consuming String, indent: Int = 4, width: Int = 96) -> String {
-        var source: String = source
-        self.reformat(&source, indent: indent, width: width)
-        return source
-    }
+    // @Test func StringLiteralOfWhitespace() {
+    //     let input: String = """
+    //     let x: String = "        "
+    //     """
+    //     let expected: String = """
+    //             \
+    //     """
+
+    //     #expect(BlockIndentFormatter.reformat(input, width: 20) == expected + "\n")
+    // }
 }

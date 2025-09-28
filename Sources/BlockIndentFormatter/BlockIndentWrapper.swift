@@ -2,7 +2,7 @@ import SwiftSyntax
 import SwiftParser
 
 class BlockIndentWrapper: SyntaxVisitor {
-    private(set) var linebreaks: [String.Index]
+    private(set) var linebreaks: [Linebreak]
     /// The original source text, used for measuring line lengths.
     private let text: String
     private var dirty: String.Index?
@@ -285,6 +285,26 @@ class BlockIndentWrapper: SyntaxVisitor {
         self.break(after: node.label)
         return .skipChildren
     }
+
+    override func visit(_ node: StringLiteralExprSyntax) -> SyntaxVisitorContinueKind {
+        switch self.limitViolated(by: node) {
+        case nil: return .visitChildren
+        case true?: break
+        case false?: return .skipChildren
+        }
+
+        /// there is a dangerous line break here
+        /// let x: String = "    "
+        /// could become
+        /// let x: String = """
+        ///
+        /// """
+        /// which is not the same thing!
+
+        self.break(after: node.openingQuote, type: .quotesBefore)
+        self.break(before: node.closingQuote, type: .quotesAfter)
+        return .skipChildren
+    }
 }
 extension BlockIndentWrapper {
     private func walkIfPresent<Node>(_ node: Node?) where Node: SyntaxProtocol {
@@ -346,21 +366,20 @@ extension BlockIndentWrapper {
 
         self.break(before: node.rightBrace)
     }
-
-    private func `break`(before node: some SyntaxProtocol) {
+    private func `break`(before node: some SyntaxProtocol, type: LinebreakType = .newline) {
         /// Line break position is after any leading trivia.
         let position: String.Index = self.text.utf8.index(
             self.text.utf8.startIndex,
             offsetBy: node.positionAfterSkippingLeadingTrivia.utf8Offset
         )
-        self.linebreaks.append(position)
+        self.linebreaks.append(.init(index: position, type: type))
     }
-    private func `break`(after node: some SyntaxProtocol) {
+    private func `break`(after node: some SyntaxProtocol, type: LinebreakType = .newline) {
         /// Line break position is after any trailing trivia, such as a trailing line comment.
         let position: String.Index = self.text.utf8.index(
             self.text.utf8.startIndex,
             offsetBy: node.endPosition.utf8Offset
         )
-        self.linebreaks.append(position)
+        self.linebreaks.append(.init(index: position, type: type))
     }
 }
