@@ -326,4 +326,15 @@ import BlockIndentFormatter
 
         #expect(BlockIndentFormatter.reformat(input, width: 22) == expected + "\n")
     }
+    @Test func StringLiteralWithPoundDelimiters() {
+        /// We should leave these alone
+        let input: String = """
+        let x: String = #"         "#
+        """
+        let expected: String = """
+        let x: String = #"         "#
+        """
+
+        #expect(BlockIndentFormatter.reformat(input, width: 22) == expected + "\n")
+    }
 }

@@ -6,4 +6,5 @@ struct BlockIndentRegion {
     /// Whitespace prefix, if any, to preserve. Important for multiline string literals.
     let prefix: Substring?
     let suffix: Substring?
+    let escapable: Bool
 }
