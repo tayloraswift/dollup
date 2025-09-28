@@ -289,14 +289,41 @@ import BlockIndentFormatter
         #expect(BlockIndentFormatter.reformat(input, width: 40) == expected + "\n")
     }
 
-    // @Test func StringLiteralOfWhitespace() {
-    //     let input: String = """
-    //     let x: String = "        "
-    //     """
-    //     let expected: String = """
-    //             \
-    //     """
+    @Test func StringLiteralLeadingWhitespace() {
+        let input: String = """
+        let x: String = "    foo"
+        """
+        let expected: String = #"""
+        let x: String = """
+            foo
+        """
+        """#
 
-    //     #expect(BlockIndentFormatter.reformat(input, width: 20) == expected + "\n")
-    // }
+        #expect(BlockIndentFormatter.reformat(input, width: 22) == expected + "\n")
+    }
+    @Test func StringLiteralTrailingWhitespace() {
+        let input: String = """
+        let x: String = "foo    "
+        """
+        let expected: String = #"""
+        let x: String = """
+        foo   \u{20}
+        """
+        """#
+
+        #expect(BlockIndentFormatter.reformat(input, width: 22) == expected + "\n")
+    }
+
+    @Test func StringLiteralOfWhitespace() {
+        let input: String = """
+        let x: String = "         "
+        """
+        let expected: String = #"""
+        let x: String = """
+                \u{20}
+        """
+        """#
+
+        #expect(BlockIndentFormatter.reformat(input, width: 22) == expected + "\n")
+    }
 }

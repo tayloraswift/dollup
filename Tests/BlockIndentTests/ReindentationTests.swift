@@ -258,4 +258,21 @@ import BlockIndentFormatter
 
         #expect(BlockIndentFormatter.reindent(input, by: 4) == expected + "\n")
     }
+
+    @Test func MultilineStringLiteralLeadingWhitespace() {
+        let input: String = #"""
+        let x: String = """
+                    foo \(1)
+                bar
+            """
+        """#
+        let expected: String = #"""
+        let x: String = """
+                foo \(1)
+            bar
+        """
+        """#
+
+        #expect(BlockIndentFormatter.reindent(input, by: 4) == expected + "\n")
+    }
 }

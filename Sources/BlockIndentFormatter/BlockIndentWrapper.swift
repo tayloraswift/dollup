@@ -342,19 +342,18 @@ class BlockIndentWrapper: SyntaxVisitor {
     }
 
     override func visit(_ node: StringLiteralExprSyntax) -> SyntaxVisitorContinueKind {
+        guard
+        case nil = node.openingPounds,
+        case nil = node.closingPounds else {
+            // we cannot safely break raw string literals
+            return .visitChildren
+        }
+
         switch self.limitViolated(by: node) {
         case nil: return .visitChildren
         case true?: break
         case false?: return .skipChildren
         }
-
-        /// there is a dangerous line break here
-        /// let x: String = "    "
-        /// could become
-        /// let x: String = """
-        ///
-        /// """
-        /// which is not the same thing!
 
         self.break(after: node.openingQuote, type: .quotesBefore)
         self.break(before: node.closingQuote, type: .quotesAfter)
