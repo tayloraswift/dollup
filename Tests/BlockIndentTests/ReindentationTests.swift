@@ -62,6 +62,88 @@ import BlockIndentFormatter
 
         #expect(BlockIndentFormatter.reindent(input, by: 4) == expected + "\n")
     }
+    @Test static func FunctionDeclaration() {
+        let input: String = """
+        func myFunction(
+        arg1: Int,
+        arg2: String,
+        arg3: Double
+        ) -> () {
+        print(arg1)
+        }
+        """
+        let expected: String = """
+        func myFunction(
+            arg1: Int,
+            arg2: String,
+            arg3: Double
+        ) -> () {
+            print(arg1)
+        }
+        """
+
+        #expect(BlockIndentFormatter.reindent(input, by: 4) == expected + "\n")
+    }
+    @Test static func SubscriptDeclaration() {
+        let input: String = """
+        struct S {
+        subscript(
+        index: Int
+        ) -> Int {
+        return self.buffer[index]
+        }
+        }
+        """
+        let expected: String = """
+        struct S {
+            subscript(
+                index: Int
+            ) -> Int {
+                return self.buffer[index]
+            }
+        }
+        """
+
+        #expect(BlockIndentFormatter.reindent(input, by: 4) == expected + "\n")
+    }
+    @Test static func SubscriptDeclarationWithSetter() {
+        let input: String = """
+        extension S {
+        subscript(
+        index: Int
+        ) -> Int {
+        _read {
+        yield self.buffer[index]
+        }
+        _modify {
+        yield &self.buffer[index]
+        }
+        set(value) {
+        self.buffer[index] = value
+        }
+        }
+        }
+        """
+        let expected: String = """
+        extension S {
+            subscript(
+                index: Int
+            ) -> Int {
+                _read {
+                    yield self.buffer[index]
+                }
+                _modify {
+                    yield &self.buffer[index]
+                }
+                set(value) {
+                    self.buffer[index] = value
+                }
+            }
+        }
+        """
+
+        #expect(BlockIndentFormatter.reindent(input, by: 4) == expected + "\n")
+    }
     @Test static func Nested() {
         let input: String = """
         enum E {
