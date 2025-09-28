@@ -1,52 +1,12 @@
 import SwiftSyntax
 import SwiftParser
 
-func _lines(of source: String) -> [IndentableLine] {
-    let lines: [Substring] = source.split(
-        omittingEmptySubsequences: false,
-        whereSeparator: \.isNewline
-    )
-    return lines.map {
-        guard
-        let start: String.Index = $0.firstIndex(where: { !$0.isWhitespace }),
-        let last: String.Index = $0.lastIndex(where: { !$0.isWhitespace }) else {
-            return .init(start: nil, text: "")
-        }
-
-        let text: Substring = $0[start ... last]
-
-        guard
-        let start: String.Index = start.samePosition(in: source.utf8) else {
-            fatalError("could not convert string index to utf8 offset!!!")
-        }
-
-        return .init(
-            start: source.utf8.distance(from: source.utf8.startIndex, to: start),
-            text: text
-        )
-    }
-}
-
-struct IndentableLine {
-    /// UTF-8 byte offset where the first non-whitespace character appears.
-    let start: Int?
-    /// The content of the line, with all leading whitespace and trailing whitespace removed.
-    /// Might be empty!
-    let text: Substring
-}
-struct IndentationRegion {
-    /// UTF-8 byte offset where this region starts.
-    let start: Int
-    /// Indentation level, in indentation units.
-    let indent: Int
-}
-
-class IndentationCalculator: SyntaxVisitor {
-    private(set) var regions: [IndentationRegion]
+class BlockIndentCalculator: SyntaxVisitor {
+    private(set) var regions: [BlockIndentRegion]
     private var level: Int
 
     init() {
-        self.regions = []
+        self.regions = [.init(start: 0, indent: 0)]
         self.level = 0
         super.init(viewMode: .sourceAccurate)
     }
@@ -104,6 +64,12 @@ class IndentationCalculator: SyntaxVisitor {
     override func visit(_ node: TupleTypeSyntax) -> SyntaxVisitorContinueKind {
         self.walk(indenting: node.leftParen)
         self.walk(node.elements)
+        self.walk(deindenting: node.rightParen)
+        return .skipChildren
+    }
+    override func visit(_ node: EnumCaseParameterClauseSyntax) -> SyntaxVisitorContinueKind {
+        self.walk(indenting: node.leftParen)
+        self.walk(node.parameters)
         self.walk(deindenting: node.rightParen)
         return .skipChildren
     }
@@ -223,7 +189,7 @@ class IndentationCalculator: SyntaxVisitor {
         return .skipChildren
     }
 }
-extension IndentationCalculator {
+extension BlockIndentCalculator {
     private func walkIfPresent<Node>(_ node: Node?) where Node: SyntaxProtocol {
         if  let node: Node {
             self.walk(node)
