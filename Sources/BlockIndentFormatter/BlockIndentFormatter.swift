@@ -1,22 +1,54 @@
-import SwiftSyntax
+import SwiftOperators
 import SwiftParser
+import SwiftSyntax
 
 /// This pass detects Google-style “code rectangles”, and reformats Swift code to fit within a
 /// specified maximum line length.
 public struct BlockIndentFormatter {
+    private let operators: OperatorTable
+
+    private init(operators: OperatorTable) {
+        self.operators = operators
+    }
+}
+extension BlockIndentFormatter {
     public static func reformat(
         _ source: inout String,
         indent: Int,
         width: Int,
         check: Bool = true
     ) {
-        let original: SourceFileSyntax? = check ? Parser.parse(source: source) : nil
-        var tree: SourceFileSyntax
+        let formatter: Self = .init(operators: .standardOperators)
+        formatter.reformat(&source, indent: indent, width: width, check: check)
+    }
+
+    public static func reindent(_ source: String, by indent: Int) -> String {
+        let formatter: Self = .init(operators: .standardOperators)
+        return formatter.reindent(source, by: indent)
+    }
+}
+extension BlockIndentFormatter {
+    private func parse(source: String) -> Syntax {
+        do {
+            return try self.operators.foldAll(Parser.parse(source: source))
+        } catch {
+            fatalError("failed to parse source!!! \(error)")
+        }
+    }
+
+    private func reformat(
+        _ source: inout String,
+        indent: Int,
+        width: Int,
+        check: Bool,
+    ) {
+        let original: Syntax? = check ? self.parse(source: source) : nil
+        var tree: Syntax
 
         // it would not make much sense to check for line length violations if the indentation
         // were not correct
         source = self.reindent(source, by: indent)
-        tree = Parser.parse(source: source)
+        tree = self.parse(source: source)
 
         while true {
             let visitor: BlockIndentWrapper = .init(text: source, width: width)
@@ -39,7 +71,7 @@ public struct BlockIndentFormatter {
             }
 
             source = self.reindent(linebroken, by: indent)
-            tree = Parser.parse(source: source)
+            tree = self.parse(source: source)
         }
 
         guard
@@ -78,8 +110,8 @@ public struct BlockIndentFormatter {
         }
     }
 
-    public static func reindent(_ source: String, by indent: Int) -> String {
-        let tree: SourceFileSyntax = Parser.parse(source: source)
+    private func reindent(_ source: String, by indent: Int) -> String {
+        let tree: Syntax = self.parse(source: source)
         let calculator: BlockIndentCalculator = .init()
 
         calculator.walk(tree)
