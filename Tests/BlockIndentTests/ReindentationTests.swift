@@ -180,6 +180,38 @@ import BlockIndentFormatter
 
         #expect(BlockIndentFormatter.reindent(input, by: 4) == expected + "\n")
     }
+    @Test static func GenericWhereClause() {
+        let input: String = """
+        struct Foo<Bar> where Bar: Equatable & Hashable,
+        Bar: Comparable,
+                Bar: Sequence {
+                }
+        """
+        let expected: String = """
+        struct Foo<Bar> where Bar: Equatable & Hashable,
+            Bar: Comparable,
+            Bar: Sequence {
+        }
+        """
+
+        #expect(BlockIndentFormatter.reindent(input, by: 4) == expected + "\n")
+    }
+    @Test static func InheritanceClause() {
+        let input: String = """
+        protocol Foo: Equatable,
+        Hashable,
+        CustomStringConvertible {
+        }
+        """
+        let expected: String = """
+        protocol Foo: Equatable,
+            Hashable,
+            CustomStringConvertible {
+        }
+        """
+
+        #expect(BlockIndentFormatter.reindent(input, by: 4) == expected + "\n")
+    }
     @Test static func Nested() {
         let input: String = """
         enum E {

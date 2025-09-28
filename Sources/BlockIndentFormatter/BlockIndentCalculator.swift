@@ -267,6 +267,19 @@ class BlockIndentCalculator: SyntaxVisitor {
         self.walk(node.elseExpression)
         return .skipChildren
     }
+
+    override func visit(_ node: GenericWhereClauseSyntax) -> SyntaxVisitorContinueKind {
+        self.indent(after: node.whereKeyword)
+        self.walk(node.requirements)
+        self.deindent(at: node.requirements.endPosition)
+        return .skipChildren
+    }
+    override func visit(_ node: InheritanceClauseSyntax) -> SyntaxVisitorContinueKind {
+        self.indent(after: node.colon)
+        self.walk(node.inheritedTypes)
+        self.deindent(at: node.inheritedTypes.endPosition)
+        return .skipChildren
+    }
 }
 extension BlockIndentCalculator {
     private func walkIfPresent<Node>(_ node: Node?) where Node: SyntaxProtocol {
