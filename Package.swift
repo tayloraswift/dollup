@@ -27,8 +27,9 @@ let package = Package(
         .target(
             name: "BlockIndentFormatter",
             dependencies: [
+                .product(name: "SwiftOperators", package: "swift-syntax"),
+                .product(name: "SwiftParser", package: "swift-syntax"),
                 .product(name: "SwiftSyntax", package: "swift-syntax"),
-                .product(name: "SwiftParser", package: "swift-syntax")
             ]
         ),
         .testTarget(

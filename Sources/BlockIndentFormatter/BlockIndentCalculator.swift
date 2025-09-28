@@ -12,103 +12,103 @@ class BlockIndentCalculator: SyntaxVisitor {
     }
 
     override func visit(_ node: AccessorBlockSyntax) -> SyntaxVisitorContinueKind {
-        self.walk(indenting: node.leftBrace)
+        self.indent(after: node.leftBrace)
         self.walk(node.accessors)
-        self.walk(deindenting: node.rightBrace)
+        self.deindent(before: node.rightBrace)
         return .skipChildren
     }
     override func visit(_ node: CodeBlockSyntax) -> SyntaxVisitorContinueKind {
-        self.walk(indenting: node.leftBrace)
+        self.indent(after: node.leftBrace)
         self.walk(node.statements)
-        self.walk(deindenting: node.rightBrace)
+        self.deindent(before: node.rightBrace)
         return .skipChildren
     }
     override func visit(_ node: MemberBlockSyntax) -> SyntaxVisitorContinueKind {
-        self.walk(indenting: node.leftBrace)
+        self.indent(after: node.leftBrace)
         self.walk(node.members)
-        self.walk(deindenting: node.rightBrace)
+        self.deindent(before: node.rightBrace)
         return .skipChildren
     }
     override func visit(_ node: ClosureExprSyntax) -> SyntaxVisitorContinueKind {
-        self.walk(indenting: node.leftBrace)
+        self.indent(after: node.leftBrace)
         self.walkIfPresent(node.signature)
         self.walk(node.statements)
-        self.walk(deindenting: node.rightBrace)
+        self.deindent(before: node.rightBrace)
         return .skipChildren
     }
 
     override func visit(_ node: ArrayExprSyntax) -> SyntaxVisitorContinueKind {
-        self.walk(indenting: node.leftSquare)
+        self.indent(after: node.leftSquare)
         self.walk(node.elements)
-        self.walk(deindenting: node.rightSquare)
+        self.deindent(before: node.rightSquare)
         return .skipChildren
     }
     override func visit(_ node: DictionaryExprSyntax) -> SyntaxVisitorContinueKind {
-        self.walk(indenting: node.leftSquare)
+        self.indent(after: node.leftSquare)
         self.walk(node.content)
-        self.walk(deindenting: node.rightSquare)
+        self.deindent(before: node.rightSquare)
         return .skipChildren
     }
 
     override func visit(_ node: TupleExprSyntax) -> SyntaxVisitorContinueKind {
-        self.walk(indenting: node.leftParen)
+        self.indent(after: node.leftParen)
         self.walk(node.elements)
-        self.walk(deindenting: node.rightParen)
+        self.deindent(before: node.rightParen)
         return .skipChildren
     }
     override func visit(_ node: TuplePatternSyntax) -> SyntaxVisitorContinueKind {
-        self.walk(indenting: node.leftParen)
+        self.indent(after: node.leftParen)
         self.walk(node.elements)
-        self.walk(deindenting: node.rightParen)
+        self.deindent(before: node.rightParen)
         return .skipChildren
     }
     override func visit(_ node: TupleTypeSyntax) -> SyntaxVisitorContinueKind {
-        self.walk(indenting: node.leftParen)
+        self.indent(after: node.leftParen)
         self.walk(node.elements)
-        self.walk(deindenting: node.rightParen)
+        self.deindent(before: node.rightParen)
         return .skipChildren
     }
     override func visit(_ node: AttributeSyntax) -> SyntaxVisitorContinueKind {
         self.walk(node.atSign)
         self.walk(node.attributeName)
         if let left: TokenSyntax = node.leftParen {
-            self.walk(indenting: left)
+            self.indent(after: left)
         }
         self.walkIfPresent(node.arguments)
         if let right: TokenSyntax = node.rightParen {
-            self.walk(deindenting: right)
+            self.deindent(before: right)
         }
         return .skipChildren
     }
     override func visit(_ node: ClosureParameterClauseSyntax) -> SyntaxVisitorContinueKind {
-        self.walk(indenting: node.leftParen)
+        self.indent(after: node.leftParen)
         self.walk(node.parameters)
-        self.walk(deindenting: node.rightParen)
+        self.deindent(before: node.rightParen)
         return .skipChildren
     }
     override func visit(_ node: EnumCaseParameterClauseSyntax) -> SyntaxVisitorContinueKind {
-        self.walk(indenting: node.leftParen)
+        self.indent(after: node.leftParen)
         self.walk(node.parameters)
-        self.walk(deindenting: node.rightParen)
+        self.deindent(before: node.rightParen)
         return .skipChildren
     }
     override func visit(_ node: FunctionParameterClauseSyntax) -> SyntaxVisitorContinueKind {
-        self.walk(indenting: node.leftParen)
+        self.indent(after: node.leftParen)
         self.walk(node.parameters)
-        self.walk(deindenting: node.rightParen)
+        self.deindent(before: node.rightParen)
         return .skipChildren
     }
     override func visit(_ node: FunctionCallExprSyntax) -> SyntaxVisitorContinueKind {
         self.walk(node.calledExpression)
 
         if  let left: TokenSyntax = node.leftParen {
-            self.walk(indenting: left)
+            self.indent(after: left)
         }
 
         self.walk(node.arguments)
 
         if let right: TokenSyntax = node.rightParen {
-            self.walk(deindenting: right)
+            self.deindent(before: right)
         }
 
         self.walkIfPresent(node.trailingClosure)
@@ -122,13 +122,13 @@ class BlockIndentCalculator: SyntaxVisitor {
         self.walkIfPresent(node.genericArgumentClause)
 
         if  let left: TokenSyntax = node.leftParen {
-            self.walk(indenting: left)
+            self.indent(after: left)
         }
 
         self.walk(node.arguments)
 
         if let right: TokenSyntax = node.rightParen {
-            self.walk(deindenting: right)
+            self.deindent(before: right)
         }
 
         self.walkIfPresent(node.trailingClosure)
@@ -138,32 +138,32 @@ class BlockIndentCalculator: SyntaxVisitor {
     }
 
     override func visit(_ node: GenericArgumentClauseSyntax) -> SyntaxVisitorContinueKind {
-        self.walk(indenting: node.leftAngle)
+        self.indent(after: node.leftAngle)
         self.walk(node.arguments)
-        self.walk(deindenting: node.rightAngle)
+        self.deindent(before: node.rightAngle)
         return .skipChildren
     }
     override func visit(_ node: GenericParameterClauseSyntax) -> SyntaxVisitorContinueKind {
-        self.walk(indenting: node.leftAngle)
+        self.indent(after: node.leftAngle)
         self.walk(node.parameters)
         self.walkIfPresent(node.genericWhereClause)
-        self.walk(deindenting: node.rightAngle)
+        self.deindent(before: node.rightAngle)
         return .skipChildren
     }
     override func visit(_ node: PrimaryAssociatedTypeClauseSyntax) -> SyntaxVisitorContinueKind {
-        self.walk(indenting: node.leftAngle)
+        self.indent(after: node.leftAngle)
         self.walk(node.primaryAssociatedTypes)
-        self.walk(deindenting: node.rightAngle)
+        self.deindent(before: node.rightAngle)
         return .skipChildren
     }
 
     override func visit(_ node: IfExprSyntax) -> SyntaxVisitorContinueKind {
-        self.walk(indenting: node.ifKeyword)
+        self.indent(after: node.ifKeyword)
 
         self.walk(node.conditions)
         self.walk(node.body.leftBrace)
         self.walk(node.body.statements)
-        self.walk(deindenting: node.body.rightBrace)
+        self.deindent(before: node.body.rightBrace)
 
         guard
         let elseKeyword: TokenSyntax = node.elseKeyword,
@@ -177,16 +177,16 @@ class BlockIndentCalculator: SyntaxVisitor {
             self.walk(elseIf)
 
         case .codeBlock(let codeBlock):
-            self.walk(indenting: codeBlock.leftBrace)
+            self.indent(after: codeBlock.leftBrace)
             self.walk(codeBlock.statements)
-            self.walk(deindenting: codeBlock.rightBrace)
+            self.deindent(before: codeBlock.rightBrace)
         }
 
         return .skipChildren
     }
 
     override func visit(_ node: ForStmtSyntax) -> SyntaxVisitorContinueKind {
-        self.walk(indenting: node.forKeyword)
+        self.indent(after: node.forKeyword)
 
         self.walkIfPresent(node.tryKeyword)
         self.walkIfPresent(node.awaitKeyword)
@@ -200,29 +200,29 @@ class BlockIndentCalculator: SyntaxVisitor {
         self.walk(node.body.leftBrace)
         self.walk(node.body.statements)
 
-        self.walk(deindenting: node.body.rightBrace)
+        self.deindent(before: node.body.rightBrace)
         return .skipChildren
     }
 
     override func visit(_ node: WhileStmtSyntax) -> SyntaxVisitorContinueKind {
-        self.walk(indenting: node.whileKeyword)
+        self.indent(after: node.whileKeyword)
 
         self.walk(node.conditions)
         self.walk(node.body.leftBrace)
         self.walk(node.body.statements)
 
-        self.walk(deindenting: node.body.rightBrace)
+        self.deindent(before: node.body.rightBrace)
 
         return .skipChildren
     }
 
     override func visit(_ node: RepeatStmtSyntax) -> SyntaxVisitorContinueKind {
-        self.walk(indenting: node.repeatKeyword)
+        self.indent(after: node.repeatKeyword)
 
         self.walk(node.body.leftBrace)
         self.walk(node.body.statements)
 
-        self.walk(deindenting: node.body.rightBrace)
+        self.deindent(before: node.body.rightBrace)
 
         self.walk(node.whileKeyword)
         self.walk(node.condition)
@@ -234,17 +234,31 @@ class BlockIndentCalculator: SyntaxVisitor {
         self.walkIfPresent(node.attribute)
         switch node.label {
         case .case(let patterns):
-            self.walk(indenting: patterns.caseKeyword)
+            self.indent(after: patterns.caseKeyword)
             self.walk(patterns.caseItems)
             self.walk(patterns.colon)
             self.walk(node.statements)
 
         case .default(let label):
-            self.walk(indenting: label.defaultKeyword)
+            self.indent(after: label.defaultKeyword)
             self.walk(label.colon)
             self.walk(node.statements)
         }
-        self.region(start: node.statements.endPosition, delta: -1)
+        self.walk(node.statements)
+        self.deindent(at: node.statements.endPosition)
+        return .skipChildren
+    }
+
+    override func visit(_ node: BinaryOperatorExprSyntax) -> SyntaxVisitorContinueKind {
+        self.indent(token: node.operator)
+        return .skipChildren
+    }
+    override func visit(_ node: TernaryExprSyntax) -> SyntaxVisitorContinueKind {
+        self.walk(node.condition)
+        self.indent(token: node.questionMark)
+        self.walk(node.thenExpression)
+        self.indent(token: node.colon)
+        self.walk(node.elseExpression)
         return .skipChildren
     }
 }
@@ -255,13 +269,19 @@ extension BlockIndentCalculator {
         }
     }
 
-    private func walk(indenting left: TokenSyntax) {
-        self.walk(left)
+    private func indent(token: TokenSyntax) {
+        self.region(start: token.positionAfterSkippingLeadingTrivia, delta: +1)
+        self.region(start: token.endPosition, delta: -1)
+    }
+    private func indent(after left: TokenSyntax) {
+        // TokenSyntax has no children to walk
         self.region(start: left.endPosition, delta: +1)
     }
-    private func walk(deindenting right: TokenSyntax) {
+    private func deindent(before right: TokenSyntax) {
         self.region(start: right.positionAfterSkippingLeadingTrivia, delta: -1)
-        self.walk(right)
+    }
+    private func deindent(at position: AbsolutePosition) {
+        self.region(start: position, delta: -1)
     }
 
     private func region(start: AbsolutePosition, delta: Int) {

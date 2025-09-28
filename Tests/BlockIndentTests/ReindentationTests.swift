@@ -144,6 +144,42 @@ import BlockIndentFormatter
 
         #expect(BlockIndentFormatter.reindent(input, by: 4) == expected + "\n")
     }
+    @Test static func BinaryOperator() {
+        let input: String = """
+        let x: Int = foo
+        + a
+        * (
+        b +
+        c
+        ) - d
+        - e
+        """
+        let expected: String = """
+        let x: Int = foo
+            + a
+            * (
+            b +
+            c
+        ) - d
+            - e
+        """
+
+        #expect(BlockIndentFormatter.reindent(input, by: 4) == expected + "\n")
+    }
+    @Test static func TernaryOperator() {
+        let input: String = """
+        let x: Int = foo
+        ? bar(x, y)
+        : baz(a, b, c)
+        """
+        let expected: String = """
+        let x: Int = foo
+            ? bar(x, y)
+            : baz(a, b, c)
+        """
+
+        #expect(BlockIndentFormatter.reindent(input, by: 4) == expected + "\n")
+    }
     @Test static func Nested() {
         let input: String = """
         enum E {
