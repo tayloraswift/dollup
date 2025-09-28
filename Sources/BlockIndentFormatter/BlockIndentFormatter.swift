@@ -79,10 +79,24 @@ extension BlockIndentFormatter {
             return
         }
 
+        // perform integrity check
         var expected: TokenSequence.Iterator = original.makeIterator()
+        var rawQuote: String? = nil
+
         for token in tree.tokens(viewMode: .sourceAccurate) {
             guard let original: TokenSyntax = expected.next() else {
                 fatalError("reformatted source has more tokens than original!!!")
+            }
+
+            if case .rawStringPoundDelimiter(let pattern) = token.tokenKind {
+                if  let opening: String = rawQuote {
+                    if  opening != pattern {
+                        fatalError("mismatched raw string delimiters!!!")
+                    }
+                    rawQuote = nil
+                } else {
+                    rawQuote = pattern
+                }
             }
 
             if token.trimmed.text == original.trimmed.text {
@@ -93,6 +107,20 @@ extension BlockIndentFormatter {
             case (.stringQuote, .multilineStringQuote):
                 // allow replacing `"` with `"""`
                 continue
+
+            case (.stringSegment(let before), .stringSegment(let after)):
+                if case _? = rawQuote {
+                    // if we got here, we have mismatched raw string delimiters, and
+                    // normalization is not applicable
+                    fallthrough
+                }
+
+                let before: [Unicode.Scalar] = .decode(literal: before)
+                let after: [Unicode.Scalar] = .decode(literal: after)
+
+                guard before == after else {
+                    fallthrough
+                }
 
             default:
                 fatalError(
@@ -116,11 +144,11 @@ extension BlockIndentFormatter {
 
         calculator.walk(tree)
 
-        var lines: [Line?] = Self.lines(of: source)
+        var lines: [Line] = Self.lines(of: source)
         // because of how the indenter is written, it always adds a blank line at the end,
         // which is desirable, but also requires us to remove any trailing blank lines to
         // prevent the formatter from adding more and more blank lines at the end of the file
-        while case nil? = lines.last {
+        while case true? = lines.last?.range.isEmpty {
             lines.removeLast()
         }
         return Self.indent(lines, in: calculator.regions, by: indent)
@@ -128,58 +156,95 @@ extension BlockIndentFormatter {
 }
 extension BlockIndentFormatter {
     private static func indent(
-        _ lines: [Line?],
+        _ lines: [Line],
         in regions: [BlockIndentRegion],
         by indent: Int
     ) -> String {
-        var regions: [BlockIndentRegion].Iterator = regions.makeIterator()
+        var regions: ([BlockIndentRegion].Iterator, [BlockIndentRegion].Iterator) = (
+            regions.makeIterator(),
+            regions.makeIterator()
+        )
 
-        guard
-        var current: BlockIndentRegion = regions.next() else {
+        var current: (BlockIndentRegion, BlockIndentRegion)
+
+        if  let a: BlockIndentRegion = regions.0.next(),
+            let b: BlockIndentRegion = regions.1.next() {
+            current = (a, b)
+        } else {
             fatalError("regions list is empty!!!")
         }
 
-        var next: BlockIndentRegion? = regions.next()
+        var next: (BlockIndentRegion?, BlockIndentRegion?) = (
+            regions.0.next(),
+            regions.1.next()
+        )
 
         return lines.reduce(into: "") {
-            if  let line: Line = $1 {
-                while let region: BlockIndentRegion = next, region.start <= line.start {
-                    current = region
-                    next = regions.next()
-                }
+            while let region: BlockIndentRegion = next.0,
+                region.start <= $1.range.lowerBound {
+                current.0 = region
+                next.0 = regions.0.next()
+            }
+            while let region: BlockIndentRegion = next.1,
+                region.start <= $1.range.upperBound {
+                current.1 = region
+                next.1 = regions.1.next()
+            }
 
-                for _: Int in 0 ..< current.indent * indent {
-                    $0.append(" ")
-                }
+            for _: Int in 0 ..< current.0.indent * indent {
+                $0.append(" ")
+            }
+            if  let whitespace: Substring = current.0.prefix {
+                $0 += whitespace
+            }
 
-                $0 += line.text
+            $0 += $1.text
+
+            if  let whitespace: Substring = current.1.suffix {
+                let last: String.Index = whitespace.index(before: whitespace.endIndex)
+                switch whitespace[last] {
+                case " ":
+                    // this would be unlikely to survive editor trimming
+                    $0 += whitespace[..<last]
+                    $0 += "\\u{20}"
+                case "\t":
+                    $0 += whitespace[..<last]
+                    $0 += "\\t"
+                default:
+                    $0 += whitespace
+                }
             }
 
             $0.append("\n")
         }
     }
 
-    private static func lines(of source: String) -> [Line?] {
+    private static func lines(of source: String) -> [Line] {
         let lines: [Substring] = source.split(
             omittingEmptySubsequences: false,
             whereSeparator: \.isNewline
         )
         return lines.map {
-            guard
-            let start: String.Index = $0.firstIndex(where: { !$0.isWhitespace }),
-            let last: String.Index = $0.lastIndex(where: { !$0.isWhitespace }) else {
-                return nil
+            let range: Range<String.Index>
+
+            if  let first: String.Index = $0.firstIndex(where: { !$0.isWhitespace }),
+                let last: String.Index = $0.lastIndex(where: { !$0.isWhitespace }) {
+                range = first ..< $0.index(after: last)
+            } else {
+                range = $0.startIndex ..< $0.startIndex
             }
 
-            let text: Substring = $0[start ... last]
+            let text: Substring = $0[range]
 
             guard
-            let start: String.Index = start.samePosition(in: source.utf8) else {
+            let start: String.Index = range.lowerBound.samePosition(in: source.utf8),
+            let end: String.Index = range.upperBound.samePosition(in: source.utf8) else {
                 fatalError("could not convert string index to utf8 offset!!!")
             }
 
             return .init(
-                start: source.utf8.distance(from: source.utf8.startIndex, to: start),
+                range: source.utf8.distance(from: source.utf8.startIndex, to: start)
+                    ..< source.utf8.distance(from: source.utf8.startIndex, to: end),
                 text: text
             )
         }

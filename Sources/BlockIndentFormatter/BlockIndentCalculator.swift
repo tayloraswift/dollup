@@ -6,7 +6,7 @@ class BlockIndentCalculator: SyntaxVisitor {
     private var level: Int
 
     init() {
-        self.regions = [.init(start: 0, indent: 0)]
+        self.regions = [.init(start: 0, indent: 0, prefix: nil, suffix: nil)]
         self.level = 0
         super.init(viewMode: .sourceAccurate)
     }
@@ -255,6 +255,46 @@ class BlockIndentCalculator: SyntaxVisitor {
         return .skipChildren
     }
 
+    override func visit(_ node: StringSegmentSyntax) -> SyntaxVisitorContinueKind {
+        var content: Substring = node.content.text[...]
+        // the trailing newline is handled by the line-based reindenter
+        if case "\n"? = content.last {
+            content.removeLast()
+        }
+
+        let whitespaceLeft: Substring
+        let whitespaceRight: Substring
+
+        if  let last: String.Index = content.lastIndex(where: { !$0.isWhitespace }) {
+            let i: String.Index = content.index(after: last)
+
+            whitespaceLeft = content.prefix(while: \.isWhitespace)
+            whitespaceRight = content[i...]
+        } else {
+            // if the string segment is all whitespace, it is considered a suffix, not a prefix
+            whitespaceLeft = ""
+            whitespaceRight = content[...]
+        }
+
+        if !whitespaceLeft.isEmpty || !whitespaceRight.isEmpty {
+            self.region(
+                start: node.positionAfterSkippingLeadingTrivia,
+                delta: 0,
+                prefix: whitespaceLeft.isEmpty ? nil : whitespaceLeft,
+                suffix: whitespaceRight.isEmpty ? nil : whitespaceRight
+            )
+            self.region(
+                start: node.endPositionBeforeTrailingTrivia,
+                delta: 0,
+                prefix: nil,
+                suffix: nil
+            )
+        }
+
+        // this node has no children to walk
+        return .visitChildren
+    }
+
     override func visit(_ node: BinaryOperatorExprSyntax) -> SyntaxVisitorContinueKind {
         self.indent(token: node.operator)
         return .skipChildren
@@ -307,8 +347,13 @@ extension BlockIndentCalculator {
         self.region(start: position, delta: -1)
     }
 
-    private func region(start: AbsolutePosition, delta: Int) {
+    private func region(
+        start: AbsolutePosition,
+        delta: Int,
+        prefix: Substring? = nil,
+        suffix: Substring? = nil
+    ) {
         self.level += delta
-        self.regions.append(.init(start: start.utf8Offset, indent: self.level))
+        self.regions.append(.init(start: start.utf8Offset, indent: self.level, prefix: prefix, suffix: suffix))
     }
 }

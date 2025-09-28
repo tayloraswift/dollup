@@ -1,6 +1,6 @@
 struct Line {
-    /// UTF-8 byte offset where the first non-whitespace character appears.
-    let start: Int
+    /// UTF-8 byte offsets where non-whitespace characters appear.
+    let range: Range<Int>
     /// The content of the line, with all leading whitespace and trailing whitespace removed.
     /// Must not be empty!
     let text: Substring
