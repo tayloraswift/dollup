@@ -204,8 +204,7 @@ class BlockIndentWrapper: SyntaxVisitor {
     }
     override func visit(_ node: FunctionCallExprSyntax) -> SyntaxVisitorContinueKind {
         guard !node.arguments.isEmpty,
-        let leftParen: TokenSyntax = node.leftParen,
-        let rightParen: TokenSyntax = node.rightParen else {
+        let leftParen: TokenSyntax = node.leftParen else {
             // visit children to find breakable closures, worst case we just waste some time
             return .visitChildren
         }
@@ -216,10 +215,20 @@ class BlockIndentWrapper: SyntaxVisitor {
         case false?: return .skipChildren
         }
 
-        self.break(after: leftParen)
-        for parameter: LabeledExprSyntax in node.arguments {
-            self.break(after: parameter)
+        // if there are single line trailing closures, we want to try breaking those first,
+        // in case that allows us to not have to break the argument list
+        if  let first: ClosureExprSyntax = node.trailingClosure {
+            self.break(closure: first)
+            for next: MultipleTrailingClosureElementSyntax in node.additionalTrailingClosures {
+                self.break(closure: next.closure)
+            }
+        } else {
+            self.break(after: leftParen)
+            for parameter: LabeledExprSyntax in node.arguments {
+                self.break(after: parameter)
+            }
         }
+
         return .skipChildren
     }
 
@@ -326,6 +335,16 @@ extension BlockIndentWrapper {
         }
 
         return characters > self.width
+    }
+
+    private func `break`(closure node: ClosureExprSyntax) {
+        if  let signature: ClosureSignatureSyntax = node.signature {
+            self.break(after: signature)
+        } else {
+            self.break(after: node.leftBrace)
+        }
+
+        self.break(before: node.rightBrace)
     }
 
     private func `break`(before node: some SyntaxProtocol) {

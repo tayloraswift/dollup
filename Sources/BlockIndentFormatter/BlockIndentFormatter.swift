@@ -44,7 +44,7 @@ public struct BlockIndentFormatter {
         // because of how the indenter is written, it always adds a blank line at the end,
         // which is desirable, but also requires us to remove any trailing blank lines to
         // prevent the formatter from adding more and more blank lines at the end of the file
-        while case nil = lines.last {
+        while case nil? = lines.last {
             lines.removeLast()
         }
         return Self.indent(lines, in: calculator.regions, by: indent)

@@ -1,7 +1,7 @@
 import Testing
 import BlockIndentFormatter
 
-@Suite struct BlockIndentFormatterTests {
+@Suite struct LineWrappingTests {
     @Test func FunctionCallFormatting() {
         let input: String = "myFunction(arg1: 1, arg2: 2, arg3: 3, arg4: 4, arg5: 5, arg6: 6, arg7: 7, arg8: 8, arg9: 9, arg10: 10)"
         let expected: String = """
@@ -19,9 +19,7 @@ import BlockIndentFormatter
         )
         """
 
-        let actual: String = BlockIndentFormatter.correct(input, length: 80)
-
-        #expect(actual == expected)
+        #expect(BlockIndentFormatter.reformat(input, width: 80) == expected + "\n")
     }
 
     @Test func NestedFunctionCallFormatting() {
@@ -37,9 +35,7 @@ import BlockIndentFormatter
         )
         """
 
-        let actual: String = BlockIndentFormatter.correct(input, length: 80)
-
-        #expect(actual == expected)
+        #expect(BlockIndentFormatter.reformat(input, width: 80) == expected + "\n")
     }
 
     @Test func FunctionDeclarationFormatting() {
@@ -58,9 +54,7 @@ import BlockIndentFormatter
         ) -> Void
         """
 
-        let actual: String = BlockIndentFormatter.correct(input, length: 80)
-
-        #expect(actual == expected)
+        #expect(BlockIndentFormatter.reformat(input, width: 80) == expected + "\n")
     }
 
     @Test func TrailingClosureFormatting() {
@@ -75,9 +69,7 @@ import BlockIndentFormatter
         }
         """
 
-        let actual: String = BlockIndentFormatter.correct(input, length: 40)
-
-        #expect(actual == expected)
+        #expect(BlockIndentFormatter.reformat(input, width: 40) == expected + "\n")
     }
 
     @Test func InstanceFunction() {
@@ -104,9 +96,7 @@ import BlockIndentFormatter
         }
         """
 
-        let actual: String = BlockIndentFormatter.correct(input, length: 40)
-
-        #expect(actual == expected)
+        #expect(BlockIndentFormatter.reformat(input, width: 40) == expected + "\n")
     }
 
     @Test func IfLet() {
@@ -130,9 +120,7 @@ import BlockIndentFormatter
         }
         """
 
-        let actual: String = BlockIndentFormatter.correct(input, length: 40)
-
-        #expect(actual == expected)
+        #expect(BlockIndentFormatter.reformat(input, width: 40) == expected + "\n")
     }
 
     @Test func IfLetElseLet() {
@@ -169,9 +157,7 @@ import BlockIndentFormatter
         }
         """
 
-        let actual: String = BlockIndentFormatter.correct(input, length: 40)
-
-        #expect(actual == expected)
+        #expect(BlockIndentFormatter.reformat(input, width: 40) == expected + "\n")
     }
 
     @Test func WhileLoopBodyIndentation() {
@@ -195,8 +181,14 @@ import BlockIndentFormatter
         }
         """
 
-        let actual: String = BlockIndentFormatter.correct(input, length: 80)
+        #expect(BlockIndentFormatter.reformat(input, width: 80) == expected + "\n")
+    }
+}
 
-        #expect(actual == expected)
+extension BlockIndentFormatter {
+    static func reformat(_ source: consuming String, indent: Int = 4, width: Int = 96) -> String {
+        var source: String = source
+        self.reformat(&source, indent: indent, width: width)
+        return source
     }
 }

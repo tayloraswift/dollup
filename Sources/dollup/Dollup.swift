@@ -7,12 +7,21 @@ import BlockIndentFormatter
     @Argument(help: "The swift file to format.")
     var file: FilePath
 
-    @Option(name: .shortAndLong, help: "The maximum line length.")
-    var length: Int = 96
+    @Option(
+        name: [.customShort("I"), .customLong("indent")],
+        help: "The number of spaces to use for indentation"
+    )
+    var indent: Int = 4
+
+    @Option(
+        name: [.customShort("L"), .customLong("line-length")],
+        help: "The line length guide to apply"
+    )
+    var width: Int = 96
 
     mutating func run() throws {
-        let original: String = try self.file.read()
-        let formatted: String = BlockIndentFormatter.correct(original, length: length)
-        try self.file.overwrite(with: [UInt8].init(formatted.utf8)[...])
+        var source: String = try self.file.read()
+        BlockIndentFormatter.reformat(&source, indent: self.indent, width: self.width)
+        try self.file.overwrite(with: [UInt8].init(source.utf8)[...])
     }
 }
