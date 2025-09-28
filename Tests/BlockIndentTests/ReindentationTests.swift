@@ -275,4 +275,41 @@ import BlockIndentFormatter
 
         #expect(BlockIndentFormatter.reindent(input, by: 4) == expected + "\n")
     }
+
+    @Test func MultilineStringLiteralTrailingWhitespace() {
+        let input: String = """
+        let x: String = \"""
+                foo \\(1) \n\
+                bar  \n\
+                baz
+            \"""
+        """
+        let expected: String = #"""
+        let x: String = """
+            foo \(1)\u{20}
+            bar \u{20}
+            baz
+        """
+        """#
+
+        #expect(BlockIndentFormatter.reindent(input, by: 4) == expected + "\n")
+    }
+    @Test func MultilineStringLiteralWithPoundDelimiter() {
+        let input: String = """
+        let x: String = #\"""
+                foo \\#(1) \n\
+                bar  \n\
+                baz
+            \"""#
+        """
+        let expected: String = """
+        let x: String = #\"""
+            foo \\#(1) \n\
+            bar  \n\
+            baz
+        \"""#
+        """
+
+        #expect(BlockIndentFormatter.reindent(input, by: 4) == expected + "\n")
+    }
 }

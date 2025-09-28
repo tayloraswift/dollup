@@ -200,7 +200,13 @@ extension BlockIndentFormatter {
 
             $0 += $1.text
 
+            escaping:
             if  let whitespace: Substring = current.1.suffix {
+                guard current.1.escapable else {
+                    $0 += whitespace
+                    break escaping
+                }
+
                 let last: String.Index = whitespace.index(before: whitespace.endIndex)
                 switch whitespace[last] {
                 case " ":

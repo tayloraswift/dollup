@@ -4,10 +4,12 @@ import SwiftParser
 class BlockIndentCalculator: SyntaxVisitor {
     private(set) var regions: [BlockIndentRegion]
     private var level: Int
+    private var rawContext: Bool
 
     init() {
-        self.regions = [.init(start: 0, indent: 0, prefix: nil, suffix: nil)]
+        self.regions = [.init(start: 0, indent: 0, prefix: nil, suffix: nil, escapable: true)]
         self.level = 0
+        self.rawContext = false
         super.init(viewMode: .sourceAccurate)
     }
 
@@ -255,6 +257,19 @@ class BlockIndentCalculator: SyntaxVisitor {
         return .skipChildren
     }
 
+    override func visit(_ node: StringLiteralExprSyntax) -> SyntaxVisitorContinueKind {
+        if case _? = node.openingPounds {
+            self.rawContext = true
+        }
+
+        self.walk(node.segments)
+
+        if case _? = node.closingPounds {
+            self.rawContext = false
+        }
+
+        return .skipChildren
+    }
     override func visit(_ node: StringSegmentSyntax) -> SyntaxVisitorContinueKind {
         var content: Substring = node.content.text[...]
         // the trailing newline is handled by the line-based reindenter
@@ -354,6 +369,6 @@ extension BlockIndentCalculator {
         suffix: Substring? = nil
     ) {
         self.level += delta
-        self.regions.append(.init(start: start.utf8Offset, indent: self.level, prefix: prefix, suffix: suffix))
+        self.regions.append(.init(start: start.utf8Offset, indent: self.level, prefix: prefix, suffix: suffix, escapable: !self.rawContext))
     }
 }
