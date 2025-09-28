@@ -226,6 +226,27 @@ import BlockIndentFormatter
         #expect(BlockIndentFormatter.reformat(input, width: 40) == expected + "\n")
     }
 
+    @Test func GenericWhereClause() {
+        let input: String = """
+        func f<T>(
+            x: TypeName<Generic<T>, Generic<AVeryLongTypeName>>
+        ) -> Int where Generic<T>: ProtocolWithLongName, T: AnotherProtocolWithLongName {
+        }
+        """
+        let expected: String = """
+        func f<T>(
+            x: TypeName<
+                Generic<T>,
+                Generic<AVeryLongTypeName>
+            >
+        ) -> Int where Generic<T>: ProtocolWithLongName,
+            T: AnotherProtocolWithLongName {
+        }
+        """
+
+        #expect(BlockIndentFormatter.reformat(input, width: 40) == expected + "\n")
+    }
+
     // @Test func StringLiteralOfWhitespace() {
     //     let input: String = """
     //     let x: String = "        "

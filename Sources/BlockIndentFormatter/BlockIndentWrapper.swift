@@ -385,6 +385,41 @@ class BlockIndentWrapper: SyntaxVisitor {
         self.break(before: node.closingQuote, type: .quotesAfter)
         return .skipChildren
     }
+
+    override func visit(_ node: GenericWhereClauseSyntax) -> SyntaxVisitorContinueKind {
+        guard node.requirements.count > 1 else {
+            // we can only break on commas
+            return .visitChildren
+        }
+
+        switch self.limitViolated(by: node) {
+        case nil: return .visitChildren
+        case true?: break
+        case false?: return .skipChildren
+        }
+
+        for requirement: GenericRequirementSyntax in node.requirements.dropLast() {
+            self.break(after: requirement)
+        }
+
+        return .skipChildren
+    }
+    override func visit(_ node: InheritanceClauseSyntax) -> SyntaxVisitorContinueKind {
+        guard node.inheritedTypes.count > 1 else {
+            return .visitChildren
+        }
+
+        switch self.limitViolated(by: node) {
+        case nil: return .visitChildren
+        case true?: break
+        case false?: return .skipChildren
+        }
+
+        for type: InheritedTypeSyntax in node.inheritedTypes.dropLast() {
+            self.break(after: type)
+        }
+        return .skipChildren
+    }
 }
 extension BlockIndentWrapper {
     private func walkIfPresent<Node>(_ node: Node?) where Node: SyntaxProtocol {
