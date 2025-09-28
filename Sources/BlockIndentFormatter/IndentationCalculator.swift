@@ -1,6 +1,32 @@
 import SwiftSyntax
 import SwiftParser
 
+func _lines(of source: String) -> [IndentableLine] {
+    let lines: [Substring] = source.split(
+        omittingEmptySubsequences: false,
+        whereSeparator: \.isNewline
+    )
+    return lines.map {
+        guard
+        let start: String.Index = $0.firstIndex(where: { !$0.isWhitespace }),
+        let last: String.Index = $0.lastIndex(where: { !$0.isWhitespace }) else {
+            return .init(start: nil, text: "")
+        }
+
+        let text: Substring = $0[start ... last]
+
+        guard
+        let start: String.Index = start.samePosition(in: source.utf8) else {
+            fatalError("could not convert string index to utf8 offset!!!")
+        }
+
+        return .init(
+            start: source.utf8.distance(from: source.utf8.startIndex, to: start),
+            text: text
+        )
+    }
+}
+
 struct IndentableLine {
     /// UTF-8 byte offset where the first non-whitespace character appears.
     let start: Int?
