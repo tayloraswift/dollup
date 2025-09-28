@@ -2,7 +2,7 @@ import Testing
 import BlockIndentFormatter
 
 @Suite struct LineWrappingTests {
-    @Test func FunctionCallFormatting() {
+    @Test func FunctionCall() {
         let input: String = "myFunction(arg1: 1, arg2: 2, arg3: 3, arg4: 4, arg5: 5, arg6: 6, arg7: 7, arg8: 8, arg9: 9, arg10: 10)"
         let expected: String = """
         myFunction(
@@ -22,7 +22,7 @@ import BlockIndentFormatter
         #expect(BlockIndentFormatter.reformat(input, width: 80) == expected + "\n")
     }
 
-    @Test func NestedFunctionCallFormatting() {
+    @Test func NestedFunctionCall() {
         let input: String = "myFunction(arg1: anotherFunction(arg1: 1, arg2: 2), arg2: 3, arg3: 4, arg4: 5, arg5: 6, arg6: 7)"
         let expected: String = """
         myFunction(
@@ -38,7 +38,7 @@ import BlockIndentFormatter
         #expect(BlockIndentFormatter.reformat(input, width: 80) == expected + "\n")
     }
 
-    @Test func FunctionDeclarationFormatting() {
+    @Test func FunctionDeclaration() {
         let input: String = """
         func myFunction(arg1: Int, arg2: String, arg3: Double, arg4: Bool, arg5: Int, arg6: String, arg7: Double) -> Void
         """
@@ -57,7 +57,7 @@ import BlockIndentFormatter
         #expect(BlockIndentFormatter.reformat(input, width: 80) == expected + "\n")
     }
 
-    @Test func TrailingClosureFormatting() {
+    @Test func TrailingClosure() {
         let input: String = """
         myFunction(arg1: 1, arg2: 2) { print("this is a very long line that should be wrapped") }
         """
@@ -206,6 +206,22 @@ import BlockIndentFormatter
         """
 
         #expect(BlockIndentFormatter.reformat(input, width: 40) == expected + "\n")
+    }
+
+    @Test func Parentheses() {
+        let input: String = """
+        let x: Int = (foo + bar + baz - qux) * (foo - bar + baz + qux)
+        """
+
+        let expected: String = """
+        let x: Int = (
+            foo + bar + baz - qux
+        ) * (
+            foo - bar + baz + qux
+        )
+        """
+
+        #expect(BlockIndentFormatter.reformat(input, width: 24) == expected + "\n")
     }
 
     @Test func GenericArguments() {
