@@ -186,6 +186,46 @@ import BlockIndentFormatter
         #expect(BlockIndentFormatter.reformat(input, width: 80) == expected + "\n")
     }
 
+    @Test func Attribute() {
+        let input: String = """
+        @MacroWithVeryLongName(foo: "foo", bar: "bar", baz: "baz", quux: "quux") enum E {
+            case a
+            case b
+        }
+        """
+        let expected: String = """
+        @MacroWithVeryLongName(
+            foo: "foo",
+            bar: "bar",
+            baz: "baz",
+            quux: "quux"
+        ) enum E {
+            case a
+            case b
+        }
+        """
+
+        #expect(BlockIndentFormatter.reformat(input, width: 40) == expected + "\n")
+    }
+
+    @Test func GenericArguments() {
+        let input: String = """
+        func f(
+            x: TypeName<Generic<VeryLongTypeName>, Generic<AnotherVeryLongTypeName>>
+        )
+        """
+        let expected: String = """
+        func f(
+            x: TypeName<
+                Generic<VeryLongTypeName>,
+                Generic<AnotherVeryLongTypeName>
+            >
+        )
+        """
+
+        #expect(BlockIndentFormatter.reformat(input, width: 40) == expected + "\n")
+    }
+
     // @Test func StringLiteralOfWhitespace() {
     //     let input: String = """
     //     let x: String = "        "

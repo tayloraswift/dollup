@@ -154,7 +154,60 @@ class BlockIndentWrapper: SyntaxVisitor {
         return .skipChildren
     }
 
+    override func visit(_ node: AttributeSyntax) -> SyntaxVisitorContinueKind {
+        guard
+        let leftParen: TokenSyntax = node.leftParen,
+        let arguments: AttributeSyntax.Arguments = node.arguments else {
+            // perhaps there is something breakable inside the attribute type
+            return .visitChildren
+        }
 
+        switch self.limitViolated(by: node) {
+        case nil: return .visitChildren
+        case true?: break
+        case false?: return .skipChildren
+        }
+
+        self.break(after: leftParen)
+        switch arguments {
+        case .abiArguments(let arguments):
+            self.break(after: arguments.provider)
+        case .argumentList(let arguments):
+            for argument: LabeledExprSyntax in arguments {
+                self.break(after: argument)
+            }
+        case .availability(let arguments):
+            for argument: AvailabilityArgumentSyntax in arguments {
+                self.break(after: argument)
+            }
+        case .documentationArguments(let arguments):
+            for argument: DocumentationAttributeArgumentSyntax in arguments {
+                self.break(after: argument)
+            }
+        case .specializeArguments(let arguments):
+            for argument: SpecializeAttributeArgumentListSyntax.Element in arguments {
+                self.break(after: argument)
+            }
+        case .backDeployedArguments(let arguments):
+            self.break(after: arguments)
+        case .effectsArguments(let arguments):
+            self.break(after: arguments)
+        case .dynamicReplacementArguments(let arguments):
+            self.break(after: arguments)
+        case .implementsArguments(let arguments):
+            self.break(after: arguments)
+        case .differentiableArguments(let arguments):
+            self.break(after: arguments)
+        case .derivativeRegistrationArguments(let arguments):
+            self.break(after: arguments)
+        case .objCName(let arguments):
+            self.break(after: arguments)
+        case .originallyDefinedInArguments(let arguments):
+            self.break(after: arguments)
+        }
+
+        return .skipChildren
+    }
     override func visit(_ node: ClosureParameterClauseSyntax) -> SyntaxVisitorContinueKind {
         if node.parameters.isEmpty {
             return .skipChildren
