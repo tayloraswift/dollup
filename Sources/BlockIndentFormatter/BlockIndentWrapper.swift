@@ -257,59 +257,68 @@ class BlockIndentWrapper: SyntaxVisitor {
     }
     override func visit(_ node: FunctionCallExprSyntax) -> SyntaxVisitorContinueKind {
         guard !node.arguments.isEmpty,
-        let leftParen: TokenSyntax = node.leftParen else {
+        let leftParen: TokenSyntax = node.leftParen,
+        let rightParen: TokenSyntax = node.rightParen else {
             // visit children to find breakable closures, worst case we just waste some time
             return .visitChildren
         }
 
         switch self.limitViolated(by: node) {
-        case nil: return .visitChildren
-        case true?: break
-        case false?: return .skipChildren
-        }
-
-        // if there are single line trailing closures, we want to try breaking those first,
-        // in case that allows us to not have to break the argument list
-        if  let first: ClosureExprSyntax = node.trailingClosure {
-            self.break(closure: first)
-            for next: MultipleTrailingClosureElementSyntax in node.additionalTrailingClosures {
-                self.break(closure: next.closure)
+        case nil:
+            // we have what might be a single-line argument list, but multiline trailing
+            // closures. let’s try breaking the argument list (it is not a single node)
+            if case true? = self.limitViolated(by: (leftParen, rightParen)) {
+                self.break(
+                    leftParen: leftParen,
+                    arguments: node.arguments
+                )
+                return .skipChildren
             }
-        } else {
-            self.break(after: leftParen)
-            for parameter: LabeledExprSyntax in node.arguments {
-                self.break(after: parameter)
-            }
-        }
 
-        return .skipChildren
+            return .visitChildren
+        case true?:
+            self.break(
+                leftParen: leftParen,
+                arguments: node.arguments,
+                trailingClosure: node.trailingClosure,
+                additionalTrailingClosures: node.additionalTrailingClosures
+            )
+            return .skipChildren
+
+        case false?:
+            return .skipChildren
+        }
     }
     override func visit(_ node: MacroExpansionExprSyntax) -> SyntaxVisitorContinueKind {
         guard !node.arguments.isEmpty,
-        let leftParen: TokenSyntax = node.leftParen else {
-            // visit children to find breakable closures, worst case we just waste some time
+        let leftParen: TokenSyntax = node.leftParen,
+        let rightParen: TokenSyntax = node.rightParen else {
             return .visitChildren
         }
 
         switch self.limitViolated(by: node) {
-        case nil: return .visitChildren
-        case true?: break
-        case false?: return .skipChildren
-        }
-
-        if  let first: ClosureExprSyntax = node.trailingClosure {
-            self.break(closure: first)
-            for next: MultipleTrailingClosureElementSyntax in node.additionalTrailingClosures {
-                self.break(closure: next.closure)
+        case nil:
+            if case true? = self.limitViolated(by: (leftParen, rightParen)) {
+                self.break(
+                    leftParen: leftParen,
+                    arguments: node.arguments
+                )
+                return .skipChildren
             }
-        } else {
-            self.break(after: leftParen)
-            for parameter: LabeledExprSyntax in node.arguments {
-                self.break(after: parameter)
-            }
-        }
 
-        return .skipChildren
+            return .visitChildren
+        case true?:
+            self.break(
+                leftParen: leftParen,
+                arguments: node.arguments,
+                trailingClosure: node.trailingClosure,
+                additionalTrailingClosures: node.additionalTrailingClosures
+            )
+            return .skipChildren
+
+        case false?:
+            return .skipChildren
+        }
     }
 
     override func visit(_ node: GenericArgumentClauseSyntax) -> SyntaxVisitorContinueKind {
@@ -428,16 +437,29 @@ extension BlockIndentWrapper {
         }
     }
 
-    /// Returns true if the given node is fully contained within one single line, and does not
-    /// fit within the specified line length limit.
+    /// Returns true if the given node is fully contained within one single line, and does
+    /// not fit within the specified line length limit.
     private func limitViolated(by node: some SyntaxProtocol) -> Bool? {
+        self.limitViolated(
+            by: node.positionAfterSkippingLeadingTrivia ..< node.endPositionBeforeTrailingTrivia
+        )
+    }
+    private func limitViolated(by nodes: (some SyntaxProtocol, some SyntaxProtocol)) -> Bool? {
+        self.limitViolated(
+            by: nodes.0.positionAfterSkippingLeadingTrivia
+                ..< nodes.1.endPositionBeforeTrailingTrivia
+        )
+    }
+    /// Returns true if the given source range is fully contained within one single line, and
+    /// does not fit within the specified line length limit.
+    private func limitViolated(by range: Range<AbsolutePosition>) -> Bool? {
         let start: String.Index = self.text.utf8.index(
             self.text.utf8.startIndex,
-            offsetBy: node.positionAfterSkippingLeadingTrivia.utf8Offset
+            offsetBy: range.lowerBound.utf8Offset
         )
         let end: String.Index = self.text.utf8.index(
             self.text.utf8.startIndex,
-            offsetBy: node.endPositionBeforeTrailingTrivia.utf8Offset
+            offsetBy: range.upperBound.utf8Offset
         )
 
         let characters: Int
@@ -472,6 +494,35 @@ extension BlockIndentWrapper {
         return characters > self.width
     }
 
+    private func `break`(
+        leftParen: TokenSyntax,
+        arguments: LabeledExprListSyntax,
+        trailingClosure: ClosureExprSyntax?,
+        additionalTrailingClosures: MultipleTrailingClosureElementListSyntax,
+    ) {
+        // if there are single line trailing closures, we want to try breaking those first,
+        // in case that allows us to not have to break the argument list
+        if  let first: ClosureExprSyntax = trailingClosure {
+            self.break(closure: first)
+            for next: MultipleTrailingClosureElementSyntax in additionalTrailingClosures {
+                self.break(closure: next.closure)
+            }
+        } else {
+            self.break(
+                leftParen: leftParen,
+                arguments: arguments
+            )
+        }
+    }
+    private func `break`(
+        leftParen: TokenSyntax,
+        arguments: LabeledExprListSyntax,
+    ) {
+        self.break(after: leftParen)
+        for parameter: LabeledExprSyntax in arguments {
+            self.break(after: parameter)
+        }
+    }
     private func `break`(closure node: ClosureExprSyntax) {
         if  let signature: ClosureSignatureSyntax = node.signature {
             self.break(after: signature)

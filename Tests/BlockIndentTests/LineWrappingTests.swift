@@ -3,7 +3,10 @@ import BlockIndentFormatter
 
 @Suite struct LineWrappingTests {
     @Test func FunctionCall() {
-        let input: String = "myFunction(arg1: 1, arg2: 2, arg3: 3, arg4: 4, arg5: 5, arg6: 6, arg7: 7, arg8: 8, arg9: 9, arg10: 10)"
+        let input: String = """
+        myFunction\
+        (arg1: 1, arg2: 2, arg3: 3, arg4: 4, arg5: 5, arg6: 6, arg7: 7, arg8: 8, arg9: 9)
+        """
         let expected: String = """
         myFunction(
             arg1: 1,
@@ -14,19 +17,25 @@ import BlockIndentFormatter
             arg6: 6,
             arg7: 7,
             arg8: 8,
-            arg9: 9,
-            arg10: 10
+            arg9: 9
         )
         """
 
-        #expect(BlockIndentFormatter.reformat(input, width: 80) == expected + "\n")
+        #expect(BlockIndentFormatter.reformat(input, width: 30) == expected + "\n")
     }
 
-    @Test func NestedFunctionCall() {
-        let input: String = "myFunction(arg1: anotherFunction(arg1: 1, arg2: 2), arg2: 3, arg3: 4, arg4: 5, arg5: 6, arg6: 7)"
+    @Test func FunctionCallNested() {
+        let input: String = """
+        myFunction\
+        (arg1: other(foo: 1, bar: 2, baz: 3), arg2: 3, arg3: 4, arg4: 5, arg5: 6, arg6: 7)
+        """
         let expected: String = """
         myFunction(
-            arg1: anotherFunction(arg1: 1, arg2: 2),
+            arg1: other(
+                foo: 1,
+                bar: 2,
+                baz: 3
+            ),
             arg2: 3,
             arg3: 4,
             arg4: 5,
@@ -35,37 +44,43 @@ import BlockIndentFormatter
         )
         """
 
-        #expect(BlockIndentFormatter.reformat(input, width: 80) == expected + "\n")
+        #expect(BlockIndentFormatter.reformat(input, width: 30) == expected + "\n")
     }
 
-    @Test func FunctionDeclaration() {
+    @Test func FunctionCallTrailingClosure() {
         let input: String = """
-        func myFunction(arg1: Int, arg2: String, arg3: Double, arg4: Bool, arg5: Int, arg6: String, arg7: Double) -> Void
-        """
-        let expected: String = """
-        func myFunction(
-            arg1: Int,
-            arg2: String,
-            arg3: Double,
-            arg4: Bool,
-            arg5: Int,
-            arg6: String,
-            arg7: Double
-        ) -> Void
-        """
-
-        #expect(BlockIndentFormatter.reformat(input, width: 80) == expected + "\n")
-    }
-
-    @Test func TrailingClosure() {
-        let input: String = """
-        myFunction(arg1: 1, arg2: 2) { print("this is a very long line that should be wrapped") }
+        myFunction(arg1: 1, arg2: 2) { print("this is a long line that should be wrapped") }
         """
         let expected: String = """
         myFunction(arg1: 1, arg2: 2) {
             print(
                 \"""
-                this is a very long line that should be wrapped
+                this is a long line that should be wrapped
+                \"""
+            )
+        }
+        """
+
+        #expect(BlockIndentFormatter.reformat(input, width: 40) == expected + "\n")
+    }
+    @Test func FunctionCallTrailingClosureWrappedArguments() {
+        let input: String = """
+        myFunction(arg1: 1, arg2: 2, arg3: 3, arg4: 4, arg5: 5, arg6: 6) {
+            print("this is a long line that should be wrapped")
+        }
+        """
+        let expected: String = """
+        myFunction(
+            arg1: 1,
+            arg2: 2,
+            arg3: 3,
+            arg4: 4,
+            arg5: 5,
+            arg6: 6
+        ) {
+            print(
+                \"""
+                this is a long line that should be wrapped
                 \"""
             )
         }
@@ -74,10 +89,29 @@ import BlockIndentFormatter
         #expect(BlockIndentFormatter.reformat(input, width: 40) == expected + "\n")
     }
 
+    @Test func FunctionDeclaration() {
+        let input: String = """
+        func myFunction\
+        (arg1: Int, arg2: String, arg3: Double, arg4: Bool, arg5: Int, arg6: String) -> Void
+        """
+        let expected: String = """
+        func myFunction(
+            arg1: Int,
+            arg2: String,
+            arg3: Double,
+            arg4: Bool,
+            arg5: Int,
+            arg6: String
+        ) -> Void
+        """
+
+        #expect(BlockIndentFormatter.reformat(input, width: 30) == expected + "\n")
+    }
+
     @Test func InstanceFunction() {
         let input: String = """
         struct S {
-            func foo(arg1: Int, arg2: String, arg3: Double, arg4: Bool, arg5: Int, arg6: String, arg7: Double) -> Void {
+            func foo(arg1: Int, arg2: String, arg3: Double, arg4: Bool, arg5: Int) -> Void {
                 print("Hello, World!")
             }
         }
@@ -89,9 +123,7 @@ import BlockIndentFormatter
                 arg2: String,
                 arg3: Double,
                 arg4: Bool,
-                arg5: Int,
-                arg6: String,
-                arg7: Double
+                arg5: Int
             ) -> Void {
                 print("Hello, World!")
             }
@@ -105,7 +137,7 @@ import BlockIndentFormatter
         let input: String = """
         // This line is too long
 
-        if  let users = fetchUsers(from: "production", sortedBy: "lastName", activeSince: Date.now, withPermissions: .admin) {
+        if  let users = fetchUsers(from: "production", sortedBy: "lastName") {
             print(users)
         }
         """
@@ -114,9 +146,7 @@ import BlockIndentFormatter
 
         if  let users = fetchUsers(
                 from: "production",
-                sortedBy: "lastName",
-                activeSince: Date.now,
-                withPermissions: .admin
+                sortedBy: "lastName"
             ) {
             print(users)
         }
@@ -129,9 +159,9 @@ import BlockIndentFormatter
         let input: String = """
         // This line is too long
 
-        if let users = fetchUsers(from: "production", sortedBy: "lastName", activeSince: Date.now, withPermissions: .admin) {
+        if let users = fetchUsers(from: "production", sortedBy: "lastName") {
             print(users)
-        } else if let users = fetchUsers(from: "production", sortedBy: "lastName", activeSince: Date.now, withPermissions: .guest) {
+        } else if let users = fetchUsers(from: "production", sortedBy: "lastName") {
             print(users)
         } else {
             print("No users found")
@@ -142,16 +172,12 @@ import BlockIndentFormatter
 
         if let users = fetchUsers(
                 from: "production",
-                sortedBy: "lastName",
-                activeSince: Date.now,
-                withPermissions: .admin
+                sortedBy: "lastName"
             ) {
             print(users)
         } else if let users = fetchUsers(
                 from: "production",
-                sortedBy: "lastName",
-                activeSince: Date.now,
-                withPermissions: .guest
+                sortedBy: "lastName"
             ) {
             print(users)
         } else {
