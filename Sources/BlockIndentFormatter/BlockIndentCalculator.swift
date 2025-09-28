@@ -116,6 +116,26 @@ class BlockIndentCalculator: SyntaxVisitor {
 
         return .skipChildren
     }
+    override func visit(_ node: MacroExpansionExprSyntax) -> SyntaxVisitorContinueKind {
+        self.walk(node.pound)
+        self.walk(node.macroName)
+        self.walkIfPresent(node.genericArgumentClause)
+
+        if  let left: TokenSyntax = node.leftParen {
+            self.walk(indenting: left)
+        }
+
+        self.walk(node.arguments)
+
+        if let right: TokenSyntax = node.rightParen {
+            self.walk(deindenting: right)
+        }
+
+        self.walkIfPresent(node.trailingClosure)
+        self.walkIfPresent(node.additionalTrailingClosures)
+
+        return .skipChildren
+    }
 
     override func visit(_ node: GenericArgumentClauseSyntax) -> SyntaxVisitorContinueKind {
         self.walk(indenting: node.leftAngle)

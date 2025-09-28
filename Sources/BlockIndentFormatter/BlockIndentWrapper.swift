@@ -284,6 +284,33 @@ class BlockIndentWrapper: SyntaxVisitor {
 
         return .skipChildren
     }
+    override func visit(_ node: MacroExpansionExprSyntax) -> SyntaxVisitorContinueKind {
+        guard !node.arguments.isEmpty,
+        let leftParen: TokenSyntax = node.leftParen else {
+            // visit children to find breakable closures, worst case we just waste some time
+            return .visitChildren
+        }
+
+        switch self.limitViolated(by: node) {
+        case nil: return .visitChildren
+        case true?: break
+        case false?: return .skipChildren
+        }
+
+        if  let first: ClosureExprSyntax = node.trailingClosure {
+            self.break(closure: first)
+            for next: MultipleTrailingClosureElementSyntax in node.additionalTrailingClosures {
+                self.break(closure: next.closure)
+            }
+        } else {
+            self.break(after: leftParen)
+            for parameter: LabeledExprSyntax in node.arguments {
+                self.break(after: parameter)
+            }
+        }
+
+        return .skipChildren
+    }
 
     override func visit(_ node: GenericArgumentClauseSyntax) -> SyntaxVisitorContinueKind {
         switch self.limitViolated(by: node) {
