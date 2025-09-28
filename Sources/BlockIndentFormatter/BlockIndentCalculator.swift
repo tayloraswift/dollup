@@ -161,8 +161,11 @@ class BlockIndentCalculator: SyntaxVisitor {
         self.indent(after: node.ifKeyword)
 
         self.walk(node.conditions)
-        self.walk(node.body.leftBrace)
+
+        self.outdent(token: node.body.leftBrace)
+
         self.walk(node.body.statements)
+
         self.deindent(before: node.body.rightBrace)
 
         guard
@@ -197,7 +200,9 @@ class BlockIndentCalculator: SyntaxVisitor {
         self.walk(node.inKeyword)
         self.walk(node.sequence)
         self.walkIfPresent(node.whereClause)
-        self.walk(node.body.leftBrace)
+
+        self.outdent(token: node.body.leftBrace)
+
         self.walk(node.body.statements)
 
         self.deindent(before: node.body.rightBrace)
@@ -208,7 +213,9 @@ class BlockIndentCalculator: SyntaxVisitor {
         self.indent(after: node.whileKeyword)
 
         self.walk(node.conditions)
-        self.walk(node.body.leftBrace)
+
+        self.outdent(token: node.body.leftBrace)
+
         self.walk(node.body.statements)
 
         self.deindent(before: node.body.rightBrace)
@@ -217,11 +224,10 @@ class BlockIndentCalculator: SyntaxVisitor {
     }
 
     override func visit(_ node: RepeatStmtSyntax) -> SyntaxVisitorContinueKind {
-        self.indent(after: node.repeatKeyword)
+        self.walk(node.repeatKeyword)
 
-        self.walk(node.body.leftBrace)
+        self.indent(after: node.body.leftBrace)
         self.walk(node.body.statements)
-
         self.deindent(before: node.body.rightBrace)
 
         self.walk(node.whileKeyword)
@@ -269,6 +275,10 @@ extension BlockIndentCalculator {
         }
     }
 
+    private func outdent(token: TokenSyntax) {
+        self.region(start: token.positionAfterSkippingLeadingTrivia, delta: -1)
+        self.region(start: token.endPosition, delta: +1)
+    }
     private func indent(token: TokenSyntax) {
         self.region(start: token.positionAfterSkippingLeadingTrivia, delta: +1)
         self.region(start: token.endPosition, delta: -1)
