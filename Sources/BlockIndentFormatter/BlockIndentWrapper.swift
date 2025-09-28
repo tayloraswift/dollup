@@ -256,68 +256,34 @@ class BlockIndentWrapper: SyntaxVisitor {
         return .skipChildren
     }
     override func visit(_ node: FunctionCallExprSyntax) -> SyntaxVisitorContinueKind {
-        guard !node.arguments.isEmpty,
-        let leftParen: TokenSyntax = node.leftParen,
-        let rightParen: TokenSyntax = node.rightParen else {
+        // try breaking the argument list (it is not a single node)
+        if !node.arguments.isEmpty,
+            let leftParen: TokenSyntax = node.leftParen,
+            let rightParen: TokenSyntax = node.rightParen,
+            case true? = self.limitViolated(by: (leftParen, rightParen)) {
+            self.break(
+                leftParen: leftParen,
+                arguments: node.arguments
+            )
+            return .skipChildren
+        } else {
             // visit children to find breakable closures, worst case we just waste some time
             return .visitChildren
         }
-
-        switch self.limitViolated(by: node) {
-        case nil:
-            // we have what might be a single-line argument list, but multiline trailing
-            // closures. let’s try breaking the argument list (it is not a single node)
-            if case true? = self.limitViolated(by: (leftParen, rightParen)) {
-                self.break(
-                    leftParen: leftParen,
-                    arguments: node.arguments
-                )
-                return .skipChildren
-            }
-
-            return .visitChildren
-        case true?:
-            self.break(
-                leftParen: leftParen,
-                arguments: node.arguments,
-                trailingClosure: node.trailingClosure,
-                additionalTrailingClosures: node.additionalTrailingClosures
-            )
-            return .skipChildren
-
-        case false?:
-            return .skipChildren
-        }
     }
     override func visit(_ node: MacroExpansionExprSyntax) -> SyntaxVisitorContinueKind {
-        guard !node.arguments.isEmpty,
-        let leftParen: TokenSyntax = node.leftParen,
-        let rightParen: TokenSyntax = node.rightParen else {
-            return .visitChildren
-        }
-
-        switch self.limitViolated(by: node) {
-        case nil:
-            if case true? = self.limitViolated(by: (leftParen, rightParen)) {
-                self.break(
-                    leftParen: leftParen,
-                    arguments: node.arguments
-                )
-                return .skipChildren
-            }
-
-            return .visitChildren
-        case true?:
+        // try breaking the argument list (it is not a single node)
+        if !node.arguments.isEmpty,
+            let leftParen: TokenSyntax = node.leftParen,
+            let rightParen: TokenSyntax = node.rightParen,
+            case true? = self.limitViolated(by: (leftParen, rightParen)) {
             self.break(
                 leftParen: leftParen,
-                arguments: node.arguments,
-                trailingClosure: node.trailingClosure,
-                additionalTrailingClosures: node.additionalTrailingClosures
+                arguments: node.arguments
             )
             return .skipChildren
-
-        case false?:
-            return .skipChildren
+        } else {
+            return .visitChildren
         }
     }
 
@@ -463,6 +429,7 @@ extension BlockIndentWrapper {
         )
 
         let characters: Int
+        let lineIndex: String.Index
 
         if  let newline: String.Index = self.text[..<end].lastIndex(where: \.isNewline) {
             if  newline > start {
@@ -474,7 +441,7 @@ extension BlockIndentWrapper {
                 // we have already broken something on this line
                 return false
             } else {
-                self.dirty = newline
+                lineIndex = newline
             }
 
             let start: String.Index = self.text.index(after: newline)
@@ -485,13 +452,18 @@ extension BlockIndentWrapper {
                 // we have already broken something on this line
                 return false
             } else {
-                self.dirty = self.text.startIndex
+                lineIndex = self.text.startIndex
             }
 
             characters = self.text[..<end].count
         }
 
-        return characters > self.width
+        if  self.width < characters {
+            self.dirty = lineIndex
+            return true
+        } else {
+            return false
+        }
     }
 
     private func `break`(
