@@ -180,6 +180,26 @@ import BlockIndentFormatter
 
         #expect(BlockIndentFormatter.reindent(input, by: 4) == expected + "\n")
     }
+    @Test static func PredicateWhereClause() {
+        let input: String = """
+        func f() {
+        for x: Int in sequence
+        where x > 0 {
+        print(x)
+        }
+        }
+        """
+        let expected: String = """
+        func f() {
+            for x: Int in sequence
+                where x > 0 {
+                print(x)
+            }
+        }
+        """
+
+        #expect(BlockIndentFormatter.reindent(input, by: 4) == expected + "\n")
+    }
     @Test static func GenericWhereClause() {
         let input: String = """
         struct Foo<Bar> where Bar: Equatable & Hashable,
@@ -189,6 +209,24 @@ import BlockIndentFormatter
         """
         let expected: String = """
         struct Foo<Bar> where Bar: Equatable & Hashable,
+            Bar: Comparable,
+            Bar: Sequence {
+        }
+        """
+
+        #expect(BlockIndentFormatter.reindent(input, by: 4) == expected + "\n")
+    }
+    @Test static func GenericWhereClauseNewline() {
+        let input: String = """
+        struct Foo<Bar>
+        where Bar: Equatable & Hashable,
+        Bar: Comparable,
+                Bar: Sequence {
+                }
+        """
+        let expected: String = """
+        struct Foo<Bar>
+            where Bar: Equatable & Hashable,
             Bar: Comparable,
             Bar: Sequence {
         }

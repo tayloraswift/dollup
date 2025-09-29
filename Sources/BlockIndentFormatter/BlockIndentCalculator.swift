@@ -407,7 +407,11 @@ class BlockIndentCalculator: SyntaxVisitor {
     }
 
     override func visit(_ node: GenericWhereClauseSyntax) -> SyntaxVisitorContinueKind {
-        self.indent(after: node.whereKeyword)
+        // in barbie’s dollup, the `where` keyword is allowed to appear on a new line,
+        // and also introduces a new indentation level
+
+        // this makes `where` special
+        self.indent(before: node.whereKeyword)
         self.walk(node.requirements)
         self.deindent(at: node.requirements.endPosition)
         return .skipChildren
@@ -434,8 +438,11 @@ extension BlockIndentCalculator {
         self.region(start: token.positionAfterSkippingLeadingTrivia, delta: +1)
         self.region(start: token.endPosition, delta: -1)
     }
-    private func indent(after left: TokenSyntax) {
+    private func indent(before left: TokenSyntax) {
         // TokenSyntax has no children to walk
+        self.region(start: left.positionAfterSkippingLeadingTrivia, delta: +1)
+    }
+    private func indent(after left: TokenSyntax) {
         self.region(start: left.endPosition, delta: +1)
     }
     private func deindent(before right: TokenSyntax) {
