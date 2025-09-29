@@ -275,7 +275,6 @@ import BlockIndentFormatter
 
         #expect(BlockIndentFormatter.reindent(input, by: 4) == expected + "\n")
     }
-
     @Test func MultilineStringLiteralTrailingWhitespace() {
         let input: String = """
         let x: String = \"""
@@ -289,6 +288,50 @@ import BlockIndentFormatter
             foo \(1)\u{20}
             bar \u{20}
             baz
+        """
+        """#
+
+        #expect(BlockIndentFormatter.reindent(input, by: 4) == expected + "\n")
+    }
+    @Test func MultilineStringLiteralInterpolationWhitespace() {
+        let input: String = """
+        let x: String = \"""
+                \\(1)  \n\
+            \"""
+        """
+        let expected: String = #"""
+        let x: String = """
+            \(1) \u{20}
+        """
+        """#
+
+        #expect(BlockIndentFormatter.reindent(input, by: 4) == expected + "\n")
+    }
+    @Test func MultilineStringLiteralInterpolationInterspersed() {
+        let input: String = """
+        let x: String = \"""
+                \\(1)  \\(2)\n\
+                \\(1)  \\(2) \\(3)\n\
+                \\(1)  \\(2) \\(3) \n\
+            \\(1)  \\(2)\n\
+            \\(1)  \\(2) \\(3)\n\
+            \\(1)  \\(2) \\(3) \n\
+                    \\(
+                        1 + 2 + 3
+            ) \n\
+            \"""
+        """
+        let expected: String = #"""
+        let x: String = """
+            \(1)  \(2)
+            \(1)  \(2) \(3)
+            \(1)  \(2) \(3)\u{20}
+        \(1)  \(2)
+        \(1)  \(2) \(3)
+        \(1)  \(2) \(3)\u{20}
+                \(
+            1 + 2 + 3
+        )\u{20}
         """
         """#
 

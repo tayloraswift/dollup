@@ -257,12 +257,95 @@ class BlockIndentCalculator: SyntaxVisitor {
         return .skipChildren
     }
 
+    // even if we did not care about indenting string literal interpolations, we would still
+    // need to emit a new region for the interior of the interpolation, to prevent prefixed
+    // regions from leaking whitespace into adjacent tokens
+    override func visit(_ node: ExpressionSegmentSyntax) -> SyntaxVisitorContinueKind {
+        self.walk(node.backslash)
+        self.walkIfPresent(node.pounds)
+        self.indent(after: node.leftParen)
+        self.walk(node.expressions)
+        self.deindent(before: node.rightParen)
+        return .skipChildren
+    }
     override func visit(_ node: StringLiteralExprSyntax) -> SyntaxVisitorContinueKind {
         if case _? = node.openingPounds {
             self.rawContext = true
         }
 
-        self.walk(node.segments)
+        var segments: StringLiteralSegmentListSyntax.Iterator = node.segments.makeIterator()
+        var current: StringLiteralSegmentListSyntax.Element? = segments.next()
+        var newline: Bool = true
+        while let segment: StringLiteralSegmentListSyntax.Element = current {
+            let next: StringLiteralSegmentListSyntax.Element? = segments.next()
+
+            switch segment {
+            case .expressionSegment(let node):
+                self.walk(node)
+
+            case .stringSegment(let node):
+                let firstOfLine: Bool = newline
+                let lastOfLine: Bool
+
+                var content: Substring = node.content.text[...]
+                // the trailing newline is handled by the line-based reindenter
+                if  case "\n"? = content.last {
+                    content.removeLast()
+                    lastOfLine = true
+                    newline = true
+                } else if
+                    case nil = next {
+                    // last segment in the literal
+                    lastOfLine = true
+                    // this will never be read
+                    newline = false
+                } else {
+                    lastOfLine = false
+                    newline = false
+                }
+
+                let whitespaceLeft: Substring
+                let whitespaceRight: Substring
+
+                if  let last: String.Index = content.lastIndex(where: { !$0.isWhitespace }) {
+                    let i: String.Index = content.index(after: last)
+
+                    whitespaceLeft = content.prefix(while: \.isWhitespace)
+                    whitespaceRight = content[i...]
+                } else if lastOfLine {
+                    // if the segment is all whitespace, it is considered a suffix, not a prefix
+                    whitespaceLeft = ""
+                    whitespaceRight = content[...]
+                } else {
+                    // but only if there were no other segments on the same line
+                    whitespaceLeft = content[...]
+                    whitespaceRight = ""
+                }
+
+                if  whitespaceLeft.isEmpty, whitespaceRight.isEmpty {
+                    break
+                }
+
+                if  firstOfLine || lastOfLine {
+                    self.region(
+                        start: node.positionAfterSkippingLeadingTrivia,
+                        delta: 0,
+                        prefix: whitespaceLeft.isEmpty ? nil : whitespaceLeft,
+                        suffix: whitespaceRight.isEmpty ? nil : whitespaceRight
+                    )
+                }
+                if  lastOfLine {
+                    self.region(
+                        start: node.endPositionBeforeTrailingTrivia,
+                        delta: 0,
+                        prefix: nil,
+                        suffix: nil
+                    )
+                }
+            }
+
+            current = next
+        }
 
         if case _? = node.closingPounds {
             self.rawContext = false
