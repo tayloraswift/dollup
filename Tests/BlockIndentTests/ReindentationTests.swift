@@ -375,6 +375,36 @@ import BlockIndentFormatter
 
         #expect(BlockIndentFormatter.reindent(input, by: 4) == expected + "\n")
     }
+    @Test func MultilineStringLiteralInterpolationEscapedLinebreaks() {
+        let input: String = #"""
+        let x: String = """
+                \(1)  \(2)\
+                \(1)  \(2) \(3)\
+                \(1)  \(2) \(3) \
+            \(1)  \(2)\
+            \(1)  \(2) \(3)\
+            \(1)  \(2) \(3) \
+                    \(
+                        1 + 2 + 3
+            )
+            """
+        """#
+        let expected: String = #"""
+        let x: String = """
+            \(1)  \(2)\
+            \(1)  \(2) \(3)\
+            \(1)  \(2) \(3) \
+        \(1)  \(2)\
+        \(1)  \(2) \(3)\
+        \(1)  \(2) \(3) \
+                \(
+            1 + 2 + 3
+        )
+        """
+        """#
+
+        #expect(BlockIndentFormatter.reindent(input, by: 4) == expected + "\n")
+    }
     @Test func MultilineStringLiteralWithPoundDelimiter() {
         let input: String = """
         let x: String = #\"""
