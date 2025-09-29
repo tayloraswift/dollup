@@ -423,4 +423,19 @@ import BlockIndentFormatter
 
         #expect(BlockIndentFormatter.reindent(input, by: 4) == expected + "\n")
     }
+
+    @Test func BlockCommentPreservation() {
+        let input: String = """
+            /* This is a
+            block comment
+                that should be preserved as-is */
+        """
+        let expected: String = """
+        /* This is a
+            block comment
+                that should be preserved as-is */
+        """
+
+        #expect(BlockIndentFormatter.reindent(input, by: 4) == expected + "\n")
+    }
 }
