@@ -438,4 +438,23 @@ import BlockIndentFormatter
 
         #expect(BlockIndentFormatter.reindent(input, by: 4) == expected + "\n")
     }
+
+    @Test func IfConfig() {
+        let input: String = """
+            #if os(iOS)
+        let x: Int = 1
+        #else
+                let x: Int = 2
+        #endif
+        """
+        let expected: String = """
+        #if os(iOS)
+            let x: Int = 1
+        #else
+            let x: Int = 2
+        #endif
+        """
+
+        #expect(BlockIndentFormatter.reindent(input, by: 4) == expected + "\n")
+    }
 }
