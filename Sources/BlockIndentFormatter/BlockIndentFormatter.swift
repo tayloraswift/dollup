@@ -29,10 +29,8 @@ extension BlockIndentFormatter {
 }
 extension BlockIndentFormatter {
     private func parse(source: String) -> Syntax {
-        do {
-            return try self.operators.foldAll(Parser.parse(source: source))
-        } catch {
-            fatalError("failed to parse source!!! \(error)")
+        self.operators.foldAll(Parser.parse(source: source)) {
+            print("operator folding error: \($0)")
         }
     }
 
@@ -52,8 +50,7 @@ extension BlockIndentFormatter {
 
         while true {
             let visitor: BlockIndentWrapper = .init(text: source, width: width)
-
-            visitor.walk(tree)
+            ;   visitor.walk(tree)
 
             if  visitor.linebreaks.isEmpty {
                 break
@@ -140,9 +137,11 @@ extension BlockIndentFormatter {
 
     private func reindent(_ source: String, by indent: Int) -> String {
         let tree: Syntax = self.parse(source: source)
-        let calculator: BlockIndentCalculator = .init()
+        let indents: BlockIndentCalculator = .init()
+        ;   indents.walk(tree)
 
-        calculator.walk(tree)
+        var exclude: BlockCommentCalculator = .init()
+        ;   exclude.walk(tree)
 
         var lines: [Line] = Self.lines(of: source)
         // because of how the indenter is written, it always adds a blank line at the end,
@@ -151,35 +150,51 @@ extension BlockIndentFormatter {
         while case true? = lines.last?.range.isEmpty {
             lines.removeLast()
         }
-        return Self.indent(lines, in: calculator.regions, by: indent)
+
+        return Self.indent(
+            lines: lines,
+            by: indent,
+            indents: indents.regions,
+            exclude: exclude.regions,
+        )
     }
 }
+
 extension BlockIndentFormatter {
     private static func indent(
-        _ lines: [Line],
-        in regions: [BlockIndentRegion],
-        by indent: Int
+        lines: [Line],
+        by indent: Int,
+        indents: [BlockIndentRegion],
+        exclude: [BlockCommentRegion],
     ) -> String {
-        var regions: ([BlockIndentRegion].Iterator, [BlockIndentRegion].Iterator) = (
-            regions.makeIterator(),
-            regions.makeIterator()
+        var regions: ([BlockIndentRegion].Iterator, [BlockIndentRegion].Iterator, exclude: [BlockCommentRegion].Iterator) = (
+            indents.makeIterator(),
+            indents.makeIterator(),
+            exclude.makeIterator()
         )
 
-        var current: (BlockIndentRegion, BlockIndentRegion)
+        var current: (BlockIndentRegion, BlockIndentRegion, exclude: BlockCommentRegion)
 
         if  let a: BlockIndentRegion = regions.0.next(),
-            let b: BlockIndentRegion = regions.1.next() {
-            current = (a, b)
+            let b: BlockIndentRegion = regions.1.next(),
+            let exclude: BlockCommentRegion = regions.exclude.next() {
+            current = (a, b, exclude)
         } else {
             fatalError("regions list is empty!!!")
         }
 
-        var next: (BlockIndentRegion?, BlockIndentRegion?) = (
+        var next: (BlockIndentRegion?, BlockIndentRegion?, exclude: BlockCommentRegion?) = (
             regions.0.next(),
-            regions.1.next()
+            regions.1.next(),
+            regions.exclude.next()
         )
 
         return lines.reduce(into: "") {
+            while let region: BlockCommentRegion = next.exclude,
+                region.start <= $1.range.lowerBound {
+                current.exclude = region
+                next.exclude = regions.exclude.next()
+            }
             while let region: BlockIndentRegion = next.0,
                 region.start <= $1.range.lowerBound {
                 current.0 = region
@@ -196,7 +211,11 @@ extension BlockIndentFormatter {
                 case nil = current.1.suffix {
                 // blank line, no prefix or suffix to preserve
             } else {
-                for _: Int in 0 ..< current.0.indent * indent {
+                let spaces: Int = current.exclude.comment
+                    ? $1.column ?? 0
+                    : current.0.indent * indent
+
+                for _: Int in 0 ..< spaces {
                     $0.append(" ")
                 }
                 if  let whitespace: Substring = current.0.prefix {
@@ -238,12 +257,15 @@ extension BlockIndentFormatter {
         )
         return lines.map {
             let range: Range<String.Index>
+            let column: Int?
 
             if  let first: String.Index = $0.firstIndex(where: { !$0.isWhitespace }),
                 let last: String.Index = $0.lastIndex(where: { !$0.isWhitespace }) {
                 range = first ..< $0.index(after: last)
+                column = $0.distance(from: $0.startIndex, to: first)
             } else {
                 range = $0.startIndex ..< $0.startIndex
+                column = nil
             }
 
             let text: Substring = $0[range]
@@ -257,7 +279,8 @@ extension BlockIndentFormatter {
             return .init(
                 range: source.utf8.distance(from: source.utf8.startIndex, to: start)
                     ..< source.utf8.distance(from: source.utf8.startIndex, to: end),
-                text: text
+                column: column,
+                text: text,
             )
         }
     }
