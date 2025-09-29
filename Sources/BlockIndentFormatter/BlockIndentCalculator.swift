@@ -13,6 +13,23 @@ class BlockIndentCalculator: SyntaxVisitor {
         super.init(viewMode: .sourceAccurate)
     }
 
+    override func visit(_ node: IfConfigDeclSyntax) -> SyntaxVisitorContinueKind {
+        var first: Bool = true
+        for clause: IfConfigClauseSyntax in node.clauses {
+            if  first {
+                first = false
+            } else {
+                self.deindent(before: clause.poundKeyword)
+            }
+            self.indent(after: clause.poundKeyword)
+
+            self.walkIfPresent(clause.condition)
+            self.walkIfPresent(clause.elements)
+        }
+        self.deindent(before: node.poundEndif)
+        return .skipChildren
+    }
+
     override func visit(_ node: AccessorBlockSyntax) -> SyntaxVisitorContinueKind {
         self.indent(after: node.leftBrace)
         self.walk(node.accessors)
