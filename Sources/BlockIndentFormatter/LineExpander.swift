@@ -5,7 +5,7 @@ class LineExpander: SyntaxVisitor {
     /// The original source text, used for measuring line lengths.
     private let text: String
 
-    init(text: String, width: Int) {
+    init(text: String) {
         self.linebreaks = []
         self.text = text
         super.init(viewMode: .sourceAccurate)

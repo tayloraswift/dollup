@@ -43,7 +43,7 @@ extension BlockIndentFormatter {
         let original: Syntax? = check ? self.parse(source: source) : nil
         var tree: Syntax
 
-        let expander: LineExpander = .init(text: source, width: width)
+        let expander: LineExpander = .init(text: source)
         ;   expander.walk(original ?? self.parse(source: source))
         if !expander.linebreaks.isEmpty {
             source = source.insert(linebreaks: expander.linebreaks)
