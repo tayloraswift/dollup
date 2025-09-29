@@ -404,6 +404,13 @@ class BlockIndentCalculator: SyntaxVisitor {
         self.deindent(at: node.inheritedTypes.endPosition)
         return .skipChildren
     }
+
+    override func visit(_ node: MemberAccessExprSyntax) -> SyntaxVisitorContinueKind {
+        self.walkIfPresent(node.base)
+        self.indent(token: node.period)
+        self.walk(node.declName)
+        return .skipChildren
+    }
 }
 extension BlockIndentCalculator {
     private func walkIfPresent<Node>(_ node: Node?) where Node: SyntaxProtocol {
