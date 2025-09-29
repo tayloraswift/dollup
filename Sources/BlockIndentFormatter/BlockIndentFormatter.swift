@@ -38,10 +38,16 @@ extension BlockIndentFormatter {
         _ source: inout String,
         indent: Int,
         width: Int,
-        check: Bool,
+        check: Bool
     ) {
         let original: Syntax? = check ? self.parse(source: source) : nil
         var tree: Syntax
+
+        let expander: LineExpander = .init(text: source, width: width)
+        ;   expander.walk(original ?? self.parse(source: source))
+        if !expander.linebreaks.isEmpty {
+            source = source.insert(linebreaks: expander.linebreaks)
+        }
 
         // it would not make much sense to check for line length violations if the indentation
         // were not correct
@@ -56,18 +62,7 @@ extension BlockIndentFormatter {
                 break
             }
 
-            var linebroken: String = ""
-            var i: String.Index = source.startIndex
-            for j: Linebreak in wrapper.linebreaks {
-                linebroken += source[i ..< j.index]
-                linebroken.append("\(j.type)")
-                i = j.index
-            }
-            if  i < source.endIndex {
-                linebroken += source[i ..< source.endIndex]
-            }
-
-            source = self.reindent(linebroken, by: indent)
+            source = self.reindent(source.insert(linebreaks: wrapper.linebreaks), by: indent)
             tree = self.parse(source: source)
         }
 
