@@ -457,4 +457,21 @@ import BlockIndentFormatter
 
         #expect(BlockIndentFormatter.reindent(input, by: 4) == expected + "\n")
     }
+
+    @Test func MemberAccess() {
+        let input: String = """
+        let x: [Int] = foo
+        .map { $0 + 1 }
+            .filter { $0 > 0 }
+                .sorted()
+        """
+        let expected: String = """
+        let x: [Int] = foo
+            .map { $0 + 1 }
+            .filter { $0 > 0 }
+            .sorted()
+        """
+
+        #expect(BlockIndentFormatter.reindent(input, by: 4) == expected + "\n")
+    }
 }
