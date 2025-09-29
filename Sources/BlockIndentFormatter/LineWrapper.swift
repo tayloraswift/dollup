@@ -1,7 +1,7 @@
 import SwiftSyntax
 import SwiftParser
 
-class BlockIndentWrapper: SyntaxVisitor {
+class LineWrapper: SyntaxVisitor {
     private(set) var linebreaks: [Linebreak]
     /// The original source text, used for measuring line lengths.
     private let text: String
@@ -395,7 +395,7 @@ class BlockIndentWrapper: SyntaxVisitor {
         return .skipChildren
     }
 }
-extension BlockIndentWrapper {
+extension LineWrapper {
     private func walkIfPresent<Node>(_ node: Node?) where Node: SyntaxProtocol {
         if  let node: Node {
             self.walk(node)

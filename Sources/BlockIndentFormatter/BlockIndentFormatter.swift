@@ -49,16 +49,16 @@ extension BlockIndentFormatter {
         tree = self.parse(source: source)
 
         while true {
-            let visitor: BlockIndentWrapper = .init(text: source, width: width)
-            ;   visitor.walk(tree)
+            let wrapper: LineWrapper = .init(text: source, width: width)
+            ;   wrapper.walk(tree)
 
-            if  visitor.linebreaks.isEmpty {
+            if  wrapper.linebreaks.isEmpty {
                 break
             }
 
             var linebroken: String = ""
             var i: String.Index = source.startIndex
-            for j: Linebreak in visitor.linebreaks {
+            for j: Linebreak in wrapper.linebreaks {
                 linebroken += source[i ..< j.index]
                 linebroken.append("\(j.type)")
                 i = j.index
