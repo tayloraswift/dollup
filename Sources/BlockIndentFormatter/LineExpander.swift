@@ -133,7 +133,7 @@ class LineExpander: SyntaxVisitor {
         if !node.arguments.isEmpty,
             let leftParen: TokenSyntax = node.leftParen,
             let rightParen: TokenSyntax = node.rightParen,
-            node.containsInteriorNewlines(between: (leftParen, rightParen)) {
+            node.arguments.containsInteriorNewlines(between: (leftParen, rightParen)) {
             if  node.arguments.lacksPrecedingNewline {
                 self.break(before: node.arguments)
             }
