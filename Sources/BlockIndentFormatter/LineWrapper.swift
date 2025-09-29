@@ -1,5 +1,4 @@
 import SwiftSyntax
-import SwiftParser
 
 class LineWrapper: SyntaxVisitor {
     private(set) var linebreaks: [Linebreak]

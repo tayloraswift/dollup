@@ -1,5 +1,3 @@
-import Swift
-
 extension [Unicode.Scalar] {
     /// Decodes a string containing Swift literal escape sequences.
     ///
