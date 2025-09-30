@@ -3,7 +3,7 @@ import SystemIO
 import System_ArgumentParser
 import BlockIndentFormatter
 
-@main struct Dollup: ParsableCommand {
+@main struct Dollup {
     @Argument(help: "The swift file to format.")
     var file: FilePath
 
@@ -27,15 +27,50 @@ import BlockIndentFormatter
         """
     )
     var checkDisabled: Bool = false
+}
+extension Dollup: ParsableCommand {
+    static var configuration: CommandConfiguration {
+            .init(
+            commandName: "dollup",
+        )
+    }
 
-    mutating func run() throws {
-        var source: String = try self.file.read()
+    func run() throws {
+        let status: FileStatus = try .status(of: self.file)
+        if  status.is(.regular) {
+            try self.run(on: self.file)
+            return
+        }
+
+        guard status.is(.directory) else {
+            throw """
+            path '\(self.file)' is not a file or directory
+            """ as DollupError
+        }
+
+        try self.file.directory.walk {
+            let path: FilePath = $0 / $1
+
+            let status: FileStatus = try .status(of: path)
+            if  status.is(.regular) {
+                print("formatting '\($1)'")
+                try self.run(on: path)
+            } else if status.is(.directory) {
+                return true
+            }
+            return false
+        }
+    }
+}
+extension Dollup {
+    private func run(on file: FilePath) throws {
+        var source: String = try file.read()
         BlockIndentFormatter.reformat(
             &source,
             indent: self.indent,
             width: self.width,
             check: !self.checkDisabled
         )
-        try self.file.overwrite(with: [UInt8].init(source.utf8)[...])
+        try file.overwrite(with: [UInt8].init(source.utf8)[...])
     }
 }
