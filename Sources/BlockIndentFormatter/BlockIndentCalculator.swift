@@ -6,14 +6,23 @@ class BlockIndentCalculator: SyntaxVisitor {
     private var level: Int
     private var rawContext: Bool
 
-    init() {
+    private let indentIfConfig: Bool
+
+    init(indentIfConfig: Bool) {
         self.regions = [.init(start: 0, indent: 0, prefix: nil, suffix: nil, escapable: true)]
         self.level = 0
         self.rawContext = false
+
+        self.indentIfConfig = indentIfConfig
+
         super.init(viewMode: .sourceAccurate)
     }
 
     override func visit(_ node: IfConfigDeclSyntax) -> SyntaxVisitorContinueKind {
+        guard self.indentIfConfig else {
+            return .visitChildren
+        }
+
         var first: Bool = true
         for clause: IfConfigClauseSyntax in node.clauses {
             if  first {
