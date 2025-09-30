@@ -162,7 +162,11 @@ extension BlockIndentFormatter {
         indents: [BlockIndentRegion],
         exclude: [BlockCommentRegion],
     ) -> String {
-        var regions: ([BlockIndentRegion].Iterator, [BlockIndentRegion].Iterator, exclude: [BlockCommentRegion].Iterator) = (
+        var regions: (
+            [BlockIndentRegion].Iterator,
+            [BlockIndentRegion].Iterator,
+            exclude: [BlockCommentRegion].Iterator
+        ) = (
             indents.makeIterator(),
             indents.makeIterator(),
             exclude.makeIterator()
