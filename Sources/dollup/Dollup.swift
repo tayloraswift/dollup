@@ -19,6 +19,15 @@ import BlockIndentFormatter
     )
     var width: Int = 96
 
+    @Option(
+        name: [.customShort("g"), .customLong("ignore")],
+        help: """
+        A list of file patterns to ignore \
+        (e.g. 'generated' to ignore all '*.generated.swift' files)
+        """,
+    )
+    var ignore: [String] = []
+
     @Flag(
         name: [.customShort("y"), .customLong("disable-integrity-check")],
         help: """
@@ -27,6 +36,15 @@ import BlockIndentFormatter
         """
     )
     var checkDisabled: Bool = false
+
+    // TODO: need better way to organize these options
+    @Flag(
+        name: [.customLong("indent-if-config")],
+        help: """
+        Indent the contents of #if ... #else ... #endif blocks
+        """
+    )
+    var _indentIfConfig: Bool = false
 }
 extension Dollup: ParsableCommand {
     static var configuration: CommandConfiguration {
@@ -48,16 +66,30 @@ extension Dollup: ParsableCommand {
             """ as DollupError
         }
 
+        let ignore: [[Substring]] = self.ignore.map { $0.split(separator: ".") }
+
         try self.file.directory.walk {
             let path: FilePath = $0 / $1
 
             let status: FileStatus = try .status(of: path)
-            if  status.is(.regular) {
-                print("formatting '\($1)'")
-                try self.run(on: path)
-            } else if status.is(.directory) {
+            if status.is(.directory) {
                 return true
             }
+
+            format:
+            if  status.is(.regular),
+                case "swift" = $1.extension {
+
+                let prefix: [Substring] = $1.stem.split(separator: ".")
+                for pattern: [Substring] in ignore
+                    where prefix.suffix(pattern.count) == pattern {
+                    break format
+                }
+
+                print("formatting '\($1)'")
+                try self.run(on: path)
+            }
+
             return false
         }
     }
