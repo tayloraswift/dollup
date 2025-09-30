@@ -5,45 +5,24 @@ import SwiftSyntax
 /// This pass detects Google-style “code rectangles”, and reformats Swift code to fit within a
 /// specified maximum line length.
 public struct WhitespaceFormatter {
-    private let operators: OperatorTable
-    private let indentIfConfig: Bool
-
-    private init(operators: OperatorTable, indentIfConfig: Bool) {
-        self.operators = operators
-        self.indentIfConfig = indentIfConfig
-    }
+    private let options: WhitespaceOptions
 }
 extension WhitespaceFormatter {
-    public static func reformat(
-        _ source: inout String,
-        indent: Int,
-        width: Int,
-        check: Bool = true,
-        _indentIfConfig: Bool = false,
-    ) {
-        let formatter: Self = .init(
-            operators: .standardOperators,
-            indentIfConfig: _indentIfConfig
-        )
-        formatter.reformat(&source, indent: indent, width: width, check: check)
-    }
-
-    public static func reindent(_ source: String, by indent: Int) -> String {
-        let formatter: Self = .init(operators: .standardOperators, indentIfConfig: true)
-        return formatter.reindent(source, by: indent)
+    public init(configure: (inout WhitespaceOptions) throws -> ()) throws {
+        var options: WhitespaceOptions = .init()
+        try configure(&options)
+        self.init(options: options)
     }
 }
 extension WhitespaceFormatter {
     private func parse(source: String) -> Syntax {
-        self.operators.foldAll(Parser.parse(source: source)) {
+        self.options.operators.foldAll(Parser.parse(source: source)) {
             print("operator folding error: \($0)")
         }
     }
 
-    private func reformat(
+    public func reformat(
         _ source: inout String,
-        indent: Int,
-        width: Int,
         check: Bool
     ) {
         let original: Syntax? = check ? self.parse(source: source) : nil
@@ -57,18 +36,18 @@ extension WhitespaceFormatter {
 
         // it would not make much sense to check for line length violations if the indentation
         // were not correct
-        source = self.reindent(source, by: indent)
+        source = self.reindent(source)
         tree = self.parse(source: source)
 
         while true {
-            let wrapper: LineWrapper = .init(text: source, width: width)
+            let wrapper: LineWrapper = .init(text: source, width: self.options.width)
             ;   wrapper.walk(tree)
 
             if  wrapper.linebreaks.isEmpty {
                 break
             }
 
-            source = self.reindent(source.insert(linebreaks: wrapper.linebreaks), by: indent)
+            source = self.reindent(source.insert(linebreaks: wrapper.linebreaks))
             tree = self.parse(source: source)
         }
 
@@ -136,9 +115,9 @@ extension WhitespaceFormatter {
         }
     }
 
-    private func reindent(_ source: String, by indent: Int) -> String {
+    public func reindent(_ source: String) -> String {
         let tree: Syntax = self.parse(source: source)
-        let indents: IndentCalculator = .init(indentIfConfig: self.indentIfConfig)
+        let indents: IndentCalculator = .init(options: self.options.indent)
         ;   indents.walk(tree)
 
         var exclude: BlockCommentCalculator = .init()
@@ -154,7 +133,7 @@ extension WhitespaceFormatter {
 
         return Self.indent(
             lines: lines,
-            by: indent,
+            by: self.options.indent.spaces,
             indents: indents.regions,
             exclude: exclude.regions,
         )

@@ -1,9 +1,22 @@
 import WhitespaceFormatter
 
 extension WhitespaceFormatter {
-    static func reformat(_ source: consuming String, indent: Int = 4, width: Int = 96) -> String {
+    static func reindent(_ source: String, by indent: Int) throws -> String {
+        let formatter: Self = try .init {
+            $0.indent.ifConfig = true
+            $0.indent.spaces = indent
+        }
+        return formatter.reindent(source)
+    }
+    static func reformat(_ source: consuming String, indent: Int = 4, width: Int = 96) throws -> String {
+        let formatter: Self = try .init {
+            $0.indent.ifConfig = false
+            $0.indent.spaces = indent
+
+            $0.width = width
+        }
         var source: String = source
-        self.reformat(&source, indent: indent, width: width)
+        formatter.reformat(&source, check: true)
         return source
     }
 }

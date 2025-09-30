@@ -6,20 +6,20 @@ class IndentCalculator: SyntaxVisitor {
     private var level: Int
     private var rawContext: Bool
 
-    private let indentIfConfig: Bool
+    private let options: IndentOptions
 
-    init(indentIfConfig: Bool) {
+    init(options: IndentOptions) {
         self.regions = [.init(start: 0, indent: 0, prefix: nil, suffix: nil, escapable: true)]
         self.level = 0
         self.rawContext = false
 
-        self.indentIfConfig = indentIfConfig
+        self.options = options
 
         super.init(viewMode: .sourceAccurate)
     }
 
     override func visit(_ node: IfConfigDeclSyntax) -> SyntaxVisitorContinueKind {
-        guard self.indentIfConfig else {
+        guard self.options.ifConfig else {
             return .visitChildren
         }
 
