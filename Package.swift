@@ -7,7 +7,7 @@ let package = Package(
         .macOS(.v15)
     ],
     products: [
-        .executable(name: "dollup", targets: ["dollup"]),
+        .executable(name: "dollup", targets: ["DollupTool"]),
     ],
     dependencies: [
         .package(url: "https://github.com/apple/swift-argument-parser", from: "1.0.0"),
@@ -16,16 +16,23 @@ let package = Package(
     ],
     targets: [
         .executableTarget(
-            name: "dollup",
+            name: "DollupTool",
             dependencies: [
+                .target(name: "Dollup"),
+
                 .product(name: "ArgumentParser", package: "swift-argument-parser"),
                 .product(name: "SystemIO", package: "swift-io"),
                 .product(name: "System_ArgumentParser", package: "swift-io"),
-                .target(name: "BlockIndentFormatter"),
             ]),
 
         .target(
-            name: "BlockIndentFormatter",
+            name: "Dollup",
+            dependencies: [
+                .target(name: "WhitespaceFormatter"),
+            ]
+        ),
+        .target(
+            name: "WhitespaceFormatter",
             dependencies: [
                 .product(name: "SwiftOperators", package: "swift-syntax"),
                 .product(name: "SwiftParser", package: "swift-syntax"),
@@ -35,7 +42,7 @@ let package = Package(
         .testTarget(
             name: "BlockIndentTests",
             dependencies: [
-                .target(name: "BlockIndentFormatter"),
+                .target(name: "WhitespaceFormatter"),
             ],
         ),
     ]

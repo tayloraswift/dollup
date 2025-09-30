@@ -1,7 +1,8 @@
 import ArgumentParser
+import WhitespaceFormatter
+import Dollup
 import SystemIO
 import System_ArgumentParser
-import BlockIndentFormatter
 
 @main struct Dollup {
     @Argument(help: "The swift file to format.")
@@ -97,7 +98,7 @@ extension Dollup: ParsableCommand {
 extension Dollup {
     private func run(on file: FilePath) throws {
         var source: String = try file.read()
-        BlockIndentFormatter.reformat(
+        WhitespaceFormatter.reformat(
             &source,
             indent: self.indent,
             width: self.width,

@@ -1,6 +1,6 @@
-import BlockIndentFormatter
+import WhitespaceFormatter
 
-extension BlockIndentFormatter {
+extension WhitespaceFormatter {
     static func reformat(_ source: consuming String, indent: Int = 4, width: Int = 96) -> String {
         var source: String = source
         self.reformat(&source, indent: indent, width: width)

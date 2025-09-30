@@ -4,7 +4,7 @@ import SwiftSyntax
 
 /// This pass detects Google-style “code rectangles”, and reformats Swift code to fit within a
 /// specified maximum line length.
-public struct BlockIndentFormatter {
+public struct WhitespaceFormatter {
     private let operators: OperatorTable
     private let indentIfConfig: Bool
 
@@ -13,7 +13,7 @@ public struct BlockIndentFormatter {
         self.indentIfConfig = indentIfConfig
     }
 }
-extension BlockIndentFormatter {
+extension WhitespaceFormatter {
     public static func reformat(
         _ source: inout String,
         indent: Int,
@@ -33,7 +33,7 @@ extension BlockIndentFormatter {
         return formatter.reindent(source, by: indent)
     }
 }
-extension BlockIndentFormatter {
+extension WhitespaceFormatter {
     private func parse(source: String) -> Syntax {
         self.operators.foldAll(Parser.parse(source: source)) {
             print("operator folding error: \($0)")
@@ -138,7 +138,7 @@ extension BlockIndentFormatter {
 
     private func reindent(_ source: String, by indent: Int) -> String {
         let tree: Syntax = self.parse(source: source)
-        let indents: BlockIndentCalculator = .init(indentIfConfig: self.indentIfConfig)
+        let indents: IndentCalculator = .init(indentIfConfig: self.indentIfConfig)
         ;   indents.walk(tree)
 
         var exclude: BlockCommentCalculator = .init()
@@ -161,16 +161,16 @@ extension BlockIndentFormatter {
     }
 }
 
-extension BlockIndentFormatter {
+extension WhitespaceFormatter {
     private static func indent(
         lines: [Line],
         by indent: Int,
-        indents: [BlockIndentRegion],
+        indents: [IndentRegion],
         exclude: [BlockCommentRegion],
     ) -> String {
         var regions: (
-            [BlockIndentRegion].Iterator,
-            [BlockIndentRegion].Iterator,
+            [IndentRegion].Iterator,
+            [IndentRegion].Iterator,
             exclude: [BlockCommentRegion].Iterator
         ) = (
             indents.makeIterator(),
@@ -178,17 +178,17 @@ extension BlockIndentFormatter {
             exclude.makeIterator()
         )
 
-        var current: (BlockIndentRegion, BlockIndentRegion, exclude: BlockCommentRegion)
+        var current: (IndentRegion, IndentRegion, exclude: BlockCommentRegion)
 
-        if  let a: BlockIndentRegion = regions.0.next(),
-            let b: BlockIndentRegion = regions.1.next(),
+        if  let a: IndentRegion = regions.0.next(),
+            let b: IndentRegion = regions.1.next(),
             let exclude: BlockCommentRegion = regions.exclude.next() {
             current = (a, b, exclude)
         } else {
             fatalError("regions list is empty!!!")
         }
 
-        var next: (BlockIndentRegion?, BlockIndentRegion?, exclude: BlockCommentRegion?) = (
+        var next: (IndentRegion?, IndentRegion?, exclude: BlockCommentRegion?) = (
             regions.0.next(),
             regions.1.next(),
             regions.exclude.next()
@@ -200,12 +200,12 @@ extension BlockIndentFormatter {
                 current.exclude = region
                 next.exclude = regions.exclude.next()
             }
-            while let region: BlockIndentRegion = next.0,
+            while let region: IndentRegion = next.0,
                 region.start <= $1.range.lowerBound {
                 current.0 = region
                 next.0 = regions.0.next()
             }
-            while let region: BlockIndentRegion = next.1,
+            while let region: IndentRegion = next.1,
                 region.start <= $1.range.upperBound {
                 current.1 = region
                 next.1 = regions.1.next()

@@ -1,11 +1,11 @@
-struct DollupError: Error, CustomStringConvertible {
-    let description: String
+public struct DollupError: Error, CustomStringConvertible {
+    public let description: String
     init(description: String) {
         self.description = description
     }
 }
 extension DollupError: ExpressibleByStringInterpolation {
-    init(stringLiteral value: String) {
+    public init(stringLiteral value: String) {
         self.init(description: value)
     }
 }
