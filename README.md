@@ -18,13 +18,15 @@ The compiled executable will be located in the `.build/debug` directory.
 
 ## Usage
 
-To format a Swift file, run the `dollup` executable with the path to the file as an argument:
+To format a Swift file or all Swift files within a directory, run the `dollup` executable with the path to the file or directory as an argument:
 
 ```bash
 swift run dollup [file-path]
 ```
 
 This will reformat the specified file in place.
+
+When a directory is provided, `dollup` will recursively format all `.swift` files within it.
 
 -----
 
@@ -35,6 +37,7 @@ You can customize the formatting behavior with the following options:
   * `-I, --indent <value>`: Sets the number of spaces to use for each indentation level. The default value is **4**.
   * `-L, --line-length <value>`: Specifies the maximum line length. The formatter will wrap lines that exceed this limit. The default value is **96**.
   * `-y, --disable-integrity-check`: Disables the integrity check that ensures the reformatted code is semantically equivalent to the original. This is not recommended for general use.
+  * `-g, --ignore <pattern>`: A list of file patterns to ignore when formatting a directory (e.g., `generated` to ignore all `*.generated.swift` files). This option can be repeated.
 
 -----
 
