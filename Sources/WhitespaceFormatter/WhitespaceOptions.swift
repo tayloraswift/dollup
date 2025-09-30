@@ -8,6 +8,10 @@ public struct WhitespaceOptions {
 }
 extension WhitespaceOptions {
     init() {
-        self.init(operators: .standardOperators, width: 96, indent: IndentOptions.init(spaces: 4, ifConfig: false))
+        self.init(
+            operators: .standardOperators,
+            width: 96,
+            indent: IndentOptions.init(spaces: 4, ifConfig: false)
+        )
     }
 }
