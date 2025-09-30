@@ -6,9 +6,11 @@ import SwiftSyntax
 /// specified maximum line length.
 public struct BlockIndentFormatter {
     private let operators: OperatorTable
+    private let indentIfConfig: Bool
 
-    private init(operators: OperatorTable) {
+    private init(operators: OperatorTable, indentIfConfig: Bool) {
         self.operators = operators
+        self.indentIfConfig = indentIfConfig
     }
 }
 extension BlockIndentFormatter {
@@ -16,14 +18,18 @@ extension BlockIndentFormatter {
         _ source: inout String,
         indent: Int,
         width: Int,
-        check: Bool = true
+        check: Bool = true,
+        _indentIfConfig: Bool = false,
     ) {
-        let formatter: Self = .init(operators: .standardOperators)
+        let formatter: Self = .init(
+            operators: .standardOperators,
+            indentIfConfig: _indentIfConfig
+        )
         formatter.reformat(&source, indent: indent, width: width, check: check)
     }
 
     public static func reindent(_ source: String, by indent: Int) -> String {
-        let formatter: Self = .init(operators: .standardOperators)
+        let formatter: Self = .init(operators: .standardOperators, indentIfConfig: true)
         return formatter.reindent(source, by: indent)
     }
 }
@@ -132,7 +138,7 @@ extension BlockIndentFormatter {
 
     private func reindent(_ source: String, by indent: Int) -> String {
         let tree: Syntax = self.parse(source: source)
-        let indents: BlockIndentCalculator = .init()
+        let indents: BlockIndentCalculator = .init(indentIfConfig: self.indentIfConfig)
         ;   indents.walk(tree)
 
         var exclude: BlockCommentCalculator = .init()
