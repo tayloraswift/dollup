@@ -2,7 +2,7 @@ import Testing
 import WhitespaceFormatter
 
 @Suite struct LineWrappingTests {
-    @Test func FunctionCall() {
+    @Test static func FunctionCall() throws {
         let input: String = """
         myFunction\
         (arg1: 1, arg2: 2, arg3: 3, arg4: 4, arg5: 5, arg6: 6, arg7: 7, arg8: 8, arg9: 9)
@@ -21,10 +21,10 @@ import WhitespaceFormatter
         )
         """
 
-        #expect(WhitespaceFormatter.reformat(input, width: 30) == expected + "\n")
+        #expect(try WhitespaceFormatter.reformat(input, width: 30) == expected + "\n")
     }
 
-    @Test func FunctionCallNested() {
+    @Test static func FunctionCallNested() throws {
         let input: String = """
         myFunction\
         (arg1: other(foo: 1, bar: 2, baz: 3), arg2: 3, arg3: 4, arg4: 5, arg5: 6, arg6: 7)
@@ -44,10 +44,10 @@ import WhitespaceFormatter
         )
         """
 
-        #expect(WhitespaceFormatter.reformat(input, width: 30) == expected + "\n")
+        #expect(try WhitespaceFormatter.reformat(input, width: 30) == expected + "\n")
     }
 
-    @Test func FunctionCallTrailingClosure() {
+    @Test static func FunctionCallTrailingClosure() throws {
         let input: String = """
         myFunction(arg1: 1, arg2: 2) { print("this is a long line that should be wrapped") }
         """
@@ -61,9 +61,9 @@ import WhitespaceFormatter
         }
         """
 
-        #expect(WhitespaceFormatter.reformat(input, width: 40) == expected + "\n")
+        #expect(try WhitespaceFormatter.reformat(input, width: 40) == expected + "\n")
     }
-    @Test func FunctionCallTrailingClosureWrappedArguments() {
+    @Test static func FunctionCallTrailingClosureWrappedArguments() throws {
         let input: String = """
         myFunction(arg1: 1, arg2: 2, arg3: 3, arg4: 4, arg5: 5, arg6: 6) {
             print("this is a long line that should be wrapped")
@@ -86,10 +86,10 @@ import WhitespaceFormatter
         }
         """
 
-        #expect(WhitespaceFormatter.reformat(input, width: 40) == expected + "\n")
+        #expect(try WhitespaceFormatter.reformat(input, width: 40) == expected + "\n")
     }
 
-    @Test func FunctionDeclaration() {
+    @Test static func FunctionDeclaration() throws {
         let input: String = """
         func myFunction\
         (arg1: Int, arg2: String, arg3: Double, arg4: Bool, arg5: Int, arg6: String) -> Void
@@ -105,10 +105,10 @@ import WhitespaceFormatter
         ) -> Void
         """
 
-        #expect(WhitespaceFormatter.reformat(input, width: 30) == expected + "\n")
+        #expect(try WhitespaceFormatter.reformat(input, width: 30) == expected + "\n")
     }
 
-    @Test func InstanceFunction() {
+    @Test static func InstanceFunction() throws {
         let input: String = """
         struct S {
             func foo(arg1: Int, arg2: String, arg3: Double, arg4: Bool, arg5: Int) -> Void {
@@ -130,10 +130,10 @@ import WhitespaceFormatter
         }
         """
 
-        #expect(WhitespaceFormatter.reformat(input, width: 40) == expected + "\n")
+        #expect(try WhitespaceFormatter.reformat(input, width: 40) == expected + "\n")
     }
 
-    @Test func IfLet() {
+    @Test static func IfLet() throws {
         let input: String = """
         // This line is too long
 
@@ -152,10 +152,10 @@ import WhitespaceFormatter
         }
         """
 
-        #expect(WhitespaceFormatter.reformat(input, width: 40) == expected + "\n")
+        #expect(try WhitespaceFormatter.reformat(input, width: 40) == expected + "\n")
     }
 
-    @Test func IfLetElseLet() {
+    @Test static func IfLetElseLet() throws {
         let input: String = """
         // This line is too long
 
@@ -185,10 +185,10 @@ import WhitespaceFormatter
         }
         """
 
-        #expect(WhitespaceFormatter.reformat(input, width: 40) == expected + "\n")
+        #expect(try WhitespaceFormatter.reformat(input, width: 40) == expected + "\n")
     }
 
-    @Test func WhileLoopBodyIndentation() {
+    @Test static func WhileLoopBodyIndentation() throws {
         let input: String = """
         while i < 10 {
             myFunction(arg1: 1, arg2: 2, arg3: 3, arg4: 4, arg5: 5, arg6: 6, arg7: 7, arg8: 8)
@@ -209,10 +209,10 @@ import WhitespaceFormatter
         }
         """
 
-        #expect(WhitespaceFormatter.reformat(input, width: 80) == expected + "\n")
+        #expect(try WhitespaceFormatter.reformat(input, width: 80) == expected + "\n")
     }
 
-    @Test func Attribute() {
+    @Test static func Attribute() throws {
         let input: String = """
         @MacroWithVeryLongName(foo: "foo", bar: "bar", baz: "baz", quux: "quux") enum E {
             case a
@@ -231,10 +231,10 @@ import WhitespaceFormatter
         }
         """
 
-        #expect(WhitespaceFormatter.reformat(input, width: 40) == expected + "\n")
+        #expect(try WhitespaceFormatter.reformat(input, width: 40) == expected + "\n")
     }
 
-    @Test func Parentheses() {
+    @Test static func Parentheses() throws {
         let input: String = """
         let x: Int = (foo + bar + baz - qux) * (foo - bar + baz + qux)
         """
@@ -247,10 +247,10 @@ import WhitespaceFormatter
         )
         """
 
-        #expect(WhitespaceFormatter.reformat(input, width: 24) == expected + "\n")
+        #expect(try WhitespaceFormatter.reformat(input, width: 24) == expected + "\n")
     }
 
-    @Test func GenericArguments() {
+    @Test static func GenericArguments() throws {
         let input: String = """
         func f(
             x: TypeName<Generic<VeryLongTypeName>, Generic<AnotherVeryLongTypeName>>
@@ -265,10 +265,10 @@ import WhitespaceFormatter
         )
         """
 
-        #expect(WhitespaceFormatter.reformat(input, width: 40) == expected + "\n")
+        #expect(try WhitespaceFormatter.reformat(input, width: 40) == expected + "\n")
     }
 
-    @Test func GenericWhereClause() {
+    @Test static func GenericWhereClause() throws {
         let input: String = """
         func f<T>(
             x: TypeName<Generic<T>, Generic<AVeryLongTypeName>>
@@ -286,10 +286,10 @@ import WhitespaceFormatter
         }
         """
 
-        #expect(WhitespaceFormatter.reformat(input, width: 40) == expected + "\n")
+        #expect(try WhitespaceFormatter.reformat(input, width: 40) == expected + "\n")
     }
 
-    @Test func StringLiteralLeadingWhitespace() {
+    @Test static func StringLiteralLeadingWhitespace() throws {
         let input: String = """
         let x: String = "    foo"
         """
@@ -299,9 +299,9 @@ import WhitespaceFormatter
         """
         """#
 
-        #expect(WhitespaceFormatter.reformat(input, width: 22) == expected + "\n")
+        #expect(try WhitespaceFormatter.reformat(input, width: 22) == expected + "\n")
     }
-    @Test func StringLiteralTrailingWhitespace() {
+    @Test static func StringLiteralTrailingWhitespace() throws {
         let input: String = """
         let x: String = "foo    "
         """
@@ -311,10 +311,10 @@ import WhitespaceFormatter
         """
         """#
 
-        #expect(WhitespaceFormatter.reformat(input, width: 22) == expected + "\n")
+        #expect(try WhitespaceFormatter.reformat(input, width: 22) == expected + "\n")
     }
 
-    @Test func StringLiteralOfWhitespace() {
+    @Test static func StringLiteralOfWhitespace() throws {
         let input: String = """
         let x: String = "         "
         """
@@ -324,9 +324,9 @@ import WhitespaceFormatter
         """
         """#
 
-        #expect(WhitespaceFormatter.reformat(input, width: 22) == expected + "\n")
+        #expect(try WhitespaceFormatter.reformat(input, width: 22) == expected + "\n")
     }
-    @Test func StringLiteralWithPoundDelimiters() {
+    @Test static func StringLiteralWithPoundDelimiters() throws {
         /// We should leave these alone
         let input: String = """
         let x: String = #"         "#
@@ -335,10 +335,10 @@ import WhitespaceFormatter
         let x: String = #"         "#
         """
 
-        #expect(WhitespaceFormatter.reformat(input, width: 22) == expected + "\n")
+        #expect(try WhitespaceFormatter.reformat(input, width: 22) == expected + "\n")
     }
 
-    @Test func OutOfOrderLinebreaking() {
+    @Test static func OutOfOrderLinebreaking() throws {
         /// We should leave these alone
         let input: String = #"""
         var now: BenchmarkClock.Instant {
@@ -357,6 +357,6 @@ import WhitespaceFormatter
         }
         """#
 
-        #expect(WhitespaceFormatter.reformat(input, width: 60) == expected + "\n")
+        #expect(try WhitespaceFormatter.reformat(input, width: 60) == expected + "\n")
     }
 }

@@ -98,12 +98,15 @@ extension Dollup: ParsableCommand {
 extension Dollup {
     private func run(on file: FilePath) throws {
         var source: String = try file.read()
-        WhitespaceFormatter.reformat(
-            &source,
-            indent: self.indent,
-            width: self.width,
-            check: !self.checkDisabled
-        )
+        let formatter: WhitespaceFormatter = try .init {
+            $0.indent.ifConfig = self._indentIfConfig
+            $0.indent.spaces = self.indent
+
+            $0.width = self.width
+        }
+
+        formatter.reformat(&source, check: !self.checkDisabled)
+
         try file.overwrite(with: [UInt8].init(source.utf8)[...])
     }
 }
