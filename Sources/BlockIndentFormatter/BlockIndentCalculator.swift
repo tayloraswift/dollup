@@ -406,8 +406,10 @@ class BlockIndentCalculator: SyntaxVisitor {
     }
 
     override func visit(_ node: MemberAccessExprSyntax) -> SyntaxVisitorContinueKind {
-        self.walkIfPresent(node.base)
-        self.indent(token: node.period)
+        if  let base: ExprSyntax = node.base {
+            self.walk(base)
+            self.indent(token: node.period)
+        }
         self.walk(node.declName)
         return .skipChildren
     }
