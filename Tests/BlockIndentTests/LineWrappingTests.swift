@@ -337,4 +337,26 @@ import BlockIndentFormatter
 
         #expect(BlockIndentFormatter.reformat(input, width: 22) == expected + "\n")
     }
+
+    @Test func OutOfOrderLinebreaking() {
+        /// We should leave these alone
+        let input: String = #"""
+        var now: BenchmarkClock.Instant {
+            return .init(_value: Duration(secondsComponent: Int64(seconds),
+                                            attosecondsComponent: Int64(attoseconds)))
+        }
+        """#
+        let expected: String = #"""
+        var now: BenchmarkClock.Instant {
+            return .init(
+                _value: Duration(
+                    secondsComponent: Int64(seconds),
+                    attosecondsComponent: Int64(attoseconds)
+                )
+            )
+        }
+        """#
+
+        #expect(BlockIndentFormatter.reformat(input, width: 60) == expected + "\n")
+    }
 }
