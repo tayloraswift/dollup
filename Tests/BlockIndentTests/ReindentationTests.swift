@@ -474,4 +474,18 @@ import BlockIndentFormatter
 
         #expect(BlockIndentFormatter.reindent(input, by: 4) == expected + "\n")
     }
+    @Test func LeadingDot() {
+        let input: String = """
+        let x: [Int] = foo(
+        .init("abc")
+        )
+        """
+        let expected: String = """
+        let x: [Int] = foo(
+            .init("abc")
+        )
+        """
+
+        #expect(BlockIndentFormatter.reindent(input, by: 4) == expected + "\n")
+    }
 }
