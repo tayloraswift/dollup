@@ -30,7 +30,7 @@ import BlockIndentFormatter
 }
 extension Dollup: ParsableCommand {
     static var configuration: CommandConfiguration {
-            .init(
+        .init(
             commandName: "dollup",
         )
     }
