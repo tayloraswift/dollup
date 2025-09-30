@@ -1,5 +1,5 @@
 import Testing
-import BlockIndentFormatter
+import WhitespaceFormatter
 
 @Suite struct ReindentationTests {
     @Test static func BasicInsertion() {
@@ -18,7 +18,7 @@ import BlockIndentFormatter
         )
         """
 
-        #expect(BlockIndentFormatter.reindent(input, by: 4) == expected + "\n")
+        #expect(WhitespaceFormatter.reindent(input, by: 4) == expected + "\n")
     }
     @Test static func BasicRemoval() {
         let input: String = """
@@ -36,7 +36,7 @@ import BlockIndentFormatter
         )
         """
 
-        #expect(BlockIndentFormatter.reindent(input, by: 4) == expected + "\n")
+        #expect(WhitespaceFormatter.reindent(input, by: 4) == expected + "\n")
     }
     @Test static func If() async throws {
         let input: String = """
@@ -60,7 +60,7 @@ import BlockIndentFormatter
         }
         """
 
-        #expect(BlockIndentFormatter.reindent(input, by: 4) == expected + "\n")
+        #expect(WhitespaceFormatter.reindent(input, by: 4) == expected + "\n")
     }
     @Test static func FunctionDeclaration() {
         let input: String = """
@@ -82,7 +82,7 @@ import BlockIndentFormatter
         }
         """
 
-        #expect(BlockIndentFormatter.reindent(input, by: 4) == expected + "\n")
+        #expect(WhitespaceFormatter.reindent(input, by: 4) == expected + "\n")
     }
     @Test static func SubscriptDeclaration() {
         let input: String = """
@@ -104,7 +104,7 @@ import BlockIndentFormatter
         }
         """
 
-        #expect(BlockIndentFormatter.reindent(input, by: 4) == expected + "\n")
+        #expect(WhitespaceFormatter.reindent(input, by: 4) == expected + "\n")
     }
     @Test static func SubscriptDeclarationWithSetter() {
         let input: String = """
@@ -142,7 +142,7 @@ import BlockIndentFormatter
         }
         """
 
-        #expect(BlockIndentFormatter.reindent(input, by: 4) == expected + "\n")
+        #expect(WhitespaceFormatter.reindent(input, by: 4) == expected + "\n")
     }
     @Test static func BinaryOperator() {
         let input: String = """
@@ -164,7 +164,7 @@ import BlockIndentFormatter
             - e
         """
 
-        #expect(BlockIndentFormatter.reindent(input, by: 4) == expected + "\n")
+        #expect(WhitespaceFormatter.reindent(input, by: 4) == expected + "\n")
     }
     @Test static func TernaryOperator() {
         let input: String = """
@@ -178,7 +178,7 @@ import BlockIndentFormatter
             : baz(a, b, c)
         """
 
-        #expect(BlockIndentFormatter.reindent(input, by: 4) == expected + "\n")
+        #expect(WhitespaceFormatter.reindent(input, by: 4) == expected + "\n")
     }
     @Test static func PredicateWhereClause() {
         let input: String = """
@@ -198,7 +198,7 @@ import BlockIndentFormatter
         }
         """
 
-        #expect(BlockIndentFormatter.reindent(input, by: 4) == expected + "\n")
+        #expect(WhitespaceFormatter.reindent(input, by: 4) == expected + "\n")
     }
     @Test static func GenericWhereClause() {
         let input: String = """
@@ -214,7 +214,7 @@ import BlockIndentFormatter
         }
         """
 
-        #expect(BlockIndentFormatter.reindent(input, by: 4) == expected + "\n")
+        #expect(WhitespaceFormatter.reindent(input, by: 4) == expected + "\n")
     }
     @Test static func GenericWhereClauseNewline() {
         let input: String = """
@@ -232,7 +232,7 @@ import BlockIndentFormatter
         }
         """
 
-        #expect(BlockIndentFormatter.reindent(input, by: 4) == expected + "\n")
+        #expect(WhitespaceFormatter.reindent(input, by: 4) == expected + "\n")
     }
     @Test static func InheritanceClause() {
         let input: String = """
@@ -248,7 +248,7 @@ import BlockIndentFormatter
         }
         """
 
-        #expect(BlockIndentFormatter.reindent(input, by: 4) == expected + "\n")
+        #expect(WhitespaceFormatter.reindent(input, by: 4) == expected + "\n")
     }
     @Test static func Nested() {
         let input: String = """
@@ -294,7 +294,7 @@ import BlockIndentFormatter
         }
         """
 
-        #expect(BlockIndentFormatter.reindent(input, by: 4) == expected + "\n")
+        #expect(WhitespaceFormatter.reindent(input, by: 4) == expected + "\n")
     }
 
     @Test func MultilineStringLiteralLeadingWhitespace() {
@@ -311,7 +311,7 @@ import BlockIndentFormatter
         """
         """#
 
-        #expect(BlockIndentFormatter.reindent(input, by: 4) == expected + "\n")
+        #expect(WhitespaceFormatter.reindent(input, by: 4) == expected + "\n")
     }
     @Test func MultilineStringLiteralTrailingWhitespace() {
         let input: String = """
@@ -329,7 +329,7 @@ import BlockIndentFormatter
         """
         """#
 
-        #expect(BlockIndentFormatter.reindent(input, by: 4) == expected + "\n")
+        #expect(WhitespaceFormatter.reindent(input, by: 4) == expected + "\n")
     }
     @Test func MultilineStringLiteralInterpolationWhitespace() {
         let input: String = """
@@ -343,7 +343,7 @@ import BlockIndentFormatter
         """
         """#
 
-        #expect(BlockIndentFormatter.reindent(input, by: 4) == expected + "\n")
+        #expect(WhitespaceFormatter.reindent(input, by: 4) == expected + "\n")
     }
     @Test func MultilineStringLiteralInterpolationInterspersed() {
         let input: String = """
@@ -373,7 +373,7 @@ import BlockIndentFormatter
         """
         """#
 
-        #expect(BlockIndentFormatter.reindent(input, by: 4) == expected + "\n")
+        #expect(WhitespaceFormatter.reindent(input, by: 4) == expected + "\n")
     }
     @Test func MultilineStringLiteralInterpolationEscapedLinebreaks() {
         let input: String = #"""
@@ -403,7 +403,7 @@ import BlockIndentFormatter
         """
         """#
 
-        #expect(BlockIndentFormatter.reindent(input, by: 4) == expected + "\n")
+        #expect(WhitespaceFormatter.reindent(input, by: 4) == expected + "\n")
     }
     @Test func MultilineStringLiteralWithPoundDelimiter() {
         let input: String = """
@@ -421,7 +421,7 @@ import BlockIndentFormatter
         \"""#
         """
 
-        #expect(BlockIndentFormatter.reindent(input, by: 4) == expected + "\n")
+        #expect(WhitespaceFormatter.reindent(input, by: 4) == expected + "\n")
     }
 
     @Test func BlockCommentPreservation() {
@@ -436,7 +436,7 @@ import BlockIndentFormatter
                 that should be preserved as-is */
         """
 
-        #expect(BlockIndentFormatter.reindent(input, by: 4) == expected + "\n")
+        #expect(WhitespaceFormatter.reindent(input, by: 4) == expected + "\n")
     }
 
     @Test func IfConfig() {
@@ -455,7 +455,7 @@ import BlockIndentFormatter
         #endif
         """
 
-        #expect(BlockIndentFormatter.reindent(input, by: 4) == expected + "\n")
+        #expect(WhitespaceFormatter.reindent(input, by: 4) == expected + "\n")
     }
 
     @Test func MemberAccess() {
@@ -472,7 +472,7 @@ import BlockIndentFormatter
             .sorted()
         """
 
-        #expect(BlockIndentFormatter.reindent(input, by: 4) == expected + "\n")
+        #expect(WhitespaceFormatter.reindent(input, by: 4) == expected + "\n")
     }
     @Test func LeadingDot() {
         let input: String = """
@@ -486,6 +486,6 @@ import BlockIndentFormatter
         )
         """
 
-        #expect(BlockIndentFormatter.reindent(input, by: 4) == expected + "\n")
+        #expect(WhitespaceFormatter.reindent(input, by: 4) == expected + "\n")
     }
 }

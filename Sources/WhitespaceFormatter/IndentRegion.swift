@@ -1,4 +1,4 @@
-struct BlockIndentRegion {
+struct IndentRegion {
     /// UTF-8 byte offset where this region starts.
     let start: Int
     /// Indentation level, in indentation units.

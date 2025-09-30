@@ -1,8 +1,8 @@
 import SwiftSyntax
 import SwiftParser
 
-class BlockIndentCalculator: SyntaxVisitor {
-    private(set) var regions: [BlockIndentRegion]
+class IndentCalculator: SyntaxVisitor {
+    private(set) var regions: [IndentRegion]
     private var level: Int
     private var rawContext: Bool
 
@@ -423,7 +423,7 @@ class BlockIndentCalculator: SyntaxVisitor {
         return .skipChildren
     }
 }
-extension BlockIndentCalculator {
+extension IndentCalculator {
     private func walkIfPresent<Node>(_ node: Node?) where Node: SyntaxProtocol {
         if  let node: Node {
             self.walk(node)

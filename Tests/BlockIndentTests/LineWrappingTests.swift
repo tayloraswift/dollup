@@ -1,5 +1,5 @@
 import Testing
-import BlockIndentFormatter
+import WhitespaceFormatter
 
 @Suite struct LineWrappingTests {
     @Test func FunctionCall() {
@@ -21,7 +21,7 @@ import BlockIndentFormatter
         )
         """
 
-        #expect(BlockIndentFormatter.reformat(input, width: 30) == expected + "\n")
+        #expect(WhitespaceFormatter.reformat(input, width: 30) == expected + "\n")
     }
 
     @Test func FunctionCallNested() {
@@ -44,7 +44,7 @@ import BlockIndentFormatter
         )
         """
 
-        #expect(BlockIndentFormatter.reformat(input, width: 30) == expected + "\n")
+        #expect(WhitespaceFormatter.reformat(input, width: 30) == expected + "\n")
     }
 
     @Test func FunctionCallTrailingClosure() {
@@ -61,7 +61,7 @@ import BlockIndentFormatter
         }
         """
 
-        #expect(BlockIndentFormatter.reformat(input, width: 40) == expected + "\n")
+        #expect(WhitespaceFormatter.reformat(input, width: 40) == expected + "\n")
     }
     @Test func FunctionCallTrailingClosureWrappedArguments() {
         let input: String = """
@@ -86,7 +86,7 @@ import BlockIndentFormatter
         }
         """
 
-        #expect(BlockIndentFormatter.reformat(input, width: 40) == expected + "\n")
+        #expect(WhitespaceFormatter.reformat(input, width: 40) == expected + "\n")
     }
 
     @Test func FunctionDeclaration() {
@@ -105,7 +105,7 @@ import BlockIndentFormatter
         ) -> Void
         """
 
-        #expect(BlockIndentFormatter.reformat(input, width: 30) == expected + "\n")
+        #expect(WhitespaceFormatter.reformat(input, width: 30) == expected + "\n")
     }
 
     @Test func InstanceFunction() {
@@ -130,7 +130,7 @@ import BlockIndentFormatter
         }
         """
 
-        #expect(BlockIndentFormatter.reformat(input, width: 40) == expected + "\n")
+        #expect(WhitespaceFormatter.reformat(input, width: 40) == expected + "\n")
     }
 
     @Test func IfLet() {
@@ -152,7 +152,7 @@ import BlockIndentFormatter
         }
         """
 
-        #expect(BlockIndentFormatter.reformat(input, width: 40) == expected + "\n")
+        #expect(WhitespaceFormatter.reformat(input, width: 40) == expected + "\n")
     }
 
     @Test func IfLetElseLet() {
@@ -185,7 +185,7 @@ import BlockIndentFormatter
         }
         """
 
-        #expect(BlockIndentFormatter.reformat(input, width: 40) == expected + "\n")
+        #expect(WhitespaceFormatter.reformat(input, width: 40) == expected + "\n")
     }
 
     @Test func WhileLoopBodyIndentation() {
@@ -209,7 +209,7 @@ import BlockIndentFormatter
         }
         """
 
-        #expect(BlockIndentFormatter.reformat(input, width: 80) == expected + "\n")
+        #expect(WhitespaceFormatter.reformat(input, width: 80) == expected + "\n")
     }
 
     @Test func Attribute() {
@@ -231,7 +231,7 @@ import BlockIndentFormatter
         }
         """
 
-        #expect(BlockIndentFormatter.reformat(input, width: 40) == expected + "\n")
+        #expect(WhitespaceFormatter.reformat(input, width: 40) == expected + "\n")
     }
 
     @Test func Parentheses() {
@@ -247,7 +247,7 @@ import BlockIndentFormatter
         )
         """
 
-        #expect(BlockIndentFormatter.reformat(input, width: 24) == expected + "\n")
+        #expect(WhitespaceFormatter.reformat(input, width: 24) == expected + "\n")
     }
 
     @Test func GenericArguments() {
@@ -265,7 +265,7 @@ import BlockIndentFormatter
         )
         """
 
-        #expect(BlockIndentFormatter.reformat(input, width: 40) == expected + "\n")
+        #expect(WhitespaceFormatter.reformat(input, width: 40) == expected + "\n")
     }
 
     @Test func GenericWhereClause() {
@@ -286,7 +286,7 @@ import BlockIndentFormatter
         }
         """
 
-        #expect(BlockIndentFormatter.reformat(input, width: 40) == expected + "\n")
+        #expect(WhitespaceFormatter.reformat(input, width: 40) == expected + "\n")
     }
 
     @Test func StringLiteralLeadingWhitespace() {
@@ -299,7 +299,7 @@ import BlockIndentFormatter
         """
         """#
 
-        #expect(BlockIndentFormatter.reformat(input, width: 22) == expected + "\n")
+        #expect(WhitespaceFormatter.reformat(input, width: 22) == expected + "\n")
     }
     @Test func StringLiteralTrailingWhitespace() {
         let input: String = """
@@ -311,7 +311,7 @@ import BlockIndentFormatter
         """
         """#
 
-        #expect(BlockIndentFormatter.reformat(input, width: 22) == expected + "\n")
+        #expect(WhitespaceFormatter.reformat(input, width: 22) == expected + "\n")
     }
 
     @Test func StringLiteralOfWhitespace() {
@@ -324,7 +324,7 @@ import BlockIndentFormatter
         """
         """#
 
-        #expect(BlockIndentFormatter.reformat(input, width: 22) == expected + "\n")
+        #expect(WhitespaceFormatter.reformat(input, width: 22) == expected + "\n")
     }
     @Test func StringLiteralWithPoundDelimiters() {
         /// We should leave these alone
@@ -335,7 +335,7 @@ import BlockIndentFormatter
         let x: String = #"         "#
         """
 
-        #expect(BlockIndentFormatter.reformat(input, width: 22) == expected + "\n")
+        #expect(WhitespaceFormatter.reformat(input, width: 22) == expected + "\n")
     }
 
     @Test func OutOfOrderLinebreaking() {
@@ -357,6 +357,6 @@ import BlockIndentFormatter
         }
         """#
 
-        #expect(BlockIndentFormatter.reformat(input, width: 60) == expected + "\n")
+        #expect(WhitespaceFormatter.reformat(input, width: 60) == expected + "\n")
     }
 }
