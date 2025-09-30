@@ -1,0 +1,20 @@
+#!/bin/bash
+set -e
+
+if [ -z $DOLLUP_PLATFORM ]; then
+    echo "DOLLUP_PLATFORM environment variable not set"
+    exit 1
+fi
+
+if [ -z $DOLLUP_VERSION ]; then
+    echo "DOLLUP_VERSION environment variable not set"
+    exit 1
+fi
+
+while [[ $# -gt 0 ]]; do
+    aws s3 cp $1 \
+        s3://tayloraswift/dollup/$DOLLUP_VERSION/$DOLLUP_PLATFORM/$1 \
+        --content-encoding gzip \
+        --content-type application/gzip
+    shift
+done
