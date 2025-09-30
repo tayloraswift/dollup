@@ -40,7 +40,7 @@ let package = Package(
             ]
         ),
         .testTarget(
-            name: "BlockIndentTests",
+            name: "WhitespaceFormatterTests",
             dependencies: [
                 .target(name: "WhitespaceFormatter"),
             ],
