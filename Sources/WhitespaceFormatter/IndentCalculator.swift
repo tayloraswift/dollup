@@ -223,7 +223,11 @@ class IndentCalculator: SyntaxVisitor {
 
         self.walkIfPresent(node.tryKeyword)
         self.walkIfPresent(node.awaitKeyword)
+
+        #if canImport(SwiftSyntax602)
         self.walkIfPresent(node.unsafeKeyword)
+        #endif
+
         self.walkIfPresent(node.caseKeyword)
         self.walk(node.pattern)
         self.walkIfPresent(node.typeAnnotation)
