@@ -4,7 +4,10 @@ public protocol DollupConfiguration {
     static func configure(_ settings: inout DollupSettings, file: FilePath?) throws
 }
 extension DollupConfiguration {
-    public static func format(_ source: consuming String, id: FilePath? = nil) throws -> String {
+    public static func format(
+        _ source: consuming String,
+        id: FilePath? = nil
+    ) throws -> String {
         var settings: DollupSettings = .init()
         try self.configure(&settings, file: id)
         var source: String = source
