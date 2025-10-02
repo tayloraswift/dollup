@@ -468,7 +468,10 @@ extension LineWrapper {
         if !arguments.isEmpty,
             let leftDelimiter: TokenSyntax = leftDelimiter,
             let rightDelimiter: TokenSyntax = rightDelimiter,
-            case true? = self.limitViolated(by: (leftDelimiter, rightDelimiter), tier: .inline) {
+            case true? = self.limitViolated(
+                by: (leftDelimiter, rightDelimiter),
+                tier: .inline
+            ) {
             self.break(after: leftDelimiter)
             for parameter: LabeledExprSyntax in arguments {
                 self.break(after: parameter)

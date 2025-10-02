@@ -146,7 +146,9 @@ class LineExpander: SyntaxVisitor {
 
     override func visit(_ node: SubscriptCallExprSyntax) -> SyntaxVisitorContinueKind {
         if !node.arguments.isEmpty,
-            node.arguments.containsInteriorNewlines(between: (node.leftSquare, node.rightSquare)) {
+            node.arguments.containsInteriorNewlines(
+                between: (node.leftSquare, node.rightSquare)
+            ) {
             if  node.arguments.lacksPrecedingNewline {
                 self.break(before: node.arguments)
             }
