@@ -8,7 +8,7 @@ public struct WhitespaceFormatter {
     private let options: WhitespaceOptions
 }
 extension WhitespaceFormatter {
-    public init(configure: (inout WhitespaceOptions) throws -> ()) throws {
+    public init(configure: (inout WhitespaceOptions) throws -> ()) rethrows {
         var options: WhitespaceOptions = .init()
         try configure(&options)
         self.init(options: options)
