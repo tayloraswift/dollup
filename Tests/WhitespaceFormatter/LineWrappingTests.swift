@@ -51,15 +51,15 @@ import WhitespaceFormatter
         let input: String = """
         myFunction(arg1: 1, arg2: 2) { print("this is a long line that should be wrapped") }
         """
-        let expected: String = """
+        let expected: String = #"""
         myFunction(arg1: 1, arg2: 2) {
             print(
-                \"""
+                """
                 this is a long line that should be wrapped
-                \"""
+                """
             )
         }
-        """
+        """#
 
         #expect(try WhitespaceFormatter.reformat(input, width: 40) == expected + "\n")
     }
@@ -87,6 +87,52 @@ import WhitespaceFormatter
         """
 
         #expect(try WhitespaceFormatter.reformat(input, width: 40) == expected + "\n")
+    }
+    @Test static func FunctionCallTrailingClosureMultiple() throws {
+        ///                                                      | +60
+        let input: String = """
+        func encode(to encoder: inout Encoder) {
+            encoder {
+                $0("foo", "bar") { "blah blah blah" } content: { "blah blah blah" }
+            }
+        }
+        """
+        ///                                                      | +60
+        let expected: String = """
+        func encode(to encoder: inout Encoder) {
+            encoder {
+                $0("foo", "bar") { "blah blah blah" } content: {
+                    "blah blah blah"
+                }
+            }
+        }
+        """
+
+        #expect(try WhitespaceFormatter.reformat(input, width: 60) == expected + "\n")
+    }
+    @Test static func FunctionCallTrailingClosureMultipleBreaks() throws {
+        ///                                                      | +60
+        let input: String = """
+        func encode(to encoder: inout Encoder) {
+            encoder {
+                $0("foo", "bar") { "blah blah blah blah" } content: { "blah blah blah" }
+            }
+        }
+        """
+        ///                                                      | +60
+        let expected: String = """
+        func encode(to encoder: inout Encoder) {
+            encoder {
+                $0("foo", "bar") {
+                    "blah blah blah blah"
+                } content: {
+                    "blah blah blah"
+                }
+            }
+        }
+        """
+
+        #expect(try WhitespaceFormatter.reformat(input, width: 60) == expected + "\n")
     }
 
     @Test static func FunctionDeclaration() throws {
@@ -272,7 +318,7 @@ import WhitespaceFormatter
         let input: String = """
         func f<T>(
             x: TypeName<Generic<T>, Generic<AVeryLongTypeName>>
-        ) -> Int where Generic<T>: ProtocolWithLongName, T: AnotherProtocolWithLongName {
+        ) -> Int where Generic<T>: Protocol, T: AnotherProtocolWithLongName {
         }
         """
         let expected: String = """
@@ -281,7 +327,7 @@ import WhitespaceFormatter
                 Generic<T>,
                 Generic<AVeryLongTypeName>
             >
-        ) -> Int where Generic<T>: ProtocolWithLongName,
+        ) -> Int where Generic<T>: Protocol,
             T: AnotherProtocolWithLongName {
         }
         """
@@ -356,6 +402,53 @@ import WhitespaceFormatter
             )
         }
         """#
+
+        #expect(try WhitespaceFormatter.reformat(input, width: 60) == expected + "\n")
+    }
+
+    @Test static func NonGreedyFunctionSignature() throws {
+        /// This should break the arguments, even though they do not overflow the line length
+        ///                                                      | +60
+        let input: String = """
+        extension S {
+            func function(x: [Unicode.Scalar: String]) -> Unicode.Scalar {
+                "x"
+            }
+        }
+        """
+        ///                                                      | +60
+        let expected: String = """
+        extension S {
+            func function(
+                x: [Unicode.Scalar: String]
+            ) -> Unicode.Scalar {
+                "x"
+            }
+        }
+        """
+
+        #expect(try WhitespaceFormatter.reformat(input, width: 60) == expected + "\n")
+    }
+    @Test static func NonGreedySubscriptAssignment() throws {
+        /// This should break the closure, not the string literal
+        ///                                                      | +60
+        let input: String = """
+        func encode(to encoder: inout Encoder) {
+            encoder {
+                $0["foo"] { "blah blah blah blah blah" } = "blah blah blah blah blah"
+            }
+        }
+        """
+        ///                                                      | +60
+        let expected: String = """
+        func encode(to encoder: inout Encoder) {
+            encoder {
+                $0["foo"] {
+                    "blah blah blah blah blah"
+                } = "blah blah blah blah blah"
+            }
+        }
+        """
 
         #expect(try WhitespaceFormatter.reformat(input, width: 60) == expected + "\n")
     }
