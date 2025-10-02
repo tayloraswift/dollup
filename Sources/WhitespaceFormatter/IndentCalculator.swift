@@ -71,9 +71,23 @@ class IndentCalculator: SyntaxVisitor {
         self.deindent(before: node.rightSquare)
         return .skipChildren
     }
+    override func visit(_ node: ArrayTypeSyntax) -> SyntaxVisitorContinueKind {
+        self.indent(after: node.leftSquare)
+        self.walk(node.element)
+        self.deindent(before: node.rightSquare)
+        return .skipChildren
+    }
     override func visit(_ node: DictionaryExprSyntax) -> SyntaxVisitorContinueKind {
         self.indent(after: node.leftSquare)
         self.walk(node.content)
+        self.deindent(before: node.rightSquare)
+        return .skipChildren
+    }
+    override func visit(_ node: DictionaryTypeSyntax) -> SyntaxVisitorContinueKind {
+        self.indent(after: node.leftSquare)
+        self.walk(node.key)
+        self.walk(node.colon)
+        self.walk(node.value)
         self.deindent(before: node.rightSquare)
         return .skipChildren
     }

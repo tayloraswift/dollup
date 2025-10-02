@@ -77,6 +77,17 @@ class LineWrapper: SyntaxVisitor {
         }
         return .skipChildren
     }
+    override func visit(_ node: ArrayTypeSyntax) -> SyntaxVisitorContinueKind {
+        switch self.limitViolated(by: node, tier: .typeSugar) {
+        case nil: return .visitChildren
+        case true?: break
+        case false?: return .skipChildren
+        }
+
+        self.break(after: node.leftSquare)
+        self.break(after: node.element)
+        return .skipChildren
+    }
     override func visit(_ node: DictionaryExprSyntax) -> SyntaxVisitorContinueKind {
         guard case .elements(let elements) = node.content else {
             // we cannot line wrap a `[:]` dictionary literal
@@ -93,6 +104,17 @@ class LineWrapper: SyntaxVisitor {
         for element: DictionaryElementSyntax in elements {
             self.break(after: element)
         }
+        return .skipChildren
+    }
+    override func visit(_ node: DictionaryTypeSyntax) -> SyntaxVisitorContinueKind {
+        switch self.limitViolated(by: node, tier: .typeSugar) {
+        case nil: return .visitChildren
+        case true?: break
+        case false?: return .skipChildren
+        }
+
+        self.break(after: node.leftSquare)
+        self.break(after: node.value)
         return .skipChildren
     }
 
