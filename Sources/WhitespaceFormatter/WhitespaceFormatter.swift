@@ -43,11 +43,12 @@ extension WhitespaceFormatter {
             let wrapper: LineWrapper = .init(text: source, width: self.options.width)
             ;   wrapper.walk(tree)
 
-            if  wrapper.linebreaks.isEmpty {
+            let linebreaks: [Linebreak] = wrapper.linebreaks
+            if  linebreaks.isEmpty {
                 break
             }
 
-            source = self.reindent(source.insert(linebreaks: wrapper.linebreaks))
+            source = self.reindent(source.insert(linebreaks: linebreaks))
             tree = self.parse(source: source)
         }
 

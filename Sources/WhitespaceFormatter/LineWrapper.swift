@@ -1,24 +1,21 @@
 import SwiftSyntax
 
 class LineWrapper: SyntaxVisitor {
-    private(set) var linebreaks: [Linebreak]
     /// The original source text, used for measuring line lengths.
     private let text: String
-    private var dirty: String.Index?
-
-    private let width: Int
+    private var line: [String.Index: LinebreakContext].Index?
+    private var lines: [String.Index: LinebreakContext]
 
     init(text: String, width: Int) {
-        self.linebreaks = []
         self.text = text
-        self.dirty = nil
+        self.line = nil
+        self.lines = Self.contexts(source: text, width: width)
 
-        self.width = width
         super.init(viewMode: .sourceAccurate)
     }
 
     override func visit(_ node: AccessorBlockSyntax) -> SyntaxVisitorContinueKind {
-        switch self.limitViolated(by: node) {
+        switch self.limitViolated(by: node, tier: .block) {
         case nil: return .visitChildren
         case true?: break
         case false?: return .skipChildren
@@ -29,7 +26,7 @@ class LineWrapper: SyntaxVisitor {
         return .skipChildren
     }
     override func visit(_ node: CodeBlockSyntax) -> SyntaxVisitorContinueKind {
-        switch self.limitViolated(by: node) {
+        switch self.limitViolated(by: node, tier: .block) {
         case nil: return .visitChildren
         case true?: break
         case false?: return .skipChildren
@@ -40,7 +37,7 @@ class LineWrapper: SyntaxVisitor {
         return .skipChildren
     }
     override func visit(_ node: MemberBlockSyntax) -> SyntaxVisitorContinueKind {
-        switch self.limitViolated(by: node) {
+        switch self.limitViolated(by: node, tier: .block) {
         case nil: return .visitChildren
         case true?: break
         case false?: return .skipChildren
@@ -51,7 +48,7 @@ class LineWrapper: SyntaxVisitor {
         return .skipChildren
     }
     override func visit(_ node: ClosureExprSyntax) -> SyntaxVisitorContinueKind {
-        switch self.limitViolated(by: node) {
+        switch self.limitViolated(by: node, tier: .block) {
         case nil: return .visitChildren
         case true?: break
         case false?: return .skipChildren
@@ -68,7 +65,7 @@ class LineWrapper: SyntaxVisitor {
     }
 
     override func visit(_ node: ArrayExprSyntax) -> SyntaxVisitorContinueKind {
-        switch self.limitViolated(by: node) {
+        switch self.limitViolated(by: node, tier: .inline) {
         case nil: return .visitChildren
         case true?: break
         case false?: return .skipChildren
@@ -86,7 +83,7 @@ class LineWrapper: SyntaxVisitor {
             return .skipChildren
         }
 
-        switch self.limitViolated(by: node) {
+        switch self.limitViolated(by: node, tier: .inline) {
         case nil: return .visitChildren
         case true?: break
         case false?: return .skipChildren
@@ -105,7 +102,7 @@ class LineWrapper: SyntaxVisitor {
             return .skipChildren
         }
 
-        switch self.limitViolated(by: node) {
+        switch self.limitViolated(by: node, tier: .inline) {
         case nil: return .visitChildren
         case true?: break
         case false?: return .skipChildren
@@ -123,7 +120,7 @@ class LineWrapper: SyntaxVisitor {
             return .skipChildren
         }
 
-        switch self.limitViolated(by: node) {
+        switch self.limitViolated(by: node, tier: .inline) {
         case nil: return .visitChildren
         case true?: break
         case false?: return .skipChildren
@@ -140,7 +137,7 @@ class LineWrapper: SyntaxVisitor {
             return .skipChildren
         }
 
-        switch self.limitViolated(by: node) {
+        switch self.limitViolated(by: node, tier: .inline) {
         case nil: return .visitChildren
         case true?: break
         case false?: return .skipChildren
@@ -161,7 +158,7 @@ class LineWrapper: SyntaxVisitor {
             return .visitChildren
         }
 
-        switch self.limitViolated(by: node) {
+        switch self.limitViolated(by: node, tier: .decorator) {
         case nil: return .visitChildren
         case true?: break
         case false?: return .skipChildren
@@ -212,7 +209,7 @@ class LineWrapper: SyntaxVisitor {
             return .skipChildren
         }
 
-        switch self.limitViolated(by: node) {
+        switch self.limitViolated(by: node, tier: .inline) {
         case nil: return .visitChildren
         case true?: break
         case false?: return .skipChildren
@@ -225,7 +222,7 @@ class LineWrapper: SyntaxVisitor {
         return .skipChildren
     }
     override func visit(_ node: EnumCaseParameterClauseSyntax) -> SyntaxVisitorContinueKind {
-        switch self.limitViolated(by: node) {
+        switch self.limitViolated(by: node, tier: .inline) {
         case nil: return .visitChildren
         case true?: break
         case false?: return .skipChildren
@@ -242,7 +239,7 @@ class LineWrapper: SyntaxVisitor {
             return .skipChildren
         }
 
-        switch self.limitViolated(by: node) {
+        switch self.limitViolated(by: node, tier: .inline) {
         case nil: return .visitChildren
         case true?: break
         case false?: return .skipChildren
@@ -255,39 +252,26 @@ class LineWrapper: SyntaxVisitor {
         return .skipChildren
     }
     override func visit(_ node: FunctionCallExprSyntax) -> SyntaxVisitorContinueKind {
-        // try breaking the argument list (it is not a single node)
-        if !node.arguments.isEmpty,
-            let leftParen: TokenSyntax = node.leftParen,
-            let rightParen: TokenSyntax = node.rightParen,
-            case true? = self.limitViolated(by: (leftParen, rightParen)) {
-            self.break(
-                leftParen: leftParen,
-                arguments: node.arguments
-            )
-            return .skipChildren
-        } else {
-            // visit children to find breakable closures, worst case we just waste some time
-            return .visitChildren
-        }
+        self.visit(
+            leftParen: node.leftParen,
+            arguments: node.arguments,
+            rightParen: node.rightParen,
+            trailingClosure: node.trailingClosure,
+            additionalClosures: node.additionalTrailingClosures
+        )
     }
     override func visit(_ node: MacroExpansionExprSyntax) -> SyntaxVisitorContinueKind {
-        // try breaking the argument list (it is not a single node)
-        if !node.arguments.isEmpty,
-            let leftParen: TokenSyntax = node.leftParen,
-            let rightParen: TokenSyntax = node.rightParen,
-            case true? = self.limitViolated(by: (leftParen, rightParen)) {
-            self.break(
-                leftParen: leftParen,
-                arguments: node.arguments
-            )
-            return .skipChildren
-        } else {
-            return .visitChildren
-        }
+        self.visit(
+            leftParen: node.leftParen,
+            arguments: node.arguments,
+            rightParen: node.rightParen,
+            trailingClosure: node.trailingClosure,
+            additionalClosures: node.additionalTrailingClosures
+        )
     }
 
     override func visit(_ node: GenericArgumentClauseSyntax) -> SyntaxVisitorContinueKind {
-        switch self.limitViolated(by: node) {
+        switch self.limitViolated(by: node, tier: .inline) {
         case nil: return .visitChildren
         case true?: break
         case false?: return .skipChildren
@@ -300,7 +284,7 @@ class LineWrapper: SyntaxVisitor {
         return .skipChildren
     }
     override func visit(_ node: GenericParameterClauseSyntax) -> SyntaxVisitorContinueKind {
-        switch self.limitViolated(by: node) {
+        switch self.limitViolated(by: node, tier: .inline) {
         case nil: return .visitChildren
         case true?: break
         case false?: return .skipChildren
@@ -313,7 +297,7 @@ class LineWrapper: SyntaxVisitor {
         return .skipChildren
     }
     override func visit(_ node: PrimaryAssociatedTypeClauseSyntax) -> SyntaxVisitorContinueKind {
-        switch self.limitViolated(by: node) {
+        switch self.limitViolated(by: node, tier: .inline) {
         case nil: return .visitChildren
         case true?: break
         case false?: return .skipChildren
@@ -330,7 +314,7 @@ class LineWrapper: SyntaxVisitor {
     // ``CodeBlockSyntax`` nodes inside them that are wrappable
 
     override func visit(_ node: SwitchCaseSyntax) -> SyntaxVisitorContinueKind {
-        switch self.limitViolated(by: node) {
+        switch self.limitViolated(by: node, tier: .block) {
         case nil: return .visitChildren
         case true?: break
         case false?: return .skipChildren
@@ -348,7 +332,7 @@ class LineWrapper: SyntaxVisitor {
             return .visitChildren
         }
 
-        switch self.limitViolated(by: node) {
+        switch self.limitViolated(by: node, tier: .string) {
         case nil: return .visitChildren
         case true?: break
         case false?: return .skipChildren
@@ -365,7 +349,7 @@ class LineWrapper: SyntaxVisitor {
             return .visitChildren
         }
 
-        switch self.limitViolated(by: node) {
+        switch self.limitViolated(by: node, tier: .inline) {
         case nil: return .visitChildren
         case true?: break
         case false?: return .skipChildren
@@ -382,7 +366,7 @@ class LineWrapper: SyntaxVisitor {
             return .visitChildren
         }
 
-        switch self.limitViolated(by: node) {
+        switch self.limitViolated(by: node, tier: .inline) {
         case nil: return .visitChildren
         case true?: break
         case false?: return .skipChildren
@@ -403,20 +387,22 @@ extension LineWrapper {
 
     /// Returns true if the given node is fully contained within one single line, and does
     /// not fit within the specified line length limit.
-    private func limitViolated(by node: some SyntaxProtocol) -> Bool? {
+    private func limitViolated(by node: some SyntaxProtocol, tier: LinebreakTier) -> Bool? {
         self.limitViolated(
-            by: node.positionAfterSkippingLeadingTrivia ..< node.endPositionBeforeTrailingTrivia
+            by: node.positionAfterSkippingLeadingTrivia ..< node.endPositionBeforeTrailingTrivia,
+            tier: tier
         )
     }
-    private func limitViolated(by nodes: (some SyntaxProtocol, some SyntaxProtocol)) -> Bool? {
+    private func limitViolated(by nodes: (some SyntaxProtocol, some SyntaxProtocol), tier: LinebreakTier) -> Bool? {
         self.limitViolated(
             by: nodes.0.positionAfterSkippingLeadingTrivia
-                ..< nodes.1.endPositionBeforeTrailingTrivia
+                ..< nodes.1.endPositionBeforeTrailingTrivia,
+            tier: tier
         )
     }
     /// Returns true if the given source range is fully contained within one single line, and
     /// does not fit within the specified line length limit.
-    private func limitViolated(by range: Range<AbsolutePosition>) -> Bool? {
+    private func limitViolated(by range: Range<AbsolutePosition>, tier: LinebreakTier) -> Bool? {
         let start: String.Index = self.text.utf8.index(
             self.text.utf8.startIndex,
             offsetBy: range.lowerBound.utf8Offset
@@ -426,68 +412,77 @@ extension LineWrapper {
             offsetBy: range.upperBound.utf8Offset
         )
 
-        let characters: Int
-        let lineIndex: String.Index
+        let line: String.Index
 
         if  let newline: String.Index = self.text[..<end].lastIndex(where: \.isNewline) {
             if  newline > start {
                 // spans multiple lines, so computing line length is not meaningful
+                self.line = nil
                 return nil
             }
 
-            if case newline? = self.dirty {
-                // we have already broken something on this line
-                return false
-            } else {
-                lineIndex = newline
-            }
-
-            let start: String.Index = self.text.index(after: newline)
-            characters = self.text[start..<end].count
+            line = self.text.index(after: newline)
         } else {
             // first line
-            if case self.text.startIndex? = self.dirty {
-                // we have already broken something on this line
-                return false
-            } else {
-                lineIndex = self.text.startIndex
-            }
-
-            characters = self.text[..<end].count
+            line = self.text.startIndex
         }
 
-        if  self.width < characters {
-            self.dirty = lineIndex
-            return true
-        } else {
+        self.line = self.lines.index(forKey: line)
+
+        guard
+        let line: [String.Index: LinebreakContext].Index = self.line else {
+            // line fits within the limit
             return false
         }
+
+        return {
+            if  let prior: LinebreakTier = $0.tier, prior < tier {
+                // we have already broken this line, and that line break is better
+                return false
+            } else {
+                $0.tier = tier
+                $0.breaks = []
+                return true
+            }
+        } (&self.lines.values[line])
     }
 
-    private func `break`(
-        leftParen: TokenSyntax,
+    private func visit(
+        leftParen: TokenSyntax?,
         arguments: LabeledExprListSyntax,
+        rightParen: TokenSyntax?,
         trailingClosure: ClosureExprSyntax?,
-        additionalTrailingClosures: MultipleTrailingClosureElementListSyntax,
-    ) {
-        // if there are single line trailing closures, we want to try breaking those first,
-        // in case that allows us to not have to break the argument list
-        if  let first: ClosureExprSyntax = trailingClosure {
-            self.break(closure: first)
-            for next: MultipleTrailingClosureElementSyntax in additionalTrailingClosures {
-                self.break(closure: next.closure)
+        additionalClosures: MultipleTrailingClosureElementListSyntax,
+    ) -> SyntaxVisitorContinueKind {
+        for labeled: MultipleTrailingClosureElementSyntax in additionalClosures.reversed() {
+            if case true? = self.limitViolated(by: labeled, tier: .block) {
+                self.break(after: labeled.closure.leftBrace)
+                self.break(before: labeled.closure.rightBrace)
+                return .skipChildren
             }
-        } else {
+        }
+        if  let closure: ClosureExprSyntax = trailingClosure,
+            case true? = self.limitViolated(by: closure, tier: .block) {
+            self.break(after: closure.leftBrace)
+            self.break(before: closure.rightBrace)
+            return .skipChildren
+        }
+        // try breaking the argument list (it is not a single node)
+        if !arguments.isEmpty,
+            let leftParen: TokenSyntax = leftParen,
+            let rightParen: TokenSyntax = rightParen,
+            case true? = self.limitViolated(by: (leftParen, rightParen), tier: .inline) {
             self.break(
                 leftParen: leftParen,
                 arguments: arguments
             )
+            return .skipChildren
+        } else {
+            return .visitChildren
         }
     }
-    private func `break`(
-        leftParen: TokenSyntax,
-        arguments: LabeledExprListSyntax,
-    ) {
+
+    private func `break`(leftParen: TokenSyntax, arguments: LabeledExprListSyntax) {
         self.break(after: leftParen)
         for parameter: LabeledExprSyntax in arguments {
             self.break(after: parameter)
@@ -504,18 +499,47 @@ extension LineWrapper {
     }
     private func `break`(before node: some SyntaxProtocol, type: LinebreakType = .newline) {
         /// Line break position is after any leading trivia.
-        let position: String.Index = self.text.utf8.index(
-            self.text.utf8.startIndex,
-            offsetBy: node.positionAfterSkippingLeadingTrivia.utf8Offset
-        )
-        self.linebreaks.append(.init(index: position, type: type))
+        self.break(at: node.positionAfterSkippingLeadingTrivia, type: type)
     }
     private func `break`(after node: some SyntaxProtocol, type: LinebreakType = .newline) {
         /// Line break position is after any trailing trivia, such as a trailing line comment.
-        let position: String.Index = self.text.utf8.index(
+        self.break(at: node.endPosition, type: type)
+    }
+
+    private func `break`(at position: AbsolutePosition, type: LinebreakType) {
+        guard let line: [String.Index: LinebreakContext].Index = self.line else {
+            fatalError("not a valid line to break!?!?")
+        }
+
+        let index: String.Index = self.text.utf8.index(
             self.text.utf8.startIndex,
-            offsetBy: node.endPosition.utf8Offset
+            offsetBy: position.utf8Offset
         )
-        self.linebreaks.append(.init(index: position, type: type))
+
+        self.lines.values[line].breaks.append(.init(index: index, type: type))
+    }
+}
+extension LineWrapper {
+    private static func contexts(source text: String, width: Int) -> [String.Index: LinebreakContext] {
+        var lines: [String.Index: LinebreakContext] = [:]
+        var i: String.Index = text.startIndex
+        while i < text.endIndex {
+            let j: String.Index = text[i...].firstIndex(where: \.isNewline) ?? text.endIndex
+
+            if  width < text[i ..< j].count {
+                lines[i] = .init()
+            }
+
+            if  j < text.endIndex {
+                i = text.index(after: j)
+            } else {
+                break
+            }
+        }
+        return lines
+    }
+
+    var linebreaks: [Linebreak] {
+        self.lines.values.flatMap(\.breaks)
     }
 }

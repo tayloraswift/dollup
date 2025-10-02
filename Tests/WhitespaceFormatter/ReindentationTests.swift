@@ -488,4 +488,25 @@ import WhitespaceFormatter
 
         #expect(try WhitespaceFormatter.reindent(input, by: 4) == expected + "\n")
     }
+
+    @Test static func ClosureParameters() throws {
+        let input: String = """
+        foo(1) {
+        (
+        x: Int,
+        y: String
+        ) -> Bool in
+        }
+        """
+        let expected: String = """
+        foo(1) {
+            (
+                x: Int,
+                y: String
+            ) -> Bool in
+        }
+        """
+
+        #expect(try WhitespaceFormatter.reindent(input, by: 4) == expected + "\n")
+    }
 }
