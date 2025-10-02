@@ -4,10 +4,12 @@ public protocol DollupConfiguration {
     static func configure(_ settings: inout DollupSettings, file: FilePath?) throws
 }
 extension DollupConfiguration {
-    public static func format(_ source: inout String, id: FilePath? = nil) throws {
+    public static func format(_ source: consuming String, id: FilePath? = nil) throws -> String {
         var settings: DollupSettings = .init()
         try self.configure(&settings, file: id)
+        var source: String = source
         settings.whitespace.reformat(&source, check: settings.check)
+        return source
     }
 }
 extension DollupConfiguration {
@@ -20,9 +22,12 @@ extension DollupConfiguration {
         let file: FilePath = .init(CommandLine.arguments[1])
 
         do {
-            var source: String = try file.read()
-            try self.format(&source, id: file)
-            try file.overwrite(with: [UInt8].init(source.utf8)[...])
+            let before: String = try file.read()
+            let after: String = try self.format(before, id: file)
+            if  after == before {
+                return
+            }
+            try file.overwrite(with: [UInt8].init(after.utf8)[...])
         } catch {
             print("error: \(error)")
             SystemProcess.exit(with: 1)
