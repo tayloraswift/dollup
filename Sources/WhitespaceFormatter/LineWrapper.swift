@@ -301,7 +301,8 @@ class LineWrapper: SyntaxVisitor {
             arguments: node.arguments,
             rightDelimiter: node.rightParen,
             trailingClosure: node.trailingClosure,
-            additionalClosures: node.additionalTrailingClosures
+            additionalClosures: node.additionalTrailingClosures,
+            tier: .inline
         )
     }
     override func visit(_ node: MacroExpansionExprSyntax) -> SyntaxVisitorContinueKind {
@@ -312,7 +313,8 @@ class LineWrapper: SyntaxVisitor {
             arguments: node.arguments,
             rightDelimiter: node.rightParen,
             trailingClosure: node.trailingClosure,
-            additionalClosures: node.additionalTrailingClosures
+            additionalClosures: node.additionalTrailingClosures,
+            tier: .inline
         )
     }
 
@@ -323,7 +325,8 @@ class LineWrapper: SyntaxVisitor {
             arguments: node.arguments,
             rightDelimiter: node.rightSquare,
             trailingClosure: node.trailingClosure,
-            additionalClosures: node.additionalTrailingClosures
+            additionalClosures: node.additionalTrailingClosures,
+            tier: .subscript
         )
     }
 
@@ -450,6 +453,7 @@ extension LineWrapper {
         rightDelimiter: TokenSyntax?,
         trailingClosure: ClosureExprSyntax?,
         additionalClosures: MultipleTrailingClosureElementListSyntax,
+        tier: LinebreakTier
     ) -> SyntaxVisitorContinueKind {
         for labeled: MultipleTrailingClosureElementSyntax in additionalClosures.reversed() {
             if case true? = self.limitViolated(by: labeled, tier: .block) {
@@ -470,7 +474,7 @@ extension LineWrapper {
             let rightDelimiter: TokenSyntax = rightDelimiter,
             case true? = self.limitViolated(
                 by: (leftDelimiter, rightDelimiter),
-                tier: .inline
+                tier: tier
             ) {
             self.break(after: leftDelimiter)
             for parameter: LabeledExprSyntax in arguments {
@@ -542,6 +546,11 @@ extension LineWrapper {
         return {
             if  let prior: LinebreakTier = $0.tier, prior < tier {
                 // we have already broken this line, and that line break is better
+                return false
+            } else if
+                case tier? = $0.tier,
+                case .rtl = tier.direction {
+                // we have already broken this line at the same tier, and it is right-to-left
                 return false
             } else {
                 $0.tier = tier
