@@ -24,7 +24,7 @@ extension DollupConfiguration {
         do {
             let before: String = try file.read()
             let after: String = try self.format(before, id: file)
-            if  after == before {
+            if  after.utf8.elementsEqual(before.utf8) {
                 return
             }
             try file.overwrite(with: [UInt8].init(after.utf8)[...])
