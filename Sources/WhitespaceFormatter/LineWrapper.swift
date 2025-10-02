@@ -166,8 +166,29 @@ class LineWrapper: SyntaxVisitor {
 
         self.break(after: leftParen)
         switch arguments {
+
+        #if canImport(SwiftSyntax602)
         case .abiArguments(let arguments):
             self.break(after: arguments.provider)
+        #else
+        case .token(let token):
+            self.break(after: token)
+        case .string(let string):
+            self.break(after: string)
+        case .conventionArguments(let arguments):
+            self.break(after: arguments)
+        case .conventionWitnessMethodArguments(let arguments):
+            self.break(after: arguments)
+        case .opaqueReturnTypeOfAttributeArguments(let arguments):
+            self.break(after: arguments)
+        case .exposeAttributeArguments(let arguments):
+            self.break(after: arguments)
+        case .underscorePrivateAttributeArguments(let arguments):
+            self.break(after: arguments)
+        case .unavailableFromAsyncArguments(let arguments):
+            self.break(after: arguments)
+        #endif
+
         case .argumentList(let arguments):
             for argument: LabeledExprSyntax in arguments {
                 self.break(after: argument)
