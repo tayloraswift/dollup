@@ -8,6 +8,8 @@ let package = Package(
     ],
     products: [
         .executable(name: "dollup", targets: ["DollupTool"]),
+        .library(name: "Dollup", targets: ["Dollup"]),
+        .library(name: "DollupConfig", targets: ["DollupConfig"]),
     ],
     dependencies: [
         .package(url: "https://github.com/apple/swift-argument-parser", from: "1.0.0"),
