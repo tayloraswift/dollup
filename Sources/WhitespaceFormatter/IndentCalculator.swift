@@ -178,7 +178,9 @@ class IndentCalculator: SyntaxVisitor {
         self.deindent(before: node.rightAngle)
         return .skipChildren
     }
-    override func visit(_ node: PrimaryAssociatedTypeClauseSyntax) -> SyntaxVisitorContinueKind {
+    override func visit(
+        _ node: PrimaryAssociatedTypeClauseSyntax
+    ) -> SyntaxVisitorContinueKind {
         self.indent(after: node.leftAngle)
         self.walk(node.primaryAssociatedTypes)
         self.deindent(before: node.rightAngle)

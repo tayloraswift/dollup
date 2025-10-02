@@ -296,7 +296,9 @@ class LineWrapper: SyntaxVisitor {
         }
         return .skipChildren
     }
-    override func visit(_ node: PrimaryAssociatedTypeClauseSyntax) -> SyntaxVisitorContinueKind {
+    override func visit(
+        _ node: PrimaryAssociatedTypeClauseSyntax
+    ) -> SyntaxVisitorContinueKind {
         switch self.limitViolated(by: node, tier: .inline) {
         case nil: return .visitChildren
         case true?: break
@@ -393,7 +395,10 @@ extension LineWrapper {
             tier: tier
         )
     }
-    private func limitViolated(by nodes: (some SyntaxProtocol, some SyntaxProtocol), tier: LinebreakTier) -> Bool? {
+    private func limitViolated(
+        by nodes: (some SyntaxProtocol, some SyntaxProtocol),
+        tier: LinebreakTier
+    ) -> Bool? {
         self.limitViolated(
             by: nodes.0.positionAfterSkippingLeadingTrivia
                 ..< nodes.1.endPositionBeforeTrailingTrivia,
@@ -402,7 +407,10 @@ extension LineWrapper {
     }
     /// Returns true if the given source range is fully contained within one single line, and
     /// does not fit within the specified line length limit.
-    private func limitViolated(by range: Range<AbsolutePosition>, tier: LinebreakTier) -> Bool? {
+    private func limitViolated(
+        by range: Range<AbsolutePosition>,
+        tier: LinebreakTier
+    ) -> Bool? {
         let start: String.Index = self.text.utf8.index(
             self.text.utf8.startIndex,
             offsetBy: range.lowerBound.utf8Offset
@@ -520,7 +528,10 @@ extension LineWrapper {
     }
 }
 extension LineWrapper {
-    private static func contexts(source text: String, width: Int) -> [String.Index: LinebreakContext] {
+    private static func contexts(
+        source text: String,
+        width: Int
+    ) -> [String.Index: LinebreakContext] {
         var lines: [String.Index: LinebreakContext] = [:]
         var i: String.Index = text.startIndex
         while i < text.endIndex {

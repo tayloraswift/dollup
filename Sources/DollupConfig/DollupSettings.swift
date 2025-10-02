@@ -11,7 +11,9 @@ public struct DollupSettings: ~Copyable {
     }
 }
 extension DollupSettings {
-    public mutating func whitespace(_ configure: (inout WhitespaceOptions) throws -> ()) rethrows {
+    public mutating func whitespace(
+        _ configure: (inout WhitespaceOptions) throws -> ()
+    ) rethrows {
         self.whitespace = try .init(configure: configure)
     }
 }

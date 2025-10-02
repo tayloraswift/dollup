@@ -166,7 +166,9 @@ class LineExpander: SyntaxVisitor {
         }
         return .visitChildren
     }
-    override func visit(_ node: PrimaryAssociatedTypeClauseSyntax) -> SyntaxVisitorContinueKind {
+    override func visit(
+        _ node: PrimaryAssociatedTypeClauseSyntax
+    ) -> SyntaxVisitorContinueKind {
         if !node.primaryAssociatedTypes.isEmpty, node.containsInteriorNewlines {
             if  node.primaryAssociatedTypes.lacksPrecedingNewline {
                 self.break(before: node.primaryAssociatedTypes)
