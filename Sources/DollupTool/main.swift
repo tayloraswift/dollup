@@ -98,7 +98,7 @@ extension Dollup: ParsableCommand {
 extension Dollup {
     private func run(on file: FilePath) throws {
         var source: String = try file.read()
-        let formatter: WhitespaceFormatter = try .init {
+        let formatter: WhitespaceFormatter = .init {
             $0.indent.ifConfig = self._indentIfConfig
             $0.indent.spaces = self.indent
 

@@ -23,8 +23,33 @@ let package = Package(
                 .product(name: "ArgumentParser", package: "swift-argument-parser"),
                 .product(name: "SystemIO", package: "swift-io"),
                 .product(name: "System_ArgumentParser", package: "swift-io"),
-            ]),
+            ]
+        ),
+        .executableTarget(
+            name: "DollupSettings",
+            dependencies: [
+                .target(name: "DollupConfig"),
+            ]
+        ),
 
+        .plugin(
+            name: "DollupPlugin",
+            capability: .command(
+                intent: .custom(verb: "dollup", description: "format source files"),
+                permissions: [.writeToPackageDirectory(reason: "code formatter")],
+            ),
+            dependencies: [
+                .target(name: "DollupSettings"),
+            ]
+        ),
+
+        .target(
+            name: "DollupConfig",
+            dependencies: [
+                .target(name: "Dollup"),
+                .product(name: "SystemIO", package: "swift-io"),
+            ]
+        ),
         .target(
             name: "Dollup",
             dependencies: [
@@ -48,10 +73,12 @@ let package = Package(
     ]
 )
 for target: Target in package.targets {
+    if case .plugin = target.type {
+        continue
+    }
     {
-        $0 =
-            ($0 ?? []) + [
-                .enableUpcomingFeature("ExistentialAny")
-            ]
+        $0 = ($0 ?? []) + [
+            .enableUpcomingFeature("ExistentialAny")
+        ]
     }(&target.swiftSettings)
 }
