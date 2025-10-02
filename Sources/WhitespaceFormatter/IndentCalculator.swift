@@ -142,41 +142,36 @@ class IndentCalculator: SyntaxVisitor {
     }
     override func visit(_ node: FunctionCallExprSyntax) -> SyntaxVisitorContinueKind {
         self.walk(node.calledExpression)
-
-        if  let left: TokenSyntax = node.leftParen {
-            self.indent(after: left)
-        }
-
-        self.walk(node.arguments)
-
-        if let right: TokenSyntax = node.rightParen {
-            self.deindent(before: right)
-        }
-
-        self.walkIfPresent(node.trailingClosure)
-        self.walkIfPresent(node.additionalTrailingClosures)
-
-        return .skipChildren
+        return self.visit(
+            leftDelimiter: node.leftParen,
+            arguments: node.arguments,
+            rightDelimiter: node.rightParen,
+            trailingClosure: node.trailingClosure,
+            additionalClosures: node.additionalTrailingClosures
+        )
     }
     override func visit(_ node: MacroExpansionExprSyntax) -> SyntaxVisitorContinueKind {
         self.walk(node.pound)
         self.walk(node.macroName)
         self.walkIfPresent(node.genericArgumentClause)
+        return self.visit(
+            leftDelimiter: node.leftParen,
+            arguments: node.arguments,
+            rightDelimiter: node.rightParen,
+            trailingClosure: node.trailingClosure,
+            additionalClosures: node.additionalTrailingClosures
+        )
+    }
 
-        if  let left: TokenSyntax = node.leftParen {
-            self.indent(after: left)
-        }
-
-        self.walk(node.arguments)
-
-        if let right: TokenSyntax = node.rightParen {
-            self.deindent(before: right)
-        }
-
-        self.walkIfPresent(node.trailingClosure)
-        self.walkIfPresent(node.additionalTrailingClosures)
-
-        return .skipChildren
+    override func visit(_ node: SubscriptCallExprSyntax) -> SyntaxVisitorContinueKind {
+        self.walk(node.calledExpression)
+        return self.visit(
+            leftDelimiter: node.leftSquare,
+            arguments: node.arguments,
+            rightDelimiter: node.rightSquare,
+            trailingClosure: node.trailingClosure,
+            additionalClosures: node.additionalTrailingClosures
+        )
     }
 
     override func visit(_ node: GenericArgumentClauseSyntax) -> SyntaxVisitorContinueKind {
@@ -448,6 +443,29 @@ extension IndentCalculator {
         if  let node: Node {
             self.walk(node)
         }
+    }
+
+    private func visit(
+        leftDelimiter: TokenSyntax?,
+        arguments: LabeledExprListSyntax,
+        rightDelimiter: TokenSyntax?,
+        trailingClosure: ClosureExprSyntax?,
+        additionalClosures: MultipleTrailingClosureElementListSyntax,
+    ) -> SyntaxVisitorContinueKind {
+        if  let left: TokenSyntax = leftDelimiter {
+            self.indent(after: left)
+        }
+
+        self.walk(arguments)
+
+        if let right: TokenSyntax = rightDelimiter {
+            self.deindent(before: right)
+        }
+
+        self.walkIfPresent(trailingClosure)
+        self.walkIfPresent(additionalClosures)
+
+        return .skipChildren
     }
 
     private func outdent(token: TokenSyntax) {

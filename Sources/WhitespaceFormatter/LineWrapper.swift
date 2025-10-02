@@ -295,19 +295,33 @@ class LineWrapper: SyntaxVisitor {
         return .skipChildren
     }
     override func visit(_ node: FunctionCallExprSyntax) -> SyntaxVisitorContinueKind {
-        self.visit(
-            leftParen: node.leftParen,
+        self.walk(node.calledExpression)
+        return self.visit(
+            leftDelimiter: node.leftParen,
             arguments: node.arguments,
-            rightParen: node.rightParen,
+            rightDelimiter: node.rightParen,
             trailingClosure: node.trailingClosure,
             additionalClosures: node.additionalTrailingClosures
         )
     }
     override func visit(_ node: MacroExpansionExprSyntax) -> SyntaxVisitorContinueKind {
-        self.visit(
-            leftParen: node.leftParen,
+        self.walk(node.macroName)
+        self.walkIfPresent(node.genericArgumentClause)
+        return self.visit(
+            leftDelimiter: node.leftParen,
             arguments: node.arguments,
-            rightParen: node.rightParen,
+            rightDelimiter: node.rightParen,
+            trailingClosure: node.trailingClosure,
+            additionalClosures: node.additionalTrailingClosures
+        )
+    }
+
+    override func visit(_ node: SubscriptCallExprSyntax) -> SyntaxVisitorContinueKind {
+        self.walk(node.calledExpression)
+        return self.visit(
+            leftDelimiter: node.leftSquare,
+            arguments: node.arguments,
+            rightDelimiter: node.rightSquare,
             trailingClosure: node.trailingClosure,
             additionalClosures: node.additionalTrailingClosures
         )
@@ -430,6 +444,42 @@ extension LineWrapper {
         }
     }
 
+    private func visit(
+        leftDelimiter: TokenSyntax?,
+        arguments: LabeledExprListSyntax,
+        rightDelimiter: TokenSyntax?,
+        trailingClosure: ClosureExprSyntax?,
+        additionalClosures: MultipleTrailingClosureElementListSyntax,
+    ) -> SyntaxVisitorContinueKind {
+        for labeled: MultipleTrailingClosureElementSyntax in additionalClosures.reversed() {
+            if case true? = self.limitViolated(by: labeled, tier: .block) {
+                self.break(after: labeled.closure.leftBrace)
+                self.break(before: labeled.closure.rightBrace)
+                return .skipChildren
+            }
+        }
+        if  let closure: ClosureExprSyntax = trailingClosure,
+            case true? = self.limitViolated(by: closure, tier: .block) {
+            self.break(after: closure.leftBrace)
+            self.break(before: closure.rightBrace)
+            return .skipChildren
+        }
+        // try breaking the argument list (it is not a single node)
+        if !arguments.isEmpty,
+            let leftDelimiter: TokenSyntax = leftDelimiter,
+            let rightDelimiter: TokenSyntax = rightDelimiter,
+            case true? = self.limitViolated(by: (leftDelimiter, rightDelimiter), tier: .inline) {
+            self.break(after: leftDelimiter)
+            for parameter: LabeledExprSyntax in arguments {
+                self.break(after: parameter)
+            }
+            return .skipChildren
+        } else {
+            return .visitChildren
+        }
+    }
+
+
     /// Returns true if the given node is fully contained within one single line, and does
     /// not fit within the specified line length limit.
     private func limitViolated(by node: some SyntaxProtocol, tier: LinebreakTier) -> Bool? {
@@ -498,47 +548,6 @@ extension LineWrapper {
         } (&self.lines.values[line])
     }
 
-    private func visit(
-        leftParen: TokenSyntax?,
-        arguments: LabeledExprListSyntax,
-        rightParen: TokenSyntax?,
-        trailingClosure: ClosureExprSyntax?,
-        additionalClosures: MultipleTrailingClosureElementListSyntax,
-    ) -> SyntaxVisitorContinueKind {
-        for labeled: MultipleTrailingClosureElementSyntax in additionalClosures.reversed() {
-            if case true? = self.limitViolated(by: labeled, tier: .block) {
-                self.break(after: labeled.closure.leftBrace)
-                self.break(before: labeled.closure.rightBrace)
-                return .skipChildren
-            }
-        }
-        if  let closure: ClosureExprSyntax = trailingClosure,
-            case true? = self.limitViolated(by: closure, tier: .block) {
-            self.break(after: closure.leftBrace)
-            self.break(before: closure.rightBrace)
-            return .skipChildren
-        }
-        // try breaking the argument list (it is not a single node)
-        if !arguments.isEmpty,
-            let leftParen: TokenSyntax = leftParen,
-            let rightParen: TokenSyntax = rightParen,
-            case true? = self.limitViolated(by: (leftParen, rightParen), tier: .inline) {
-            self.break(
-                leftParen: leftParen,
-                arguments: arguments
-            )
-            return .skipChildren
-        } else {
-            return .visitChildren
-        }
-    }
-
-    private func `break`(leftParen: TokenSyntax, arguments: LabeledExprListSyntax) {
-        self.break(after: leftParen)
-        for parameter: LabeledExprSyntax in arguments {
-            self.break(after: parameter)
-        }
-    }
     private func `break`(closure node: ClosureExprSyntax) {
         if  let signature: ClosureSignatureSyntax = node.signature {
             self.break(after: signature)
