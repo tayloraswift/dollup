@@ -4,11 +4,6 @@ public protocol DollupConfiguration {
     static func configure(_ settings: inout DollupSettings, file: FilePath) throws
 }
 extension DollupConfiguration {
-    public static func configure(_: inout DollupSettings, file: FilePath) throws {
-        print("[default settings]: formatting '\(file)'")
-    }
-}
-extension DollupConfiguration {
     @MainActor public static func main() throws {
         guard CommandLine.arguments.count == 2 else {
             print("no file path given!")
