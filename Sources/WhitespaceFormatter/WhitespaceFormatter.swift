@@ -21,10 +21,7 @@ extension WhitespaceFormatter {
         }
     }
 
-    public func reformat(
-        _ source: inout String,
-        check: Bool
-    ) {
+    public func reformat(_ source: inout String, check: Bool) {
         let original: Syntax? = check ? self.parse(source: source) : nil
         var tree: Syntax
 
@@ -38,6 +35,18 @@ extension WhitespaceFormatter {
         // were not correct
         source = self.reindent(source)
         tree = self.parse(source: source)
+
+        // this pass assumes the indentation is already correct
+        if  let style: BraceStyle = self.options.braces {
+            let calculator: BracketCalculator = .init(style: style)
+            ;   calculator.walk(tree)
+
+            let aligner: BracketAligner = .init(style: style, brackets: calculator.brackets)
+            let aligned: Syntax = aligner.rewrite(tree)
+
+            source = self.reindent("\(aligned)")
+            tree = self.parse(source: source)
+        }
 
         while true {
             let wrapper: LineWrapper = .init(text: source, width: self.options.width)
