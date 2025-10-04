@@ -153,6 +153,23 @@ import WhitespaceFormatter
 
         #expect(try WhitespaceFormatter.reformat(input, width: 30) == expected + "\n")
     }
+    @Test static func FunctionType() throws {
+        let input: String = """
+        let f: (Int, String, Double, Double, Double, Double) -> ()
+        """
+        let expected: String = """
+        let f: (
+            Int,
+            String,
+            Double,
+            Double,
+            Double,
+            Double
+        ) -> ()
+        """
+
+        #expect(try WhitespaceFormatter.reformat(input, width: 30) == expected + "\n")
+    }
 
     @Test static func InstanceFunction() throws {
         let input: String = """

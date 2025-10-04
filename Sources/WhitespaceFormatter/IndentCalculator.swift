@@ -140,6 +140,14 @@ class IndentCalculator: SyntaxVisitor {
         self.deindent(before: node.rightParen)
         return .skipChildren
     }
+    override func visit(_ node: FunctionTypeSyntax) -> SyntaxVisitorContinueKind {
+        self.indent(after: node.leftParen)
+        self.walk(node.parameters)
+        self.deindent(before: node.rightParen)
+        self.walkIfPresent(node.effectSpecifiers)
+        self.walk(node.returnClause)
+        return .skipChildren
+    }
     override func visit(_ node: FunctionCallExprSyntax) -> SyntaxVisitorContinueKind {
         self.walk(node.calledExpression)
         return self.visit(
