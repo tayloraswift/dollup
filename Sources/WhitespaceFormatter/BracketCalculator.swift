@@ -1,13 +1,5 @@
 import SwiftSyntax
 
-extension BracketCalculator {
-    struct Scope {
-        let type: BracketType
-        let soft: Bool
-        let line: UInt
-        let open: AbsolutePosition
-    }
-}
 final class BracketCalculator: SyntaxVisitor {
     private(set) var brackets: [AbsolutePosition: BracketSide]
 
