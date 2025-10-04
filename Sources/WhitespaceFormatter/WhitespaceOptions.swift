@@ -6,6 +6,7 @@ public struct WhitespaceOptions {
 
     public var indent: IndentOptions
     public var braces: BraceStyle?
+    public var keywordsOnSameLine: Bool
 }
 extension WhitespaceOptions {
     init() {
@@ -13,7 +14,8 @@ extension WhitespaceOptions {
             operators: .standardOperators,
             width: 96,
             indent: IndentOptions.init(spaces: 4, ifConfig: false),
-            braces: .egyptian
+            braces: .egyptian,
+            keywordsOnSameLine: true
         )
     }
 }
