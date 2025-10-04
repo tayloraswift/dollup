@@ -16,6 +16,112 @@ import WhitespaceFormatter
         #expect(self.egyptian(input) == egyptian + "\n")
         #expect(self.allman(input) == allman + "\n")
     }
+    @Test static func RepeatWhile() throws {
+        let input: String = """
+        if condition {
+            foo()
+        }
+        while condition {
+            bar()
+        }
+        repeat {
+            baz()
+        } while condition
+        repeat {
+            baz()
+        }
+        while condition
+        """
+        let egyptian: String = """
+        if condition {
+            foo()
+        }
+        while condition {
+            bar()
+        }
+        repeat {
+            baz()
+        } while condition
+        repeat {
+            baz()
+        } while condition
+        """
+        let allman: String = """
+        if condition
+        {
+            foo()
+        }
+        while condition
+        {
+            bar()
+        }
+        repeat
+        {
+            baz()
+        }
+        while condition
+        repeat
+        {
+            baz()
+        }
+        while condition
+        """
+
+        #expect(self.egyptian(input) == egyptian + "\n")
+        #expect(self.allman(input) == allman + "\n")
+    }
+    @Test static func DoCatch() throws {
+        let input: String = """
+        do {
+        }
+        do {
+        } catch {
+        }
+        do
+        {
+        }
+        catch
+        {
+        }
+        catch
+        {
+        }
+        """
+        let egyptian: String = """
+        do {
+        }
+        do {
+        } catch {
+        }
+        do {
+        } catch {
+        } catch {
+        }
+        """
+        let allman: String = """
+        do
+        {
+        }
+        do
+        {
+        }
+        catch
+        {
+        }
+        do
+        {
+        }
+        catch
+        {
+        }
+        catch
+        {
+        }
+        """
+
+        #expect(self.egyptian(input) == egyptian + "\n")
+        #expect(self.allman(input) == allman + "\n")
+    }
     @Test static func IfElse() throws {
         let input: String = """
         if condition {

@@ -10,7 +10,9 @@ class BracketAligner: SyntaxRewriter {
         super.init(viewMode: .sourceAccurate)
     }
 
-    override func visit(_ node: MultipleTrailingClosureElementSyntax) -> MultipleTrailingClosureElementSyntax {
+    override func visit(
+        _ node: MultipleTrailingClosureElementSyntax
+    ) -> MultipleTrailingClosureElementSyntax {
         // important to pass the node *before* its children were rewritten, because the
         // rewritten children may have non-canonical trivia
         super.visit(node).with(\.label, self.align(node: node.label))
@@ -18,22 +20,20 @@ class BracketAligner: SyntaxRewriter {
 
     override func visit(_ node: TokenSyntax) -> TokenSyntax {
         switch node.tokenKind {
-        case .leftBrace: self.alignToOpening(node: node)
-        case .leftSquare: self.alignToOpening(node: node)
-        case .leftParen: self.alignToOpening(node: node)
-        case .multilineStringQuote: self.alignToOpening(node: node)
-        case .rawStringPoundDelimiter: self.alignToOpening(node: node)
+        case .leftBrace: self.alignAsOpening(node: node)
+        case .leftSquare: self.alignAsOpening(node: node)
+        case .leftParen: self.alignAsOpening(node: node)
+        case .multilineStringQuote: self.alignAsOpening(node: node)
+        case .rawStringPoundDelimiter: self.alignAsOpening(node: node)
         case .keyword(.else): self.alignToClosing(node: node)
         case .keyword(.catch): self.alignToClosing(node: node)
         case .keyword(.while): self.alignToClosing(node: node)
-        case .equal: self.alignToClosing(node: node)
-        case .binaryOperator: self.alignToClosing(node: node)
         default: node
         }
     }
 }
 extension BracketAligner {
-    private func alignToOpening(node: TokenSyntax) -> TokenSyntax {
+    private func alignAsOpening(node: TokenSyntax) -> TokenSyntax {
         if  case .opening? = self.brackets[node.positionAfterSkippingLeadingTrivia] {
             return self.align(node: node)
         } else {
@@ -41,7 +41,8 @@ extension BracketAligner {
         }
     }
     private func alignToClosing(node: TokenSyntax) -> TokenSyntax {
-        if  let query: TokenSyntax = node.previousToken(viewMode: .sourceAccurate),
+        if  case .bridging? = self.brackets[node.positionAfterSkippingLeadingTrivia],
+            let query: TokenSyntax = node.previousToken(viewMode: .sourceAccurate),
             case .closing? = self.brackets[query.positionAfterSkippingLeadingTrivia] {
             return self.align(node: node)
         } else {
