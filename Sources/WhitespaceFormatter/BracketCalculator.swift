@@ -42,6 +42,24 @@ final class BracketCalculator: SyntaxVisitor {
         return .skipChildren
     }
 
+    override func visit(_ node: IfExprSyntax) -> SyntaxVisitorContinueKind {
+        if  let elseKeyword: TokenSyntax = node.elseKeyword {
+            self.brackets[elseKeyword.positionAfterSkippingLeadingTrivia] = .bridging
+        }
+        return .visitChildren
+    }
+    override func visit(_ node: DoStmtSyntax) -> SyntaxVisitorContinueKind {
+        for catchClause: CatchClauseSyntax in node.catchClauses {
+            let catchKeyword: TokenSyntax = catchClause.catchKeyword
+            self.brackets[catchKeyword.positionAfterSkippingLeadingTrivia] = .bridging
+        }
+        return .visitChildren
+    }
+    override func visit(_ node: RepeatStmtSyntax) -> SyntaxVisitorContinueKind {
+        self.brackets[node.whileKeyword.positionAfterSkippingLeadingTrivia] = .bridging
+        return .visitChildren
+    }
+
     override func visit(_ token: TokenSyntax) -> SyntaxVisitorContinueKind {
         self.skip(token.leadingTrivia)
 
@@ -96,7 +114,14 @@ extension BracketCalculator {
             soft = false
         }
 
-        self.stack.append(.init(type: type, soft: soft, line: self.line, open: token.positionAfterSkippingLeadingTrivia))
+        self.stack.append(
+            .init(
+                type: type,
+                soft: soft,
+                line: self.line,
+                open: token.positionAfterSkippingLeadingTrivia
+            )
+        )
     }
     private func pop(_ token: TokenSyntax, type: BracketType) {
         guard let scope: Scope = self.stack.popLast() else {
@@ -106,7 +131,9 @@ extension BracketCalculator {
         let position: AbsolutePosition = token.positionAfterSkippingLeadingTrivia
 
         guard case type = scope.type else {
-            fatalError("[\(position)]: mismatched delimiter, expected '\(scope.type)', got '\(type)'")
+            fatalError(
+                "[\(position)]: mismatched delimiter, expected '\(scope.type)', got '\(type)'"
+            )
         }
 
         if  scope.soft, scope.line < self.line {
