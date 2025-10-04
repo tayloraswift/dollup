@@ -13,7 +13,7 @@ extension WhitespaceOptions {
             operators: .standardOperators,
             width: 96,
             indent: IndentOptions.init(spaces: 4, ifConfig: false),
-            braces: .`k&r`
+            braces: .egyptian
         )
     }
 }
