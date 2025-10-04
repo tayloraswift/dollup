@@ -294,6 +294,23 @@ class LineWrapper: SyntaxVisitor {
         }
         return .skipChildren
     }
+    override func visit(_ node: FunctionTypeSyntax) -> SyntaxVisitorContinueKind {
+        if node.parameters.isEmpty {
+            return .skipChildren
+        }
+
+        switch self.limitViolated(by: (node.leftParen, node.rightParen), tier: .inline) {
+        case nil: return .visitChildren
+        case true?: break
+        case false?: return .skipChildren
+        }
+
+        self.break(after: node.leftParen)
+        for parameter: TupleTypeElementSyntax in node.parameters {
+            self.break(after: parameter)
+        }
+        return .skipChildren
+    }
     override func visit(_ node: FunctionCallExprSyntax) -> SyntaxVisitorContinueKind {
         self.walk(node.calledExpression)
         return self.visit(
@@ -487,8 +504,6 @@ extension LineWrapper {
     }
 
 
-    /// Returns true if the given node is fully contained within one single line, and does
-    /// not fit within the specified line length limit.
     private func limitViolated(by node: some SyntaxProtocol, tier: LinebreakTier) -> Bool? {
         self.limitViolated(
             by: node.positionAfterSkippingLeadingTrivia ..< node.endPositionBeforeTrailingTrivia,
@@ -505,8 +520,6 @@ extension LineWrapper {
             tier: tier
         )
     }
-    /// Returns true if the given source range is fully contained within one single line, and
-    /// does not fit within the specified line length limit.
     private func limitViolated(
         by range: Range<AbsolutePosition>,
         tier: LinebreakTier

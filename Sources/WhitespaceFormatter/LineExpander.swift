@@ -115,6 +115,17 @@ class LineExpander: SyntaxVisitor {
         }
         return .visitChildren
     }
+    override func visit(_ node: FunctionTypeSyntax) -> SyntaxVisitorContinueKind {
+        if !node.parameters.isEmpty, node.containsInteriorNewlines {
+            if  node.parameters.lacksPrecedingNewline {
+                self.break(before: node.parameters)
+            }
+            if  node.rightParen.lacksPrecedingNewline {
+                self.break(before: node.rightParen)
+            }
+        }
+        return .visitChildren
+    }
     override func visit(_ node: FunctionCallExprSyntax) -> SyntaxVisitorContinueKind {
         if !node.arguments.isEmpty,
             let leftParen: TokenSyntax = node.leftParen,

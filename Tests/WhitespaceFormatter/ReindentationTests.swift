@@ -62,6 +62,24 @@ import WhitespaceFormatter
 
         #expect(try WhitespaceFormatter.reindent(input, by: 4) == expected + "\n")
     }
+    @Test static func FunctionType() throws {
+        let input: String = """
+        let f: (
+        Int,
+        String,
+        Double
+        ) -> ()
+        """
+        let expected: String = """
+        let f: (
+            Int,
+            String,
+            Double
+        ) -> ()
+        """
+
+        #expect(try WhitespaceFormatter.reindent(input, by: 4) == expected + "\n")
+    }
     @Test static func FunctionDeclaration() throws {
         let input: String = """
         func myFunction(
