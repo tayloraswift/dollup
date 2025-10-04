@@ -72,11 +72,11 @@ extension BracketAligner {
             // a space before the node, which is non-canonical, but will be reattributed on
             // the next re-parse
             let padding: Trivia
-            if  case .`k&r` = self.style,
+            if  case .egyptian = self.style,
                 case .spaces? = previous.trailingTrivia.pieces.last {
                 padding = []
             } else if
-                case .`k&r` = self.style, node.leadingTrivia.isEmpty {
+                case .egyptian = self.style, node.leadingTrivia.isEmpty {
                 padding = []
             } else {
                 padding = [self.style.before]

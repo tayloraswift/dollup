@@ -470,7 +470,7 @@ import WhitespaceFormatter
 }
 extension BraceStyleTests {
     private static func egyptian(_ input: consuming String) -> String {
-        let formatter: WhitespaceFormatter = .init { $0.braces = .`k&r` }
+        let formatter: WhitespaceFormatter = .init { $0.braces = .egyptian }
         var input: String = input
         formatter.reformat(&input, check: true)
         return input
