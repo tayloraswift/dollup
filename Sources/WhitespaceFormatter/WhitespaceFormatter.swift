@@ -47,6 +47,16 @@ extension WhitespaceFormatter {
             source = self.reindent("\(aligned)")
             tree = self.parse(source: source)
         }
+        if  self.options.keywordsOnSameLine {
+            let calculator: VerticalKeywordCalculator = .init()
+            ;   calculator.walk(tree)
+
+            let aligner: VerticalKeywordAligner = .init(movable: calculator.movable)
+            let aligned: Syntax = aligner.rewrite(tree)
+
+            source = self.reindent("\(aligned)")
+            tree = self.parse(source: source)
+        }
 
         while true {
             let wrapper: LineWrapper = .init(text: source, width: self.options.width)
