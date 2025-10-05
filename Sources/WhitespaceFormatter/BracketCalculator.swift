@@ -47,6 +47,10 @@ final class BracketCalculator: SyntaxVisitor {
         }
         return .visitChildren
     }
+    override func visit(_ node: GuardStmtSyntax) -> SyntaxVisitorContinueKind {
+        self.brackets[node.elseKeyword.positionAfterSkippingLeadingTrivia] = .bridging
+        return .visitChildren
+    }
     override func visit(_ node: RepeatStmtSyntax) -> SyntaxVisitorContinueKind {
         self.brackets[node.whileKeyword.positionAfterSkippingLeadingTrivia] = .bridging
         return .visitChildren

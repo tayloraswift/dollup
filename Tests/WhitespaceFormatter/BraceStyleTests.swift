@@ -122,6 +122,40 @@ import WhitespaceFormatter
         #expect(self.egyptian(input) == egyptian + "\n")
         #expect(self.allman(input) == allman + "\n")
     }
+    @Test static func GuardElse() throws {
+        let input: String = """
+        guard condition else {
+            return foo()
+        }
+        guard condition
+        else {
+            return foo()
+        }
+        """
+        let egyptian: String = """
+        guard condition else {
+            return foo()
+        }
+        guard condition else {
+            return foo()
+        }
+        """
+        let allman: String = """
+        guard condition
+        else
+        {
+            return foo()
+        }
+        guard condition
+        else
+        {
+            return foo()
+        }
+        """
+
+        #expect(self.egyptian(input) == egyptian + "\n")
+        #expect(self.allman(input) == allman + "\n")
+    }
     @Test static func IfElse() throws {
         let input: String = """
         if condition {
