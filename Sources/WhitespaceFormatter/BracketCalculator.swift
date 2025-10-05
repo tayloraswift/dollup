@@ -96,16 +96,16 @@ extension BracketCalculator {
         }
     }
     private func push(_ token: TokenSyntax, type: BracketType) {
+        var element: Syntax? = token.parent
+
+        while let parent: Syntax = element?.parent, !parent.kind.isSyntaxCollection {
+            element = parent
+        }
+
         let position: AbsolutePosition = token.positionAfterSkippingLeadingTrivia
         let soft: Bool
 
-        if  let parent: Syntax = token.parent,
-            case position = parent.positionAfterSkippingLeadingTrivia,
-            let grandparent: Syntax = parent.parent,
-            case position = grandparent.positionAfterSkippingLeadingTrivia,
-            grandparent.is(CodeBlockItemSyntax.self) ||
-            grandparent.is(ArrayElementSyntax.self) ||
-            grandparent.is(FunctionCallExprSyntax.self) {
+        if case position? = element?.positionAfterSkippingLeadingTrivia {
             soft = false
         } else {
             soft = self.style.moves(type)

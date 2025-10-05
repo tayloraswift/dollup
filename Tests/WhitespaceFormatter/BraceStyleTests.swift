@@ -495,6 +495,66 @@ import WhitespaceFormatter
         #expect(self.egyptian(input) == egyptian + "\n")
         #expect(self.allman(input) == allman + "\n")
     }
+    @Test static func FunctionTypes() throws {
+        let input: String = #"""
+        let f: (
+            (
+                Int,
+                Int
+            )
+        ) -> Int
+        let g: (
+            (
+                Int,
+                Int
+            )??
+        ) -> Int
+        """#
+        let egyptian: String = #"""
+        let f: (
+            (
+                Int,
+                Int
+            )
+        ) -> Int
+        let g: (
+            (
+                Int,
+                Int
+            )??
+        ) -> Int
+        """#
+
+        #expect(self.egyptian(input) == egyptian + "\n")
+    }
+    @Test static func ArgumentsWithoutLabels() throws {
+        let input: String = #"""
+        try foo(
+            (
+                x: 1,
+                y: 2
+            ),
+            (
+                x: 3,
+                y: 4
+            ),
+        )
+        """#
+        let egyptian: String = #"""
+        try foo(
+            (
+                x: 1,
+                y: 2
+            ),
+            (
+                x: 3,
+                y: 4
+            ),
+        )
+        """#
+
+        #expect(self.egyptian(input) == egyptian + "\n")
+    }
     @Test static func Delimiters() throws {
         let input: String = #"""
         if condition
