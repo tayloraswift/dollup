@@ -349,7 +349,7 @@ class LineWrapper: SyntaxVisitor {
     }
 
     override func visit(_ node: GenericArgumentClauseSyntax) -> SyntaxVisitorContinueKind {
-        switch self.limitViolated(by: node, tier: .inline) {
+        switch self.limitViolated(by: node, tier: .angles) {
         case nil: return .visitChildren
         case true?: break
         case false?: return .skipChildren
@@ -362,7 +362,7 @@ class LineWrapper: SyntaxVisitor {
         return .skipChildren
     }
     override func visit(_ node: GenericParameterClauseSyntax) -> SyntaxVisitorContinueKind {
-        switch self.limitViolated(by: node, tier: .inline) {
+        switch self.limitViolated(by: node, tier: .angles) {
         case nil: return .visitChildren
         case true?: break
         case false?: return .skipChildren
@@ -377,7 +377,7 @@ class LineWrapper: SyntaxVisitor {
     override func visit(
         _ node: PrimaryAssociatedTypeClauseSyntax
     ) -> SyntaxVisitorContinueKind {
-        switch self.limitViolated(by: node, tier: .inline) {
+        switch self.limitViolated(by: node, tier: .angles) {
         case nil: return .visitChildren
         case true?: break
         case false?: return .skipChildren
