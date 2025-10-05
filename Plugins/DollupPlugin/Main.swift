@@ -17,7 +17,7 @@ import Foundation
                 case 0 = process.terminationStatus else {
                     Diagnostics.error(
                         """
-                        ❌ dollup failed: \
+                        ❌ dollup failed on file '\(file.url.path)': \
                         \(process.terminationReason), \(process.terminationStatus)
                         """
                     )
