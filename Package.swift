@@ -10,6 +10,8 @@ let package = Package(
         .executable(name: "dollup", targets: ["DollupTool"]),
 
         .executable(name: "DollupTool", targets: ["DollupTool"]),
+        .plugin(name: "DollupPlugin", targets: ["DollupPlugin"]),
+
         .library(name: "Dollup", targets: ["Dollup"]),
         .library(name: "DollupConfig", targets: ["DollupConfig"]),
     ],
