@@ -6,24 +6,32 @@ struct Source: ~Copyable {
     private let operators: OperatorTable
     private(set) var text: String
     private(set) var tree: Syntax
+    private(set) var operatorsNotRecognized: [OperatorError]
 
     private init(operators: OperatorTable, text: String, tree: Syntax) {
         self.operators = operators
         self.text = text
         self.tree = tree
+        self.operatorsNotRecognized = []
     }
 }
 extension Source {
     init(operators: OperatorTable, text: String) {
         self.operators = operators
         self.text = text
-        self.tree = Self.parse(operators: self.operators, text: self.text)
+        (self.tree, self.operatorsNotRecognized) = Self.parse(operators: self.operators, text: self.text)
     }
 
-    static func parse(operators: OperatorTable, text: String) -> Syntax {
-        operators.foldAll(Parser.parse(source: text)) {
-            print("operator folding error: \($0)")
+    mutating func reparse() {
+        (self.tree, self.operatorsNotRecognized) = Self.parse(operators: self.operators, text: self.text)
+    }
+
+    static func parse(operators: OperatorTable, text: String) -> (Syntax, [OperatorError]) {
+        var operatorsNotRecognized: [OperatorError] = []
+        let syntax: Syntax = operators.foldAll(Parser.parse(source: text)) {
+            operatorsNotRecognized.append($0)
         }
+        return (syntax, operatorsNotRecognized)
     }
 }
 extension Source {
@@ -33,7 +41,7 @@ extension Source {
     mutating func update(text: consuming String, didChange: Bool) {
         self.text = text
         if  didChange {
-            self.tree = Self.parse(operators: self.operators, text: self.text)
+            self.reparse()
         }
     }
     mutating func update(with text: consuming String, onChange: (consuming String) -> String) {
