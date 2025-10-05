@@ -6,7 +6,7 @@ public struct WhitespaceOptions {
 
     public var indent: IndentOptions
     public var braces: BraceStyle?
-    public var spacesAfterColons: Bool
+    public var formatColonPadding: Bool
     public var keywordsOnSameLine: Bool
 }
 extension WhitespaceOptions {
@@ -16,7 +16,7 @@ extension WhitespaceOptions {
             width: 96,
             indent: IndentOptions.init(spaces: 4, ifConfig: false),
             braces: .egyptian,
-            spacesAfterColons: true,
+            formatColonPadding: true,
             keywordsOnSameLine: true
         )
     }

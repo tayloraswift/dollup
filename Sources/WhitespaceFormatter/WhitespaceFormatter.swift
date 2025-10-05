@@ -49,7 +49,7 @@ extension WhitespaceFormatter {
 
             source.update(with: aligned, onChange: self.reindent)
         }
-        if  self.options.spacesAfterColons {
+        if  self.options.formatColonPadding {
             let calculator: ColonCalculator = .init()
             ;   calculator.walk(source.tree)
 
