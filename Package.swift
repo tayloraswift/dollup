@@ -16,7 +16,7 @@ let package = Package(
         .library(name: "DollupConfig", targets: ["DollupConfig"]),
     ],
     dependencies: [
-        .package(url: "https://github.com/tayloraswift/swift-io", branch: "master"),
+        .package(url: "https://github.com/tayloraswift/swift-io", from: "0.1.0"),
         .package(url: "https://github.com/swiftlang/swift-syntax", "601.0.0" ..< "603.0.0")
     ],
     targets: [
