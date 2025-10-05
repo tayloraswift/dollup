@@ -336,18 +336,17 @@ import WhitespaceFormatter
 
         #expect(self.egyptian(input) == egyptian + "\n")
     }
-    @Test static func Optionals() throws {
+    @Test static func StandingExpressions() throws {
         let input: String = """
-        if case
-        (
-        let x
-        )? = y {
+        do {
+            {
+            } ()
         }
         """
         let egyptian: String = """
-        if case (
-                let x
-            )? = y {
+        do {
+            {
+            } ()
         }
         """
 

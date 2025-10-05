@@ -116,14 +116,14 @@ extension BracketCalculator {
                 if  case position = container.positionAfterSkippingLeadingTrivia {
                     grandparent = container
                 } else {
-                    // bracket is hard, and it is not inside something that could turn it soft
-                    // by going up one more level in the AST
-                    soft = false
+                    soft = self.style.moves(type)
                     break softness
                 }
             }
 
-            soft = self.style.moves(type)
+            // bracket is hard, and it is not inside something that could turn it soft
+            // by going up one more level in the AST
+            soft = false
         } else {
             soft = self.style.moves(type)
         }
