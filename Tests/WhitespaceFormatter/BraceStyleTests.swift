@@ -453,6 +453,48 @@ import WhitespaceFormatter
         #expect(self.egyptian(input) == egyptian + "\n")
         #expect(self.allman(input) == allman + "\n")
     }
+    @Test static func StringsAsCodeBlockItems() throws {
+        let input: String = #"""
+        if condition {
+            """
+            blah blah blah
+            """
+        }
+        else
+        {   """
+            blah blah blah
+            """
+        }
+        """#
+        let egyptian: String = #"""
+        if condition {
+            """
+            blah blah blah
+            """
+        } else {
+            """
+            blah blah blah
+            """
+        }
+        """#
+        let allman: String = #"""
+        if condition
+        {
+            """
+            blah blah blah
+            """
+        }
+        else
+        {
+            """
+            blah blah blah
+            """
+        }
+        """#
+
+        #expect(self.egyptian(input) == egyptian + "\n")
+        #expect(self.allman(input) == allman + "\n")
+    }
     @Test static func Delimiters() throws {
         let input: String = #"""
         if condition

@@ -57,6 +57,12 @@ class IndentCalculator: SyntaxVisitor {
         self.deindent(before: node.rightBrace)
         return .skipChildren
     }
+    override func visit(_ node: PrecedenceGroupDeclSyntax) -> SyntaxVisitorContinueKind {
+        self.indent(after: node.leftBrace)
+        self.walk(node.groupAttributes)
+        self.deindent(before: node.rightBrace)
+        return .skipChildren
+    }
     override func visit(_ node: ClosureExprSyntax) -> SyntaxVisitorContinueKind {
         self.indent(after: node.leftBrace)
         self.walkIfPresent(node.signature)
