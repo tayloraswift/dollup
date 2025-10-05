@@ -44,9 +44,7 @@ extension BracketAligner {
         }
     }
     private func alignToClosing(node: TokenSyntax) -> TokenSyntax {
-        if  case .bridging? = self.brackets[node.positionAfterSkippingLeadingTrivia],
-            let query: TokenSyntax = node.previousToken(viewMode: .sourceAccurate),
-            case .closing? = self.brackets[query.positionAfterSkippingLeadingTrivia] {
+        if  case .bridging? = self.brackets[node.positionAfterSkippingLeadingTrivia] {
             return self.align(node: node)
         } else {
             return node
