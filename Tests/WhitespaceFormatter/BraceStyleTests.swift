@@ -301,6 +301,14 @@ import WhitespaceFormatter
             x: 1,
             y: 2
         )
+        let c: (
+            x: Int,
+            y: Int
+        )?? =
+        (
+            x: 1,
+            y: 2
+        )
         """
         let egyptian: String = """
         let a: (
@@ -317,6 +325,30 @@ import WhitespaceFormatter
             x: 1,
             y: 2
         )
+        let c: (
+            x: Int,
+            y: Int
+        )?? = (
+            x: 1,
+            y: 2
+        )
+        """
+
+        #expect(self.egyptian(input) == egyptian + "\n")
+    }
+    @Test static func Optionals() throws {
+        let input: String = """
+        if case
+        (
+        let x
+        )? = y {
+        }
+        """
+        let egyptian: String = """
+        if case (
+                let x
+            )? = y {
+        }
         """
 
         #expect(self.egyptian(input) == egyptian + "\n")
