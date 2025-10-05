@@ -53,7 +53,9 @@ extension WhitespaceFormatter {
             let calculator: ColonCalculator = .init()
             ;   calculator.walk(source.tree)
 
-            let reformatted: String = calculator.reformat(tokens: source.tree.tokens(viewMode: .sourceAccurate))
+            let reformatted: String = calculator.reformat(
+                tokens: source.tree.tokens(viewMode: .sourceAccurate)
+            )
 
             source.update(with: reformatted, onChange: self.reindent)
         }
