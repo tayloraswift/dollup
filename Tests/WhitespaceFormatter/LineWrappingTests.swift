@@ -446,6 +446,29 @@ import WhitespaceFormatter
 
         #expect(try WhitespaceFormatter.reformat(input, width: 60) == expected + "\n")
     }
+    @Test static func NonGreedyFunctionGenericReturn() throws {
+        /// This should break the arguments, even though they do not overflow the line length
+        ///                                                      | +60
+        let input: String = """
+        extension S {
+            func function(x: [Int: String]) -> Result<Unicode.Scalar, any Error> {
+                "x"
+            }
+        }
+        """
+        ///                                                      | +60
+        let expected: String = """
+        extension S {
+            func function(
+                x: [Int: String]
+            ) -> Result<Unicode.Scalar, any Error> {
+                "x"
+            }
+        }
+        """
+
+        #expect(try WhitespaceFormatter.reformat(input, width: 60) == expected + "\n")
+    }
     @Test static func NonGreedySubscriptAssignment() throws {
         /// This should break the closure, not the string literal
         ///                                                      | +60
