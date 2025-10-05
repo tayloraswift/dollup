@@ -5,9 +5,39 @@ import WhitespaceFormatter
     @Test static func DictionaryLiterals() throws {
         let input: String = """
         let a: [String:Int] = [:]
+        let b: [String :Int] = [
+            "x":1,
+            "y" : 2,
+            "z"  :   3
+        ]
         """
         let expected: String = """
         let a: [String: Int] = [:]
+        let b: [String: Int] = [
+            "x": 1,
+            "y": 2,
+            "z":   3
+        ]
+        """
+
+        #expect(self.format(input) == expected + "\n")
+    }
+    @Test static func SwitchCases() throws {
+        let input: String = """
+        switch value {
+        case .foo : break
+        case .bar: break
+        case .baz  :break
+        default :   break
+        }
+        """
+        let expected: String = """
+        switch value {
+        case .foo: break
+        case .bar: break
+        case .baz: break
+        default:   break
+        }
         """
 
         #expect(self.format(input) == expected + "\n")

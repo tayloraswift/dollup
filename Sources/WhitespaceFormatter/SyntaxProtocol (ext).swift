@@ -30,4 +30,8 @@ extension SyntaxProtocol {
         }
         return true
     }
+
+    var withoutTrailingSpaces: Self {
+        self.with(\.trailingTrivia, self.trailingTrivia.withoutTrailingSpaces)
+    }
 }

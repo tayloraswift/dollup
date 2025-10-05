@@ -121,24 +121,10 @@ extension ColonCalculator {
                     text += "\(current)"
 
                 default:
-                    var trailingTrivia: String = "\(current.trailingTrivia)"
-                    while case " "? = trailingTrivia.last {
-                        trailingTrivia.removeLast()
-                    }
-
-                    text += "\(current.with(\.trailingTrivia, []))"
-                    text += trailingTrivia
+                    text += "\(current.withoutTrailingSpaces)"
                 }
             } else if case .colon = current.tokenKind {
-                if  next.leadingTrivia.contains(
-                        where: {
-                            switch $0 {
-                            case .carriageReturnLineFeeds: true
-                            case .newlines: true
-                            default: false
-                            }
-                        }
-                    ) {
+                if  next.leadingTrivia.containsNewlines {
                     // a colon that appears at the end of a line does not need padding
                     text += "\(current)"
                     continue
@@ -153,26 +139,14 @@ extension ColonCalculator {
                     }
 
                 case .none?:
-                    var trailingTrivia: String = "\(current.trailingTrivia)"
-                    while case " "? = trailingTrivia.last {
-                        trailingTrivia.removeLast()
-                    }
-
-                    text += "\(current.with(\.trailingTrivia, []))"
-                    text += trailingTrivia
+                    text += "\(current.withoutTrailingSpaces)"
 
                 case .both?:
                     fallthrough
 
                 case .right?:
                     // colon has padding, that may need to be collapsed
-                    var trailingTrivia: String = "\(current.trailingTrivia)"
-                    while case " "? = trailingTrivia.last {
-                        trailingTrivia.removeLast()
-                    }
-
-                    text += "\(current.with(\.trailingTrivia, []))"
-                    text += trailingTrivia
+                    text += "\(current.withoutTrailingSpaces)"
                     text.append(" ")
 
                 case nil:
