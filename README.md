@@ -11,11 +11,11 @@ Dollup supports Linux and macOS. We provide prebuilt binaries for several platfo
 
 | Platform | Architecture | Download |
 | -------- | ------------ | -------- |
-| macOS 15 | arm64 | [tar.gz](https://download.swiftinit.org/dollup/0.1.1/macOS-ARM64/dollup.tar.gz) |
-| Ubuntu 24.04 | arm64 | [tar.gz](https://download.swiftinit.org/dollup/0.1.1/Ubuntu-24.04-ARM64/dollup.tar.gz) |
-| Ubuntu 24.04 | x86_64 | [tar.gz](https://download.swiftinit.org/dollup/0.1.1/Ubuntu-24.04-X64/dollup.tar.gz) |
-| Ubuntu 22.04 | arm64 | [tar.gz](https://download.swiftinit.org/dollup/0.1.1/Ubuntu-22.04-ARM64/dollup.tar.gz) |
-| Ubuntu 22.04 | x86_64 | [tar.gz](https://download.swiftinit.org/dollup/0.1.1/Ubuntu-22.04-X64/dollup.tar.gz) |
+| macOS 15 | arm64 | [tar.gz](https://download.swiftinit.org/dollup/0.2.0/macOS-ARM64/dollup.tar.gz) |
+| Ubuntu 24.04 | arm64 | [tar.gz](https://download.swiftinit.org/dollup/0.2.0/Ubuntu-24.04-ARM64/dollup.tar.gz) |
+| Ubuntu 24.04 | x86_64 | [tar.gz](https://download.swiftinit.org/dollup/0.2.0/Ubuntu-24.04-X64/dollup.tar.gz) |
+| Ubuntu 22.04 | arm64 | [tar.gz](https://download.swiftinit.org/dollup/0.2.0/Ubuntu-22.04-ARM64/dollup.tar.gz) |
+| Ubuntu 22.04 | x86_64 | [tar.gz](https://download.swiftinit.org/dollup/0.2.0/Ubuntu-22.04-X64/dollup.tar.gz) |
 
 Download the correct binary for your platform from the table above, extract it, and add the `dollup` binary to your `PATH`. The pre-built Linux binaries do not require the Swift runtime to be installed on the system.
 
