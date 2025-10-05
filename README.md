@@ -3,8 +3,7 @@
 
 # dollup 🎀
 
-Dollup is a command-line tool for formatting Swift source code. It automatically adjusts indentation and wraps lines to a specified maximum width, helping to maintain a consistent and readable code style.
-
+Dollup is a tool for formatting Swift source code. It automatically adjusts indentation, wraps lines to a specified maximum width, and enforces a consistent brace style, helping to maintain a readable code style.
 
 ## Using Prebuilt Binaries
 
@@ -18,9 +17,7 @@ Dollup supports Linux and macOS. We provide prebuilt binaries for several platfo
 | Ubuntu 22.04 | arm64 | [tar.gz](https://download.swiftinit.org/dollup/0.1.1/Ubuntu-22.04-ARM64/dollup.tar.gz) |
 | Ubuntu 22.04 | x86_64 | [tar.gz](https://download.swiftinit.org/dollup/0.1.1/Ubuntu-22.04-X64/dollup.tar.gz) |
 
-
 Download the correct binary for your platform from the table above, extract it, and add the `dollup` binary to your `PATH`. The pre-built Linux binaries do not require the Swift runtime to be installed on the system.
-
 
 ## Building from Source
 
@@ -31,7 +28,6 @@ swift build
 ```
 
 The compiled executable will be located in the `.build/debug` directory.
-
 
 ## Usage
 
@@ -45,16 +41,41 @@ This will reformat the specified file in place.
 
 When a directory is provided, `dollup` will recursively format all `.swift` files within it.
 
+## Configuration
 
-## Options
+Dollup is configured by creating a Swift executable that conforms to the `DollupConfiguration` protocol. This allows you to specify formatting options in a declarative way.
 
-You can customize the formatting behavior with the following options:
+Here's an example of a simple configuration file:
 
-  * `-I, --indent <value>`: Sets the number of spaces to use for each indentation level. The default value is **4**.
-  * `-L, --line-length <value>`: Specifies the maximum line length. The formatter will wrap lines that exceed this limit. The default value is **96**.
-  * `-y, --disable-integrity-check`: Disables the integrity check that ensures the reformatted code is semantically equivalent to the original. This is not recommended for general use.
-  * `-g, --ignore <pattern>`: A list of file patterns to ignore when formatting a directory (e.g., `generated` to ignore all `*.generated.swift` files). This option can be repeated.
+```swift
+import DollupConfig
+import SystemPackage
 
+@main enum Main: DollupConfiguration {
+    public static func configure(file _: FilePath?, settings: inout DollupSettings) {
+        settings.check = true
+        settings.whitespace {
+            $0.width = 96
+            $0.braces = .egyptian
+
+            $0.indent.spaces = 4
+            $0.indent.ifConfig = false
+
+            $0.formatColonPadding = true
+            $0.keywordsOnSameLine = true
+        }
+    }
+
+    public static func filter(file: FilePath) -> Bool {
+        true // run on all files
+    }
+    public static func report(file: FilePath) {
+        print("> reformatted '\(file)'")
+    }
+}
+```
+
+This configuration specifies that the code should be formatted with a maximum line width of 96 characters, Egyptian-style braces, and an indent width of 4 spaces. It also enables the integrity check, which ensures that the reformatted code is semantically equivalent to the original.
 
 ## How it Works
 
