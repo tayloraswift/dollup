@@ -3,7 +3,7 @@ import SwiftSyntax
 class LineExpander: SyntaxVisitor {
     private(set) var linebreaks: [Linebreak]
     /// The original source text, used for measuring line lengths.
-    private let text: String
+    let text: String
 
     init(text: String) {
         self.linebreaks = []

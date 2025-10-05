@@ -2,7 +2,8 @@ import SwiftSyntax
 
 class LineWrapper: SyntaxVisitor {
     /// The original source text, used for measuring line lengths.
-    private let text: String
+    let text: String
+
     private var line: [String.Index: LinebreakContext].Index?
     private var lines: [String.Index: LinebreakContext]
 

@@ -15,72 +15,68 @@ extension WhitespaceFormatter {
     }
 }
 extension WhitespaceFormatter {
-    private func parse(source: String) -> Syntax {
-        self.options.operators.foldAll(Parser.parse(source: source)) {
-            print("operator folding error: \($0)")
-        }
-    }
-
-    public func reformat(_ source: inout String, check: Bool) {
-        let original: Syntax? = check ? self.parse(source: source) : nil
-        var tree: Syntax
-
-        let expander: LineExpander = .init(text: source)
-        ;   expander.walk(original ?? self.parse(source: source))
-        if !expander.linebreaks.isEmpty {
-            source = source.insert(linebreaks: expander.linebreaks)
-        }
+    public func reformat(_ text: inout String, check: Bool) {
+        var source: Source = .init(operators: self.options.operators, text: consume text)
+        let original: Syntax = source.tree
+        let expander: LineExpander = .init(text: source.text)
+        ;   expander.walk(source.tree)
 
         // it would not make much sense to check for line length violations if the indentation
         // were not correct
-        source = self.reindent(source)
-        tree = self.parse(source: source)
+        if  expander.linebreaks.isEmpty {
+            source.update(text: self.reindent(expander.text))
+        } else {
+            let expanded: String = expander.text.insert(linebreaks: expander.linebreaks)
+            source.update(text: self.reindent(expanded), didChange: true)
+        }
 
         // this pass assumes the indentation is already correct
         if  let style: BraceStyle = self.options.braces {
             let calculator: BracketCalculator = .init(style: style)
-            ;   calculator.walk(tree)
+            ;   calculator.walk(source.tree)
 
             let aligner: BracketAligner = .init(style: style, brackets: calculator.brackets)
-            let aligned: Syntax = aligner.rewrite(tree)
+            let aligned: String = "\(aligner.rewrite(source.tree))"
 
-            source = self.reindent("\(aligned)")
-            tree = self.parse(source: source)
+            source.update(with: aligned, onChange: self.reindent)
         }
         if  self.options.keywordsOnSameLine {
             let calculator: VerticalKeywordCalculator = .init()
-            ;   calculator.walk(tree)
+            ;   calculator.walk(source.tree)
 
             let aligner: VerticalKeywordAligner = .init(movable: calculator.movable)
-            let aligned: Syntax = aligner.rewrite(tree)
+            let aligned: String = "\(aligner.rewrite(source.tree))"
 
-            source = self.reindent("\(aligned)")
-            tree = self.parse(source: source)
+            source.update(with: aligned, onChange: self.reindent)
         }
 
         while true {
-            let wrapper: LineWrapper = .init(text: source, width: self.options.width)
-            ;   wrapper.walk(tree)
+            let wrapper: LineWrapper = .init(text: source.text, width: self.options.width)
+            ;   wrapper.walk(source.tree)
 
             let linebreaks: [Linebreak] = wrapper.linebreaks
             if  linebreaks.isEmpty {
                 break
             }
 
-            source = self.reindent(source.insert(linebreaks: linebreaks))
-            tree = self.parse(source: source)
+            source.update(
+                text: self.reindent(wrapper.text.insert(linebreaks: linebreaks)),
+                didChange: true
+            )
         }
 
-        guard
-        let original: TokenSequence = original?.tokens(viewMode: .sourceAccurate) else {
+        text = source.text
+
+        guard check else {
             return
         }
 
+        let expectedSequence: TokenSequence = original.tokens(viewMode: .sourceAccurate)
         // perform integrity check
-        var expected: TokenSequence.Iterator = original.makeIterator()
+        var expected: TokenSequence.Iterator = expectedSequence.makeIterator()
         var rawQuote: String? = nil
 
-        for token in tree.tokens(viewMode: .sourceAccurate) {
+        for token in source.tree.tokens(viewMode: .sourceAccurate) {
             guard let original: TokenSyntax = expected.next() else {
                 fatalError("reformatted source has more tokens than original!!!")
             }
@@ -136,7 +132,7 @@ extension WhitespaceFormatter {
     }
 
     public func reindent(_ source: String) -> String {
-        let tree: Syntax = self.parse(source: source)
+        let tree: Syntax = Source.parse(operators: self.options.operators, text: source)
         let indents: IndentCalculator = .init(options: self.options.indent)
         ;   indents.walk(tree)
 
