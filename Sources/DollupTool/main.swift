@@ -5,20 +5,19 @@ import SystemIO
 import System_ArgumentParser
 
 @main struct Dollup {
-    @Argument(help: "The swift file to format.")
-    var file: FilePath
+    @Argument(
+        help: "The swift file to format."
+    ) var file: FilePath
 
     @Option(
         name: [.customShort("I"), .customLong("indent")],
         help: "The number of spaces to use for indentation"
-    )
-    var indent: Int = 4
+    ) var indent: Int = 4
 
     @Option(
         name: [.customShort("L"), .customLong("line-length")],
         help: "The line length guide to apply"
-    )
-    var width: Int = 96
+    ) var width: Int = 96
 
     @Option(
         name: [.customShort("g"), .customLong("ignore")],
@@ -26,8 +25,7 @@ import System_ArgumentParser
         A list of file patterns to ignore \
         (e.g. 'generated' to ignore all '*.generated.swift' files)
         """,
-    )
-    var ignore: [String] = []
+    ) var ignore: [String] = []
 
     @Flag(
         name: [.customShort("y"), .customLong("disable-integrity-check")],
@@ -35,8 +33,7 @@ import System_ArgumentParser
         Skip the integrity check that ensures the reformatted source is semantically \
         equivalent to the original
         """
-    )
-    var checkDisabled: Bool = false
+    ) var checkDisabled: Bool = false
 
     // TODO: need better way to organize these options
     @Flag(
@@ -44,8 +41,7 @@ import System_ArgumentParser
         help: """
         Indent the contents of #if ... #else ... #endif blocks
         """
-    )
-    var _indentIfConfig: Bool = false
+    ) var _indentIfConfig: Bool = false
 }
 extension Dollup: ParsableCommand {
     static var configuration: CommandConfiguration {
