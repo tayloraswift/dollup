@@ -12,23 +12,12 @@ let package = Package(
         .library(name: "DollupConfig", targets: ["DollupConfig"]),
     ],
     dependencies: [
-        .package(url: "https://github.com/apple/swift-argument-parser", from: "1.0.0"),
         .package(url: "https://github.com/tayloraswift/swift-io", branch: "master"),
         .package(url: "https://github.com/swiftlang/swift-syntax", "601.0.0" ..< "603.0.0")
     ],
     targets: [
         .executableTarget(
             name: "DollupTool",
-            dependencies: [
-                .target(name: "Dollup"),
-
-                .product(name: "ArgumentParser", package: "swift-argument-parser"),
-                .product(name: "SystemIO", package: "swift-io"),
-                .product(name: "System_ArgumentParser", package: "swift-io"),
-            ]
-        ),
-        .executableTarget(
-            name: "DollupSettings",
             dependencies: [
                 .target(name: "DollupConfig"),
             ]
@@ -41,7 +30,7 @@ let package = Package(
                 permissions: [.writeToPackageDirectory(reason: "code formatter")],
             ),
             dependencies: [
-                .target(name: "DollupSettings"),
+                .target(name: "DollupTool"),
             ]
         ),
 

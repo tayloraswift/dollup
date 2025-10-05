@@ -45,7 +45,7 @@ import WhitespaceFormatter
 }
 extension ColonSpacingTests {
     private static func format(_ input: consuming String) -> String {
-        let formatter: WhitespaceFormatter = .init { $0.spacesAfterColons = true }
+        let formatter: WhitespaceFormatter = .init { $0.formatColonPadding = true }
         var input: String = input
         formatter.reformat(&input, check: true)
         return input
