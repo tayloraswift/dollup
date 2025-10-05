@@ -1,7 +1,7 @@
 import SwiftSyntax
 
 final class ColonCalculator: SyntaxVisitor {
-    private var colons: [AbsolutePosition: ColonAlignment]
+    private var colons: [AbsolutePosition: ColonSpacing]
 
     init() {
         self.colons = [:]
@@ -9,49 +9,62 @@ final class ColonCalculator: SyntaxVisitor {
     }
 
     override func visit(_ node: TypeAnnotationSyntax) -> SyntaxVisitorContinueKind {
-        self.mark(node.colon, as: .disallowed)
+        self.mark(node.colon, as: .right)
         return .visitChildren
     }
     override func visit(_ node: ClosureParameterSyntax) -> SyntaxVisitorContinueKind {
-        self.mark(node.colon, as: .disallowed)
+        self.mark(node.colon, as: .right)
         return .visitChildren
     }
     override func visit(_ node: TupleTypeElementSyntax) -> SyntaxVisitorContinueKind {
-        self.mark(node.colon, as: .disallowed)
+        self.mark(node.colon, as: .right)
         return .visitChildren
     }
     override func visit(_ node: EnumCaseParameterSyntax) -> SyntaxVisitorContinueKind {
-        self.mark(node.colon, as: .disallowed)
+        self.mark(node.colon, as: .right)
         return .visitChildren
     }
     override func visit(_ node: FunctionParameterSyntax) -> SyntaxVisitorContinueKind {
-        self.mark(node.colon, as: .disallowed)
+        self.mark(node.colon, as: .right)
         return .visitChildren
     }
     override func visit(_ node: LabeledExprSyntax) -> SyntaxVisitorContinueKind {
-        self.mark(node.colon, as: .disallowed)
+        self.mark(node.colon, as: .right)
         return .visitChildren
     }
     override func visit(_ node: LabeledStmtSyntax) -> SyntaxVisitorContinueKind {
-        self.mark(node.colon, as: .disallowed)
+        self.mark(node.colon, as: .right)
         return .visitChildren
     }
-    override func visit(_ node: MultipleTrailingClosureElementSyntax) -> SyntaxVisitorContinueKind {
-        self.mark(node.colon, as: .disallowed)
+    override func visit(
+        _ node: MultipleTrailingClosureElementSyntax
+    ) -> SyntaxVisitorContinueKind {
+        self.mark(node.colon, as: .right)
         return .visitChildren
     }
     override func visit(_ node: SwitchCaseLabelSyntax) -> SyntaxVisitorContinueKind {
         self.mark(node.colon, as: .allowed)
         return .visitChildren
     }
+    override func visit(_ node: SwitchDefaultLabelSyntax) -> SyntaxVisitorContinueKind {
+        self.mark(node.colon, as: .allowed)
+        return .visitChildren
+    }
 
     override func visit(_ node: TernaryExprSyntax) -> SyntaxVisitorContinueKind {
-        self.mark(node.colon, as: .ternary)
+        self.mark(node.colon, as: .both)
+        return .visitChildren
+    }
+
+    override func visit(_ node: DictionaryExprSyntax) -> SyntaxVisitorContinueKind {
+        if case .colon(let colon) = node.content {
+            self.mark(colon, as: .none)
+        }
         return .visitChildren
     }
 
     override func visit(_ node: DictionaryTypeSyntax) -> SyntaxVisitorContinueKind {
-        self.mark(node.colon, as: .disallowed)
+        self.mark(node.colon, as: .right)
         return .visitChildren
     }
     override func visit(_ node: DictionaryElementSyntax) -> SyntaxVisitorContinueKind {
@@ -60,30 +73,30 @@ final class ColonCalculator: SyntaxVisitor {
     }
 
     override func visit(_ node: InheritanceClauseSyntax) -> SyntaxVisitorContinueKind {
-        self.mark(node.colon, as: .disallowed)
+        self.mark(node.colon, as: .right)
         return .visitChildren
     }
     override func visit(_ node: ConformanceRequirementSyntax) -> SyntaxVisitorContinueKind {
-        self.mark(node.colon, as: .disallowed)
+        self.mark(node.colon, as: .right)
         return .visitChildren
     }
     override func visit(_ node: LayoutRequirementSyntax) -> SyntaxVisitorContinueKind {
-        self.mark(node.colon, as: .disallowed)
+        self.mark(node.colon, as: .right)
         return .visitChildren
     }
     override func visit(_ node: GenericParameterSyntax) -> SyntaxVisitorContinueKind {
-        self.mark(node.colon, as: .disallowed)
+        self.mark(node.colon, as: .right)
         return .visitChildren
     }
 }
 extension ColonCalculator {
-    private func mark(_ token: TokenSyntax?, as alignment: ColonAlignment) {
+    private func mark(_ token: TokenSyntax?, as alignment: ColonSpacing) {
         guard let token: TokenSyntax else {
             return
         }
         self.mark(token, as: alignment)
     }
-    private func mark(_ token: TokenSyntax, as alignment: ColonAlignment) {
+    private func mark(_ token: TokenSyntax, as alignment: ColonSpacing) {
         self.colons[token.positionAfterSkippingLeadingTrivia] = alignment
     }
 }
@@ -102,10 +115,12 @@ extension ColonCalculator {
             }
 
             if  case .colon = next.tokenKind {
-                if case .ternary? = self.colons[next.positionAfterSkippingLeadingTrivia] {
+                switch self.colons[next.positionAfterSkippingLeadingTrivia] {
+                case .both?:
                     // a ternary colon does not need padding
                     text += "\(current)"
-                } else {
+
+                default:
                     var trailingTrivia: String = "\(current.trailingTrivia)"
                     while case " "? = trailingTrivia.last {
                         trailingTrivia.removeLast()
@@ -129,21 +144,27 @@ extension ColonCalculator {
                     continue
                 }
 
-                if  current.trailingTrivia.isEmpty {
-                    // colon needs padding
-                    text += "\(current)"
-                    text.append(" ")
-                    continue
-                }
-
                 switch self.colons[current.positionAfterSkippingLeadingTrivia] {
                 case .allowed?:
-                    // colon has padding, and is allowed to have it
                     text += "\(current)"
-                case .ternary?:
+
+                    if  current.trailingTrivia.isEmpty {
+                        text.append(" ")
+                    }
+
+                case .none?:
+                    var trailingTrivia: String = "\(current.trailingTrivia)"
+                    while case " "? = trailingTrivia.last {
+                        trailingTrivia.removeLast()
+                    }
+
+                    text += "\(current.with(\.trailingTrivia, []))"
+                    text += trailingTrivia
+
+                case .both?:
                     fallthrough
 
-                case .disallowed?:
+                case .right?:
                     // colon has padding, that may need to be collapsed
                     var trailingTrivia: String = "\(current.trailingTrivia)"
                     while case " "? = trailingTrivia.last {
@@ -151,12 +172,15 @@ extension ColonCalculator {
                     }
 
                     text += "\(current.with(\.trailingTrivia, []))"
+                    text += trailingTrivia
                     text.append(" ")
-
 
                 case nil:
                     fatalError(
-                        "unmarked colon at [\(current.positionAfterSkippingLeadingTrivia)]"
+                        """
+                        unmarked colon at [\(current.positionAfterSkippingLeadingTrivia)], \
+                        buffer: ... '\(text.suffix(64))'
+                        """
                     )
                 }
             } else {
