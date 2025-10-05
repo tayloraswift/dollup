@@ -52,6 +52,36 @@ import WhitespaceFormatter
 
         #expect(self.format(input) == expected + "\n")
     }
+    @Test static func OperatorDeclarations() throws {
+        let input: String = """
+        infix operator ^^:RangeFormationPrecedence
+        infix operator <- : RangeFormationPrecedence
+        """
+        let expected: String = """
+        infix operator ^^ : RangeFormationPrecedence
+        infix operator <- : RangeFormationPrecedence
+        """
+
+        #expect(self.format(input) == expected + "\n")
+    }
+    @Test static func Ternaries() throws {
+        let input: String = """
+        let x: Int = condition ? 1:2
+        let y: Int = condition ? 1 :2
+        let z: Int = condition
+        ? 1
+        :2
+        """
+        let expected: String = """
+        let x: Int = condition ? 1 : 2
+        let y: Int = condition ? 1 : 2
+        let z: Int = condition
+            ? 1
+            : 2
+        """
+
+        #expect(self.format(input) == expected + "\n")
+    }
 }
 extension ColonSpacingTests {
     private static func format(_ input: consuming String) -> String {
