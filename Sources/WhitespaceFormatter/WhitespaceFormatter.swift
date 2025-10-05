@@ -49,6 +49,14 @@ extension WhitespaceFormatter {
 
             source.update(with: aligned, onChange: self.reindent)
         }
+        if  self.options.spacesAfterColons {
+            let calculator: ColonCalculator = .init()
+            ;   calculator.walk(source.tree)
+
+            let reformatted: String = calculator.reformat(tokens: source.tree.tokens(viewMode: .sourceAccurate))
+
+            source.update(with: reformatted, onChange: self.reindent)
+        }
 
         while true {
             let wrapper: LineWrapper = .init(text: source.text, width: self.options.width)
