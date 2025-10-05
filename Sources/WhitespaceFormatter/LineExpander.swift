@@ -11,6 +11,73 @@ class LineExpander: SyntaxVisitor {
         super.init(viewMode: .sourceAccurate)
     }
 
+    override func visit(_ node: AccessorBlockSyntax) -> SyntaxVisitorContinueKind {
+        if  node.containsInteriorNewlines {
+            if  node.accessors.lacksPrecedingNewline {
+                self.break(before: node.accessors)
+            }
+            if  node.rightBrace.lacksPrecedingNewline {
+                self.break(before: node.rightBrace)
+            }
+        }
+        return .visitChildren
+    }
+    override func visit(_ node: CodeBlockSyntax) -> SyntaxVisitorContinueKind {
+        if !node.statements.isEmpty, node.containsInteriorNewlines {
+            if  node.statements.lacksPrecedingNewline {
+                self.break(before: node.statements)
+            }
+            if  node.rightBrace.lacksPrecedingNewline {
+                self.break(before: node.rightBrace)
+            }
+        }
+        return .visitChildren
+    }
+    override func visit(_ node: MemberBlockSyntax) -> SyntaxVisitorContinueKind {
+        if !node.members.isEmpty, node.containsInteriorNewlines {
+            if  node.members.lacksPrecedingNewline {
+                self.break(before: node.members)
+            }
+            if  node.rightBrace.lacksPrecedingNewline {
+                self.break(before: node.rightBrace)
+            }
+        }
+        return .visitChildren
+    }
+    override func visit(_ node: PrecedenceGroupDeclSyntax) -> SyntaxVisitorContinueKind {
+        if !node.groupAttributes.isEmpty, node.containsInteriorNewlines {
+            if  node.groupAttributes.lacksPrecedingNewline {
+                self.break(before: node.groupAttributes)
+            }
+            if  node.rightBrace.lacksPrecedingNewline {
+                self.break(before: node.rightBrace)
+            }
+        }
+        return .visitChildren
+    }
+    override func visit(_ node: SwitchExprSyntax) -> SyntaxVisitorContinueKind {
+        if !node.cases.isEmpty, node.containsInteriorNewlines {
+            if  node.cases.lacksPrecedingNewline {
+                self.break(before: node.cases)
+            }
+            if  node.rightBrace.lacksPrecedingNewline {
+                self.break(before: node.rightBrace)
+            }
+        }
+        return .visitChildren
+    }
+    override func visit(_ node: ClosureExprSyntax) -> SyntaxVisitorContinueKind {
+        if !node.statements.isEmpty, node.containsInteriorNewlines {
+            if  node.statements.lacksPrecedingNewline {
+                self.break(before: node.statements)
+            }
+            if  node.rightBrace.lacksPrecedingNewline {
+                self.break(before: node.rightBrace)
+            }
+        }
+        return .visitChildren
+    }
+
     override func visit(_ node: ArrayExprSyntax) -> SyntaxVisitorContinueKind {
         if !node.elements.isEmpty, node.containsInteriorNewlines {
             if  node.elements.lacksPrecedingNewline {

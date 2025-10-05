@@ -96,33 +96,16 @@ extension BracketCalculator {
         }
     }
     private func push(_ token: TokenSyntax, type: BracketType) {
-        // an opening delimiter is immovable if it is the first token in its parent, and also
-        // the first token in its grandparent
         let position: AbsolutePosition = token.positionAfterSkippingLeadingTrivia
         let soft: Bool
 
-        softness:
         if  let parent: Syntax = token.parent,
             case position = parent.positionAfterSkippingLeadingTrivia,
-            var grandparent: Syntax = parent.parent,
-            case position = grandparent.positionAfterSkippingLeadingTrivia {
-
-            while let container: Syntax = grandparent.parent,
-                container.is(SwitchCaseItemSyntax.self) ||
-                container.is(ExpressionPatternSyntax.self) ||
-                container.is(OptionalTypeSyntax.self) ||
-                container.is(OptionalChainingExprSyntax.self) {
-
-                if  case position = container.positionAfterSkippingLeadingTrivia {
-                    grandparent = container
-                } else {
-                    soft = self.style.moves(type)
-                    break softness
-                }
-            }
-
-            // bracket is hard, and it is not inside something that could turn it soft
-            // by going up one more level in the AST
+            let grandparent: Syntax = parent.parent,
+            case position = grandparent.positionAfterSkippingLeadingTrivia,
+            grandparent.is(CodeBlockItemSyntax.self) ||
+            grandparent.is(ArrayElementSyntax.self) ||
+            grandparent.is(FunctionCallExprSyntax.self) {
             soft = false
         } else {
             soft = self.style.moves(type)
