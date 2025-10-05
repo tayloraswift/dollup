@@ -142,7 +142,10 @@ extension WhitespaceFormatter {
     }
 
     public func reindent(_ source: String) -> String {
-        let (tree, _): (Syntax, [OperatorError]) = Source.parse(operators: self.options.operators, text: source)
+        let (tree, _): (Syntax, [OperatorError]) = Source.parse(
+            operators: self.options.operators,
+            text: source
+        )
         let indents: IndentCalculator = .init(options: self.options.indent)
         ;   indents.walk(tree)
 
