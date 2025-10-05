@@ -19,11 +19,17 @@ extension Source {
     init(operators: OperatorTable, text: String) {
         self.operators = operators
         self.text = text
-        (self.tree, self.operatorsNotRecognized) = Self.parse(operators: self.operators, text: self.text)
+        (self.tree, self.operatorsNotRecognized) = Self.parse(
+            operators: self.operators,
+            text: self.text
+        )
     }
 
     mutating func reparse() {
-        (self.tree, self.operatorsNotRecognized) = Self.parse(operators: self.operators, text: self.text)
+        (self.tree, self.operatorsNotRecognized) = Self.parse(
+            operators: self.operators,
+            text: self.text
+        )
     }
 
     static func parse(operators: OperatorTable, text: String) -> (Syntax, [OperatorError]) {
