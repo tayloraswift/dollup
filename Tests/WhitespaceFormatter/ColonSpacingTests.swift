@@ -42,6 +42,16 @@ import WhitespaceFormatter
 
         #expect(self.format(input) == expected + "\n")
     }
+    @Test static func FunctionNames() throws {
+        let input: String = """
+        function(_:)
+        """
+        let expected: String = """
+        function(_:)
+        """
+
+        #expect(self.format(input) == expected + "\n")
+    }
 }
 extension ColonSpacingTests {
     private static func format(_ input: consuming String) -> String {

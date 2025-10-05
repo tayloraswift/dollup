@@ -62,6 +62,10 @@ final class ColonCalculator: SyntaxVisitor {
         }
         return .visitChildren
     }
+    override func visit(_ node: DeclNameArgumentSyntax) -> SyntaxVisitorContinueKind {
+        self.mark(node.colon, as: .none)
+        return .visitChildren
+    }
 
     override func visit(_ node: DictionaryTypeSyntax) -> SyntaxVisitorContinueKind {
         self.mark(node.colon, as: .right)
