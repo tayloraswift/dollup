@@ -3,7 +3,7 @@ import SystemPackage
 
 /// These are the settings Dollup uses to format itself.
 @main enum Main: DollupConfiguration {
-    public static func configure(file _: FilePath?, settings: inout DollupSettings, ) {
+    public static func configure(file _: FilePath?, settings: inout DollupSettings) {
         settings.check = true
         settings.whitespace {
             $0.width = 96
