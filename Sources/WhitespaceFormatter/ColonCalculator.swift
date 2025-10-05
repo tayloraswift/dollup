@@ -56,6 +56,11 @@ final class ColonCalculator: SyntaxVisitor {
         return .visitChildren
     }
 
+    override func visit(_ node: OperatorPrecedenceAndTypesSyntax) -> SyntaxVisitorContinueKind {
+        self.mark(node.colon, as: .both)
+        return .visitChildren
+    }
+
     override func visit(_ node: DictionaryExprSyntax) -> SyntaxVisitorContinueKind {
         if case .colon(let colon) = node.content {
             self.mark(colon, as: .none)
@@ -122,7 +127,11 @@ extension ColonCalculator {
                 switch self.colons[next.positionAfterSkippingLeadingTrivia] {
                 case .both?:
                     // a ternary colon does not need padding
-                    text += "\(current)"
+                    text += "\(current.withoutTrailingSpaces)"
+
+                    if !next.leadingTrivia.containsNewlines {
+                        text.append(" ")
+                    }
 
                 default:
                     text += "\(current.withoutTrailingSpaces)"
