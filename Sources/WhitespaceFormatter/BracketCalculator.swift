@@ -100,14 +100,32 @@ extension BracketCalculator {
         // the first token in its grandparent
         let position: AbsolutePosition = token.positionAfterSkippingLeadingTrivia
         let soft: Bool
+
+        softness:
         if  let parent: Syntax = token.parent,
             case position = parent.positionAfterSkippingLeadingTrivia,
-            case position? = parent.parent?.positionAfterSkippingLeadingTrivia {
-            soft = false
-        } else if self.style.moves(type) {
-            soft = true
+            var grandparent: Syntax = parent.parent,
+            case position = grandparent.positionAfterSkippingLeadingTrivia {
+
+            while let container: Syntax = grandparent.parent,
+                container.is(SwitchCaseItemSyntax.self) ||
+                container.is(ExpressionPatternSyntax.self) ||
+                container.is(OptionalTypeSyntax.self) ||
+                container.is(OptionalChainingExprSyntax.self) {
+
+                if  case position = container.positionAfterSkippingLeadingTrivia {
+                    grandparent = container
+                } else {
+                    // bracket is hard, and it is not inside something that could turn it soft
+                    // by going up one more level in the AST
+                    soft = false
+                    break softness
+                }
+            }
+
+            soft = self.style.moves(type)
         } else {
-            soft = false
+            soft = self.style.moves(type)
         }
 
         self.stack.append(
