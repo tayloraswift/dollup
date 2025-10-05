@@ -36,6 +36,10 @@ final class ColonCalculator: SyntaxVisitor {
         self.mark(node.colon, as: .right)
         return .visitChildren
     }
+    override func visit(_ node: AvailabilityLabeledArgumentSyntax) -> SyntaxVisitorContinueKind {
+        self.mark(node.colon, as: .right)
+        return .visitChildren
+    }
     override func visit(
         _ node: MultipleTrailingClosureElementSyntax
     ) -> SyntaxVisitorContinueKind {

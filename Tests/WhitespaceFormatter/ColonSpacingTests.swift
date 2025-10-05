@@ -64,6 +64,18 @@ import WhitespaceFormatter
 
         #expect(self.format(input) == expected + "\n")
     }
+    @Test static func Available() throws {
+        let input: String = """
+        @available(*, deprecated, renamed:"bar")
+        var foo: Int { 1 }
+        """
+        let expected: String = """
+        @available(*, deprecated, renamed: "bar")
+        var foo: Int { 1 }
+        """
+
+        #expect(self.format(input) == expected + "\n")
+    }
     @Test static func Ternaries() throws {
         let input: String = """
         let x: Int = condition ? 1:2
