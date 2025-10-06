@@ -14,7 +14,12 @@ extension WhitespaceOptions {
         self.init(
             operators: .standardOperators,
             width: 96,
-            indent: IndentOptions.init(spaces: 4, switch: false, ifConfig: false, hangConditions: true),
+            indent: IndentOptions.init(
+                spaces: 4,
+                switch: false,
+                ifConfig: false,
+                hangConditions: true
+            ),
             braces: .egyptian,
             formatColonPadding: true,
             keywordsOnSameLine: true
