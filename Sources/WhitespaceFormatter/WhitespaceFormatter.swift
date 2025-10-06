@@ -163,6 +163,7 @@ extension WhitespaceFormatter {
         return Self.indent(
             lines: lines,
             by: self.options.indent.spaces,
+            hangingOffsets: self.options.indent.hangConditions ? indents.hangingOffsets : nil,
             indents: indents.regions,
             exclude: exclude.regions,
         )
@@ -173,6 +174,7 @@ extension WhitespaceFormatter {
     private static func indent(
         lines: [Line],
         by indent: Int,
+        hangingOffsets: [Int: Int]?,
         indents: [IndentRegion],
         exclude: [BlockCommentRegion],
     ) -> String {
@@ -224,9 +226,10 @@ extension WhitespaceFormatter {
                 case nil = current.1.suffix {
                 // blank line, no prefix or suffix to preserve
             } else {
+                let hangingOffset: Int = hangingOffsets?[$1.range.lowerBound] ?? 0
                 let spaces: Int = current.exclude.comment
                     ? $1.column ?? 0
-                    : current.0.indent * indent
+                    : max(current.0.indent * indent + hangingOffset, 0)
 
                 for _: Int in 0 ..< spaces {
                     $0.append(" ")

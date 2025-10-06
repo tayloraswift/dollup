@@ -21,7 +21,7 @@ import WhitespaceFormatter
         )
         """
 
-        #expect(try WhitespaceFormatter.reformat(input, width: 30) == expected + "\n")
+        try #expect(WhitespaceFormatter.reformat(input, width: 30) == expected + "\n")
     }
 
     @Test static func FunctionCallNested() throws {
@@ -44,7 +44,7 @@ import WhitespaceFormatter
         )
         """
 
-        #expect(try WhitespaceFormatter.reformat(input, width: 30) == expected + "\n")
+        try #expect(WhitespaceFormatter.reformat(input, width: 30) == expected + "\n")
     }
 
     @Test static func FunctionCallTrailingClosure() throws {
@@ -61,7 +61,7 @@ import WhitespaceFormatter
         }
         """#
 
-        #expect(try WhitespaceFormatter.reformat(input, width: 40) == expected + "\n")
+        try #expect(WhitespaceFormatter.reformat(input, width: 40) == expected + "\n")
     }
     @Test static func FunctionCallTrailingClosureWrappedArguments() throws {
         let input: String = """
@@ -86,7 +86,7 @@ import WhitespaceFormatter
         }
         """
 
-        #expect(try WhitespaceFormatter.reformat(input, width: 40) == expected + "\n")
+        try #expect(WhitespaceFormatter.reformat(input, width: 40) == expected + "\n")
     }
     @Test static func FunctionCallTrailingClosureMultiple() throws {
         ///                                                      | +60
@@ -108,7 +108,7 @@ import WhitespaceFormatter
         }
         """
 
-        #expect(try WhitespaceFormatter.reformat(input, width: 60) == expected + "\n")
+        try #expect(WhitespaceFormatter.reformat(input, width: 60) == expected + "\n")
     }
     @Test static func FunctionCallTrailingClosureMultipleBreaks() throws {
         ///                                                      | +60
@@ -132,7 +132,7 @@ import WhitespaceFormatter
         }
         """
 
-        #expect(try WhitespaceFormatter.reformat(input, width: 60) == expected + "\n")
+        try #expect(WhitespaceFormatter.reformat(input, width: 60) == expected + "\n")
     }
 
     @Test static func FunctionDeclaration() throws {
@@ -151,7 +151,7 @@ import WhitespaceFormatter
         ) -> Void
         """
 
-        #expect(try WhitespaceFormatter.reformat(input, width: 30) == expected + "\n")
+        try #expect(WhitespaceFormatter.reformat(input, width: 30) == expected + "\n")
     }
     @Test static func FunctionType() throws {
         let input: String = """
@@ -168,7 +168,7 @@ import WhitespaceFormatter
         ) -> ()
         """
 
-        #expect(try WhitespaceFormatter.reformat(input, width: 30) == expected + "\n")
+        try #expect(WhitespaceFormatter.reformat(input, width: 30) == expected + "\n")
     }
 
     @Test static func InstanceFunction() throws {
@@ -193,7 +193,7 @@ import WhitespaceFormatter
         }
         """
 
-        #expect(try WhitespaceFormatter.reformat(input, width: 40) == expected + "\n")
+        try #expect(WhitespaceFormatter.reformat(input, width: 40) == expected + "\n")
     }
 
     @Test static func IfLet() throws {
@@ -215,7 +215,7 @@ import WhitespaceFormatter
         }
         """
 
-        #expect(try WhitespaceFormatter.reformat(input, width: 40) == expected + "\n")
+        try #expect(WhitespaceFormatter.reformat(input, width: 40) == expected + "\n")
     }
 
     @Test static func IfLetElseLet() throws {
@@ -248,7 +248,7 @@ import WhitespaceFormatter
         }
         """
 
-        #expect(try WhitespaceFormatter.reformat(input, width: 40) == expected + "\n")
+        try #expect(WhitespaceFormatter.reformat(input, width: 40) == expected + "\n")
     }
 
     @Test static func WhileLoopBodyIndentation() throws {
@@ -272,7 +272,7 @@ import WhitespaceFormatter
         }
         """
 
-        #expect(try WhitespaceFormatter.reformat(input, width: 80) == expected + "\n")
+        try #expect(WhitespaceFormatter.reformat(input, width: 80) == expected + "\n")
     }
 
     @Test static func Attribute() throws {
@@ -294,7 +294,7 @@ import WhitespaceFormatter
         }
         """
 
-        #expect(try WhitespaceFormatter.reformat(input, width: 40) == expected + "\n")
+        try #expect(WhitespaceFormatter.reformat(input, width: 40) == expected + "\n")
     }
 
     @Test static func Parentheses() throws {
@@ -310,7 +310,7 @@ import WhitespaceFormatter
         )
         """
 
-        #expect(try WhitespaceFormatter.reformat(input, width: 24) == expected + "\n")
+        try #expect(WhitespaceFormatter.reformat(input, width: 24) == expected + "\n")
     }
 
     @Test static func GenericArguments() throws {
@@ -328,7 +328,7 @@ import WhitespaceFormatter
         )
         """
 
-        #expect(try WhitespaceFormatter.reformat(input, width: 40) == expected + "\n")
+        try #expect(WhitespaceFormatter.reformat(input, width: 40) == expected + "\n")
     }
 
     @Test static func GenericWhereClause() throws {
@@ -349,7 +349,7 @@ import WhitespaceFormatter
         }
         """
 
-        #expect(try WhitespaceFormatter.reformat(input, width: 40) == expected + "\n")
+        try #expect(WhitespaceFormatter.reformat(input, width: 40) == expected + "\n")
     }
 
     @Test static func StringLiteralLeadingWhitespace() throws {
@@ -362,7 +362,7 @@ import WhitespaceFormatter
         """
         """#
 
-        #expect(try WhitespaceFormatter.reformat(input, width: 22) == expected + "\n")
+        try #expect(WhitespaceFormatter.reformat(input, width: 22) == expected + "\n")
     }
     @Test static func StringLiteralTrailingWhitespace() throws {
         let input: String = """
@@ -374,7 +374,7 @@ import WhitespaceFormatter
         """
         """#
 
-        #expect(try WhitespaceFormatter.reformat(input, width: 22) == expected + "\n")
+        try #expect(WhitespaceFormatter.reformat(input, width: 22) == expected + "\n")
     }
 
     @Test static func StringLiteralOfWhitespace() throws {
@@ -387,7 +387,7 @@ import WhitespaceFormatter
         """
         """#
 
-        #expect(try WhitespaceFormatter.reformat(input, width: 22) == expected + "\n")
+        try #expect(WhitespaceFormatter.reformat(input, width: 22) == expected + "\n")
     }
     @Test static func StringLiteralWithPoundDelimiters() throws {
         /// We should leave these alone
@@ -398,7 +398,7 @@ import WhitespaceFormatter
         let x: String = #"         "#
         """
 
-        #expect(try WhitespaceFormatter.reformat(input, width: 22) == expected + "\n")
+        try #expect(WhitespaceFormatter.reformat(input, width: 22) == expected + "\n")
     }
 
     @Test static func OutOfOrderLinebreaking() throws {
@@ -420,7 +420,7 @@ import WhitespaceFormatter
         }
         """#
 
-        #expect(try WhitespaceFormatter.reformat(input, width: 60) == expected + "\n")
+        try #expect(WhitespaceFormatter.reformat(input, width: 60) == expected + "\n")
     }
 
     @Test static func NonGreedyFunctionSignature() throws {
@@ -444,7 +444,7 @@ import WhitespaceFormatter
         }
         """
 
-        #expect(try WhitespaceFormatter.reformat(input, width: 60) == expected + "\n")
+        try #expect(WhitespaceFormatter.reformat(input, width: 60) == expected + "\n")
     }
     @Test static func NonGreedyFunctionGenericReturn() throws {
         /// This should break the arguments, even though they do not overflow the line length
@@ -467,7 +467,7 @@ import WhitespaceFormatter
         }
         """
 
-        #expect(try WhitespaceFormatter.reformat(input, width: 60) == expected + "\n")
+        try #expect(WhitespaceFormatter.reformat(input, width: 60) == expected + "\n")
     }
     @Test static func NonGreedySubscriptAssignment() throws {
         /// This should break the closure, not the string literal
@@ -490,7 +490,7 @@ import WhitespaceFormatter
         }
         """
 
-        #expect(try WhitespaceFormatter.reformat(input, width: 60) == expected + "\n")
+        try #expect(WhitespaceFormatter.reformat(input, width: 60) == expected + "\n")
     }
     @Test static func NonGreedySubscriptArguments() throws {
         /// This should break the arguments, not the string literal
@@ -513,7 +513,7 @@ import WhitespaceFormatter
         }
         """
 
-        #expect(try WhitespaceFormatter.reformat(input, width: 60) == expected + "\n")
+        try #expect(WhitespaceFormatter.reformat(input, width: 60) == expected + "\n")
     }
     @Test static func NonGreedySubscriptPriority() throws {
         /// This should break the closure, not the subscript arguments
@@ -536,6 +536,6 @@ import WhitespaceFormatter
         }
         """
 
-        #expect(try WhitespaceFormatter.reformat(input, width: 60) == expected + "\n")
+        try #expect(WhitespaceFormatter.reformat(input, width: 60) == expected + "\n")
     }
 }
