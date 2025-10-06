@@ -537,6 +537,9 @@ import WhitespaceFormatter
         x < 10,
         foo.bar() {
         }
+        if let x: Int,
+        x > 0 {
+        }
         """
         let expected: String = """
         if  condition,
@@ -545,6 +548,9 @@ import WhitespaceFormatter
                 x > 0,
                 x < 10,
             foo.bar() {
+        }
+        if let x: Int,
+            x > 0 {
         }
         """
 

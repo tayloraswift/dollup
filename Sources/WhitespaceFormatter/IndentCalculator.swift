@@ -221,7 +221,10 @@ class IndentCalculator: SyntaxVisitor {
         }
 
         var identifier: TokenSyntax? = nil
+        var first: Bool = true
         for line: ConditionElementSyntax in node {
+            defer { first = false }
+
             switch line.condition {
             case .availability(let condition):
                 let start: AbsolutePosition = condition.positionAfterSkippingLeadingTrivia
@@ -236,7 +239,10 @@ class IndentCalculator: SyntaxVisitor {
 
             case .optionalBinding(let condition):
                 self.walk(condition)
-                if  let pattern: IdentifierPatternSyntax = condition.pattern.as(
+                if  first, condition.lacksPrecedingNewline {
+                    identifier = nil
+                } else if
+                    let pattern: IdentifierPatternSyntax = condition.pattern.as(
                         IdentifierPatternSyntax.self
                     ) {
                     identifier = pattern.identifier
