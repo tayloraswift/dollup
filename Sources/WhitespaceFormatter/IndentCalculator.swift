@@ -2,6 +2,7 @@ import SwiftSyntax
 import SwiftParser
 
 class IndentCalculator: SyntaxVisitor {
+    private(set) var hangingOffsets: [Int: Int]
     private(set) var regions: [IndentRegion]
     private var level: Int
     private var rawContext: Bool
@@ -9,6 +10,7 @@ class IndentCalculator: SyntaxVisitor {
     private let options: IndentOptions
 
     init(options: IndentOptions) {
+        self.hangingOffsets = [:]
         self.regions = [.init(start: 0, indent: 0, prefix: nil, suffix: nil, escapable: true)]
         self.level = 0
         self.rawContext = false
@@ -210,6 +212,72 @@ class IndentCalculator: SyntaxVisitor {
         return .skipChildren
     }
 
+    override func visit(_ node: ConditionElementListSyntax) -> SyntaxVisitorContinueKind {
+        let hangingLimit: Int
+        if case .guardStmt? = node.parent?.kind {
+            hangingLimit = 0
+        } else {
+            hangingLimit = -4
+        }
+
+        var identifier: TokenSyntax? = nil
+        for line: ConditionElementSyntax in node {
+            switch line.condition {
+            case .availability(let condition):
+                let start: AbsolutePosition = condition.positionAfterSkippingLeadingTrivia
+                // outdent the `#` prefix
+                self.hangingOffsets[start.utf8Offset] = max(-1, hangingLimit)
+                self.walk(condition)
+                identifier = nil
+
+            case .matchingPattern(let condition):
+                self.walk(condition)
+                identifier = nil
+
+            case .optionalBinding(let condition):
+                self.walk(condition)
+                if  let pattern: IdentifierPatternSyntax = condition.pattern.as(
+                        IdentifierPatternSyntax.self
+                    ) {
+                    identifier = pattern.identifier
+                } else {
+                    identifier = nil
+                }
+            case .expression(let expression):
+                let start: AbsolutePosition = expression.positionAfterSkippingLeadingTrivia
+
+                var alignedWithPrevious: Bool = false
+                var column: Int = 0
+
+                scan:
+                for token: TokenSyntax in expression.tokens(viewMode: .sourceAccurate) {
+                    switch token.tokenKind {
+                    case .prefixOperator(let prefix):
+                        column -= prefix.count
+                    case .identifier(let name):
+                        if case name? = identifier?.text {
+                            column += self.options.spaces
+                            alignedWithPrevious = true
+                        }
+
+                        break scan
+                    default:
+                        break scan
+                    }
+                }
+
+                if  column != 0 {
+                    self.hangingOffsets[start.utf8Offset] = max(column, hangingLimit)
+                }
+                if !alignedWithPrevious {
+                    identifier = nil
+                }
+
+                self.walk(expression)
+            }
+        }
+        return .skipChildren
+    }
     override func visit(_ node: IfExprSyntax) -> SyntaxVisitorContinueKind {
         self.indent(after: node.ifKeyword)
 
@@ -293,6 +361,18 @@ class IndentCalculator: SyntaxVisitor {
         return .skipChildren
     }
 
+    override func visit(_ node: SwitchExprSyntax) -> SyntaxVisitorContinueKind {
+        guard self.options.switch else {
+            return .visitChildren
+        }
+
+        self.walk(node.switchKeyword)
+        self.walk(node.subject)
+        self.indent(after: node.leftBrace)
+        self.walk(node.cases)
+        self.deindent(before: node.rightBrace)
+        return .skipChildren
+    }
     override func visit(_ node: SwitchCaseSyntax) -> SyntaxVisitorContinueKind {
         self.walkIfPresent(node.attribute)
         switch node.label {

@@ -18,7 +18,7 @@ import WhitespaceFormatter
         )
         """
 
-        #expect(try WhitespaceFormatter.reindent(input, by: 4) == expected + "\n")
+        try #expect(WhitespaceFormatter.reindent(input, by: 4) == expected + "\n")
     }
     @Test static func BasicRemoval() throws {
         let input: String = """
@@ -36,7 +36,7 @@ import WhitespaceFormatter
         )
         """
 
-        #expect(try WhitespaceFormatter.reindent(input, by: 4) == expected + "\n")
+        try #expect(WhitespaceFormatter.reindent(input, by: 4) == expected + "\n")
     }
     @Test static func If() throws {
         let input: String = """
@@ -60,7 +60,7 @@ import WhitespaceFormatter
         }
         """
 
-        #expect(try WhitespaceFormatter.reindent(input, by: 4) == expected + "\n")
+        try #expect(WhitespaceFormatter.reindent(input, by: 4) == expected + "\n")
     }
     @Test static func FunctionType() throws {
         let input: String = """
@@ -78,7 +78,7 @@ import WhitespaceFormatter
         ) -> ()
         """
 
-        #expect(try WhitespaceFormatter.reindent(input, by: 4) == expected + "\n")
+        try #expect(WhitespaceFormatter.reindent(input, by: 4) == expected + "\n")
     }
     @Test static func FunctionDeclaration() throws {
         let input: String = """
@@ -100,7 +100,7 @@ import WhitespaceFormatter
         }
         """
 
-        #expect(try WhitespaceFormatter.reindent(input, by: 4) == expected + "\n")
+        try #expect(WhitespaceFormatter.reindent(input, by: 4) == expected + "\n")
     }
     @Test static func SubscriptDeclaration() throws {
         let input: String = """
@@ -122,7 +122,7 @@ import WhitespaceFormatter
         }
         """
 
-        #expect(try WhitespaceFormatter.reindent(input, by: 4) == expected + "\n")
+        try #expect(WhitespaceFormatter.reindent(input, by: 4) == expected + "\n")
     }
     @Test static func SubscriptDeclarationWithSetter() throws {
         let input: String = """
@@ -160,7 +160,7 @@ import WhitespaceFormatter
         }
         """
 
-        #expect(try WhitespaceFormatter.reindent(input, by: 4) == expected + "\n")
+        try #expect(WhitespaceFormatter.reindent(input, by: 4) == expected + "\n")
     }
     @Test static func BinaryOperator() throws {
         let input: String = """
@@ -182,7 +182,7 @@ import WhitespaceFormatter
             - e
         """
 
-        #expect(try WhitespaceFormatter.reindent(input, by: 4) == expected + "\n")
+        try #expect(WhitespaceFormatter.reindent(input, by: 4) == expected + "\n")
     }
     @Test static func TernaryOperator() throws {
         let input: String = """
@@ -196,7 +196,7 @@ import WhitespaceFormatter
             : baz(a, b, c)
         """
 
-        #expect(try WhitespaceFormatter.reindent(input, by: 4) == expected + "\n")
+        try #expect(WhitespaceFormatter.reindent(input, by: 4) == expected + "\n")
     }
     @Test static func PredicateWhereClause() throws {
         let input: String = """
@@ -216,7 +216,7 @@ import WhitespaceFormatter
         }
         """
 
-        #expect(try WhitespaceFormatter.reindent(input, by: 4) == expected + "\n")
+        try #expect(WhitespaceFormatter.reindent(input, by: 4) == expected + "\n")
     }
     @Test static func GenericWhereClause() throws {
         let input: String = """
@@ -232,7 +232,7 @@ import WhitespaceFormatter
         }
         """
 
-        #expect(try WhitespaceFormatter.reindent(input, by: 4) == expected + "\n")
+        try #expect(WhitespaceFormatter.reindent(input, by: 4) == expected + "\n")
     }
     @Test static func GenericWhereClauseNewline() throws {
         let input: String = """
@@ -250,7 +250,7 @@ import WhitespaceFormatter
         }
         """
 
-        #expect(try WhitespaceFormatter.reindent(input, by: 4) == expected + "\n")
+        try #expect(WhitespaceFormatter.reindent(input, by: 4) == expected + "\n")
     }
     @Test static func InheritanceClause() throws {
         let input: String = """
@@ -266,7 +266,7 @@ import WhitespaceFormatter
         }
         """
 
-        #expect(try WhitespaceFormatter.reindent(input, by: 4) == expected + "\n")
+        try #expect(WhitespaceFormatter.reindent(input, by: 4) == expected + "\n")
     }
     @Test static func Nested() throws {
         let input: String = """
@@ -312,7 +312,7 @@ import WhitespaceFormatter
         }
         """
 
-        #expect(try WhitespaceFormatter.reindent(input, by: 4) == expected + "\n")
+        try #expect(WhitespaceFormatter.reindent(input, by: 4) == expected + "\n")
     }
 
     @Test static func MultilineStringLiteralLeadingWhitespace() throws {
@@ -329,7 +329,7 @@ import WhitespaceFormatter
         """
         """#
 
-        #expect(try WhitespaceFormatter.reindent(input, by: 4) == expected + "\n")
+        try #expect(WhitespaceFormatter.reindent(input, by: 4) == expected + "\n")
     }
     @Test static func MultilineStringLiteralTrailingWhitespace() throws {
         let input: String = """
@@ -347,7 +347,7 @@ import WhitespaceFormatter
         """
         """#
 
-        #expect(try WhitespaceFormatter.reindent(input, by: 4) == expected + "\n")
+        try #expect(WhitespaceFormatter.reindent(input, by: 4) == expected + "\n")
     }
     @Test static func MultilineStringLiteralInterpolationWhitespace() throws {
         let input: String = """
@@ -361,7 +361,7 @@ import WhitespaceFormatter
         """
         """#
 
-        #expect(try WhitespaceFormatter.reindent(input, by: 4) == expected + "\n")
+        try #expect(WhitespaceFormatter.reindent(input, by: 4) == expected + "\n")
     }
     @Test static func MultilineStringLiteralInterpolationInterspersed() throws {
         let input: String = """
@@ -391,7 +391,7 @@ import WhitespaceFormatter
         """
         """#
 
-        #expect(try WhitespaceFormatter.reindent(input, by: 4) == expected + "\n")
+        try #expect(WhitespaceFormatter.reindent(input, by: 4) == expected + "\n")
     }
     @Test static func MultilineStringLiteralInterpolationEscapedLinebreaks() throws {
         let input: String = #"""
@@ -421,7 +421,7 @@ import WhitespaceFormatter
         """
         """#
 
-        #expect(try WhitespaceFormatter.reindent(input, by: 4) == expected + "\n")
+        try #expect(WhitespaceFormatter.reindent(input, by: 4) == expected + "\n")
     }
     @Test static func MultilineStringLiteralWithPoundDelimiter() throws {
         let input: String = """
@@ -439,7 +439,7 @@ import WhitespaceFormatter
         \"""#
         """
 
-        #expect(try WhitespaceFormatter.reindent(input, by: 4) == expected + "\n")
+        try #expect(WhitespaceFormatter.reindent(input, by: 4) == expected + "\n")
     }
 
     @Test static func BlockCommentPreservation() throws {
@@ -454,7 +454,7 @@ import WhitespaceFormatter
                 that should be preserved as-is */
         """
 
-        #expect(try WhitespaceFormatter.reindent(input, by: 4) == expected + "\n")
+        try #expect(WhitespaceFormatter.reindent(input, by: 4) == expected + "\n")
     }
 
     @Test static func IfConfig() throws {
@@ -473,7 +473,7 @@ import WhitespaceFormatter
         #endif
         """
 
-        #expect(try WhitespaceFormatter.reindent(input, by: 4) == expected + "\n")
+        try #expect(WhitespaceFormatter.reindent(input, by: 4) == expected + "\n")
     }
 
     @Test static func MemberAccess() throws {
@@ -490,7 +490,7 @@ import WhitespaceFormatter
             .sorted()
         """
 
-        #expect(try WhitespaceFormatter.reindent(input, by: 4) == expected + "\n")
+        try #expect(WhitespaceFormatter.reindent(input, by: 4) == expected + "\n")
     }
     @Test static func LeadingDot() throws {
         let input: String = """
@@ -504,7 +504,7 @@ import WhitespaceFormatter
         )
         """
 
-        #expect(try WhitespaceFormatter.reindent(input, by: 4) == expected + "\n")
+        try #expect(WhitespaceFormatter.reindent(input, by: 4) == expected + "\n")
     }
 
     @Test static func ClosureParameters() throws {
@@ -525,6 +525,57 @@ import WhitespaceFormatter
         }
         """
 
-        #expect(try WhitespaceFormatter.reindent(input, by: 4) == expected + "\n")
+        try #expect(WhitespaceFormatter.reindent(input, by: 4) == expected + "\n")
+    }
+
+    @Test static func HangingIf() throws {
+        let input: String = """
+        if  condition,
+        !array.isEmpty,
+        let x: Int = array.first,
+        x > 0,
+        x < 10,
+        foo.bar() {
+        }
+        """
+        let expected: String = """
+        if  condition,
+           !array.isEmpty,
+            let x: Int = array.first,
+                x > 0,
+                x < 10,
+            foo.bar() {
+        }
+        """
+
+        try #expect(WhitespaceFormatter.reindent(input, by: 4) == expected + "\n")
+    }
+    @Test static func HangingGuard() throws {
+        let input: String = """
+        func f() {
+            guard foo.bar(),
+            !array.isEmpty,
+            let x: Int = array.first,
+            x > 0,
+            !x.isMultiple(of: 5),
+            x < 10 else {
+                return
+            }
+        }
+        """
+        let expected: String = """
+        func f() {
+            guard foo.bar(),
+            !array.isEmpty,
+            let x: Int = array.first,
+                x > 0,
+               !x.isMultiple(of: 5),
+                x < 10 else {
+                return
+            }
+        }
+        """
+
+        try #expect(WhitespaceFormatter.reindent(input, by: 4) == expected + "\n")
     }
 }
