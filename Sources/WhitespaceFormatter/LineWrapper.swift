@@ -413,9 +413,27 @@ class LineWrapper: SyntaxVisitor {
         }
 
         switch self.limitViolated(by: node, tier: .string) {
-        case nil: return .visitChildren
-        case true?: break
-        case false?: return .skipChildren
+        case nil:
+            for case .expressionSegment(let expression) in node.segments {
+                switch self.limitViolated(by: expression, tier: .inline) {
+                case nil:
+                    self.walk(expression)
+
+                case true?:
+                    self.break(after: expression.leftParen)
+                    self.break(before: expression.rightParen)
+
+                case false?:
+                    continue
+                }
+            }
+            return .skipChildren
+
+        case true?:
+            break
+
+        case false?:
+            return .skipChildren
         }
 
         self.break(after: node.openingQuote, type: .quotesBefore)

@@ -400,6 +400,29 @@ import WhitespaceFormatter
 
         try #expect(WhitespaceFormatter.reformat(input, width: 22) == expected + "\n")
     }
+    @Test static func StringWithMultilineInterpolation() throws {
+        /// This should break the closure, not the subscript arguments
+        ///                                                      | +60
+        let input: String = #"""
+        func f(i: Int) {
+            let string: String = """
+            blah blah blah blah blah blah blah blah blah \(bar[at: i]) blah blah
+            """
+        }
+        """#
+        ///                                                      | +60
+        let expected: String = #"""
+        func f(i: Int) {
+            let string: String = """
+            blah blah blah blah blah blah blah blah blah \(
+                bar[at: i]
+            ) blah blah
+            """
+        }
+        """#
+
+        try #expect(WhitespaceFormatter.reformat(input, width: 60) == expected + "\n")
+    }
 
     @Test static func OutOfOrderLinebreaking() throws {
         /// We should leave these alone
