@@ -75,10 +75,58 @@ import WhitespaceFormatter
 
         #expect(self.format(input) == expected + "\n")
     }
+    @Test static func MultipleAttributes() throws {
+        let input: String = """
+        public struct Foo {
+            @available(*, deprecated)
+            @inline(__always)
+            @inlinable
+            public
+            static func foo() async throws {}
+        }
+        """
+        let expected: String = """
+        public struct Foo {
+            @available(*, deprecated)
+            @inline(__always) @inlinable public static func foo() async throws {}
+        }
+        """
+
+        #expect(self.format(input) == expected + "\n")
+    }
+    @Test static func LongAttributes() throws {
+        let input: String = """
+        public struct Foo {
+            @available(*, unavailable, message: "Use `foo()` instead", renamed: "foo")
+            public
+            static func bar() async throws {}
+
+            @inline(__always)
+            func baz() {}
+
+            @CustomMacro(a: "blah blah", b: "blah blah", c: "blah", d: "blah")
+            public
+            static func qux() {}
+        }
+        """
+        let expected: String = """
+        public struct Foo {
+            @available(*, unavailable, message: "Use `foo()` instead", renamed: "foo")
+            public static func bar() async throws {}
+
+            @inline(__always) func baz() {}
+
+            @CustomMacro(a: "blah blah", b: "blah blah", c: "blah", d: "blah")
+            public static func qux() {}
+        }
+        """
+
+        #expect(self.format(input) == expected + "\n")
+    }
 }
 extension VerticalKeywordAlignmentTests {
     private static func format(_ input: consuming String) -> String {
-        let formatter: WhitespaceFormatter = .init { $0.keywordsOnSameLine = true }
+        let formatter: WhitespaceFormatter = .init { $0.foldKeywords = true }
         var input: String = input
         formatter.reformat(&input, check: true)
         return input

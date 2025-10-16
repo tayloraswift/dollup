@@ -9,12 +9,16 @@ class VerticalKeywordAligner: SyntaxRewriter {
     }
 
     override func visit(_ node: TokenSyntax) -> TokenSyntax {
-        if  case .keyword = node.tokenKind,
-            movable.contains(node.positionAfterSkippingLeadingTrivia) {
-            return self.align(node: node)
-        } else {
-            return node
+        switch node.tokenKind {
+        case .atSign, .keyword:
+            if  movable.contains(node.positionAfterSkippingLeadingTrivia) {
+                return self.align(node: node)
+            }
+        default:
+            break
         }
+
+        return node
     }
 }
 extension VerticalKeywordAligner: VerticalRewriter {
