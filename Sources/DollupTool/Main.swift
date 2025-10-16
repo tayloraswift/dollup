@@ -13,7 +13,7 @@ import SystemPackage
             $0.indent.ifConfig = false
 
             $0.formatColonPadding = true
-            $0.keywordsOnSameLine = true
+            $0.foldKeywords = true
         }
     }
 

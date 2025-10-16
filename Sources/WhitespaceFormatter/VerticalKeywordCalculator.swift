@@ -2,157 +2,130 @@ import SwiftSyntax
 
 final class VerticalKeywordCalculator: SyntaxVisitor {
     private(set) var movable: Set<AbsolutePosition>
+    private let options: FoldAttributesOptions
 
-    init() {
+    init(fold options: FoldAttributesOptions) {
         self.movable = []
+        self.options = options
         super.init(viewMode: .sourceAccurate)
     }
 
     override func visit(_ node: AccessorDeclSyntax) -> SyntaxVisitorContinueKind {
-        if !node.attributes.isEmptyOrEndsInVerticalAttribute || node.modifier != nil {
-            self.mark(movable: node.accessorSpecifier)
-        }
+        self.fold(attributes: node.attributes, modifiers: node.modifier.map { [$0] } ?? [], keyword: node.accessorSpecifier)
         return .visitChildren
     }
     override func visit(_ node: ActorDeclSyntax) -> SyntaxVisitorContinueKind {
-        if !node.attributes.isEmptyOrEndsInVerticalAttribute || !node.modifiers.isEmpty {
-            self.mark(movable: node.actorKeyword)
-        }
+        self.fold(attributes: node.attributes, modifiers: node.modifiers, keyword: node.actorKeyword)
         return .visitChildren
     }
     override func visit(_ node: AssociatedTypeDeclSyntax) -> SyntaxVisitorContinueKind {
-        if !node.attributes.isEmptyOrEndsInVerticalAttribute || !node.modifiers.isEmpty {
-            self.mark(movable: node.associatedtypeKeyword)
-        }
+        self.fold(attributes: node.attributes, modifiers: node.modifiers, keyword: node.associatedtypeKeyword)
         return .visitChildren
     }
     override func visit(_ node: ClassDeclSyntax) -> SyntaxVisitorContinueKind {
-        if !node.attributes.isEmptyOrEndsInVerticalAttribute || !node.modifiers.isEmpty {
-            self.mark(movable: node.classKeyword)
-        }
+        self.fold(attributes: node.attributes, modifiers: node.modifiers, keyword: node.classKeyword)
         return .visitChildren
     }
     override func visit(_ node: DeinitializerDeclSyntax) -> SyntaxVisitorContinueKind {
-        if !node.attributes.isEmptyOrEndsInVerticalAttribute || !node.modifiers.isEmpty {
-            self.mark(movable: node.deinitKeyword)
-        }
+        self.fold(attributes: node.attributes, modifiers: node.modifiers, keyword: node.deinitKeyword)
         return .visitChildren
     }
     override func visit(_ node: EnumCaseDeclSyntax) -> SyntaxVisitorContinueKind {
-        if !node.attributes.isEmptyOrEndsInVerticalAttribute || !node.modifiers.isEmpty {
-            self.mark(movable: node.caseKeyword)
-        }
+        self.fold(attributes: node.attributes, modifiers: node.modifiers, keyword: node.caseKeyword)
         return .visitChildren
     }
     override func visit(_ node: EnumDeclSyntax) -> SyntaxVisitorContinueKind {
-        if !node.attributes.isEmptyOrEndsInVerticalAttribute || !node.modifiers.isEmpty {
-            self.mark(movable: node.enumKeyword)
-        }
+        self.fold(attributes: node.attributes, modifiers: node.modifiers, keyword: node.enumKeyword)
         return .visitChildren
     }
     override func visit(_ node: ExtensionDeclSyntax) -> SyntaxVisitorContinueKind {
-        if !node.attributes.isEmptyOrEndsInVerticalAttribute || !node.modifiers.isEmpty {
-            self.mark(movable: node.extensionKeyword)
-        }
+        self.fold(attributes: node.attributes, modifiers: node.modifiers, keyword: node.extensionKeyword)
         return .visitChildren
     }
     override func visit(_ node: FunctionDeclSyntax) -> SyntaxVisitorContinueKind {
-        if !node.attributes.isEmptyOrEndsInVerticalAttribute || !node.modifiers.isEmpty {
-            self.mark(movable: node.funcKeyword)
-        }
+        self.fold(attributes: node.attributes, modifiers: node.modifiers, keyword: node.funcKeyword)
         return .visitChildren
     }
     override func visit(_ node: ImportDeclSyntax) -> SyntaxVisitorContinueKind {
-        if !node.attributes.isEmptyOrEndsInVerticalAttribute || !node.modifiers.isEmpty {
-            self.mark(movable: node.importKeyword)
-        }
+        self.fold(attributes: node.attributes, modifiers: node.modifiers, keyword: node.importKeyword)
         return .visitChildren
     }
     override func visit(_ node: InitializerDeclSyntax) -> SyntaxVisitorContinueKind {
-        if !node.attributes.isEmptyOrEndsInVerticalAttribute || !node.modifiers.isEmpty {
-            self.mark(movable: node.initKeyword)
-        }
+        self.fold(attributes: node.attributes, modifiers: node.modifiers, keyword: node.initKeyword)
         return .visitChildren
     }
     override func visit(_ node: MacroDeclSyntax) -> SyntaxVisitorContinueKind {
-        if !node.attributes.isEmptyOrEndsInVerticalAttribute || !node.modifiers.isEmpty {
-            self.mark(movable: node.macroKeyword)
-        }
+        self.fold(attributes: node.attributes, modifiers: node.modifiers, keyword: node.macroKeyword)
         return .visitChildren
     }
     override func visit(_ node: PrecedenceGroupDeclSyntax) -> SyntaxVisitorContinueKind {
-        if !node.attributes.isEmptyOrEndsInVerticalAttribute || !node.modifiers.isEmpty {
-            self.mark(movable: node.precedencegroupKeyword)
-        }
+        self.fold(attributes: node.attributes, modifiers: node.modifiers, keyword: node.precedencegroupKeyword)
         return .visitChildren
     }
     override func visit(_ node: ProtocolDeclSyntax) -> SyntaxVisitorContinueKind {
-        if !node.attributes.isEmptyOrEndsInVerticalAttribute || !node.modifiers.isEmpty {
-            self.mark(movable: node.protocolKeyword)
-        }
+        self.fold(attributes: node.attributes, modifiers: node.modifiers, keyword: node.protocolKeyword)
         return .visitChildren
     }
     override func visit(_ node: StructDeclSyntax) -> SyntaxVisitorContinueKind {
-        if !node.attributes.isEmptyOrEndsInVerticalAttribute || !node.modifiers.isEmpty {
-            self.mark(movable: node.structKeyword)
-        }
+        self.fold(attributes: node.attributes, modifiers: node.modifiers, keyword: node.structKeyword)
         return .visitChildren
     }
     override func visit(_ node: SubscriptDeclSyntax) -> SyntaxVisitorContinueKind {
-        if !node.attributes.isEmptyOrEndsInVerticalAttribute || !node.modifiers.isEmpty {
-            self.mark(movable: node.subscriptKeyword)
-        }
+        self.fold(attributes: node.attributes, modifiers: node.modifiers, keyword: node.subscriptKeyword)
         return .visitChildren
     }
     override func visit(_ node: TypeAliasDeclSyntax) -> SyntaxVisitorContinueKind {
-        if !node.attributes.isEmptyOrEndsInVerticalAttribute || !node.modifiers.isEmpty {
-            self.mark(movable: node.typealiasKeyword)
-        }
+        self.fold(attributes: node.attributes, modifiers: node.modifiers, keyword: node.typealiasKeyword)
         return .visitChildren
     }
     override func visit(_ node: VariableDeclSyntax) -> SyntaxVisitorContinueKind {
-        if !node.attributes.isEmptyOrEndsInVerticalAttribute || !node.modifiers.isEmpty {
-            self.mark(movable: node.bindingSpecifier)
-        }
+        self.fold(attributes: node.attributes, modifiers: node.modifiers, keyword: node.bindingSpecifier)
         return .visitChildren
     }
 
-
     override func visit(_ node: AccessorEffectSpecifiersSyntax) -> SyntaxVisitorContinueKind {
-        self.movable.insert(node.positionAfterSkippingLeadingTrivia)
+        if  let first: TokenSyntax = node.firstToken(viewMode: .sourceAccurate) {
+            self.mark(movable: first)
+        }
         return .visitChildren
     }
 
     override func visit(_ node: FunctionEffectSpecifiersSyntax) -> SyntaxVisitorContinueKind {
-        self.movable.insert(node.positionAfterSkippingLeadingTrivia)
+        if  let first: TokenSyntax = node.firstToken(viewMode: .sourceAccurate) {
+            self.mark(movable: first)
+        }
         return .visitChildren
     }
-
-    override func visit(_ node: DeclModifierListSyntax) -> SyntaxVisitorContinueKind {
-        if  node.isEmpty {
-            return .skipChildren
+}
+extension VerticalKeywordCalculator {
+    private func fold(
+        attributes: AttributeListSyntax,
+        modifiers: some Collection<DeclModifierSyntax>,
+        keyword: TokenSyntax
+    ) {
+        var first: Bool = true
+        for attribute: AttributeListSyntax.Element in attributes {
+            if case .attribute(let attribute) = attribute {
+                if !first {
+                    self.mark(movable: attribute.atSign)
+                }
+                first = !self.options.fold(attribute)
+            } else {
+                first = false
+            }
         }
-
-        let position: AbsolutePosition = node.positionAfterSkippingLeadingTrivia
-        var first: Bool
-        if  case position? = node.parent?.positionAfterSkippingLeadingTrivia {
-            first = true
-        } else {
-            first = false
-        }
-
-        for modifier: DeclModifierSyntax in node {
+        for modifier: DeclModifierSyntax in modifiers {
             if  first {
                 first = false
             } else {
                 self.mark(movable: modifier.name)
             }
         }
-
-        return .visitChildren
+        if !first {
+            self.mark(movable: keyword)
+        }
     }
-}
-extension VerticalKeywordCalculator {
+
     private func mark(movable node: TokenSyntax) {
         self.movable.insert(node.positionAfterSkippingLeadingTrivia)
     }

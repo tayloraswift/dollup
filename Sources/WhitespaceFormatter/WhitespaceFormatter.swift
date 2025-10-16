@@ -40,8 +40,8 @@ extension WhitespaceFormatter {
 
             source.update(with: aligned, onChange: self.reindent)
         }
-        if  self.options.keywordsOnSameLine {
-            let calculator: VerticalKeywordCalculator = .init()
+        if  self.options.foldKeywords {
+            let calculator: VerticalKeywordCalculator = .init(fold: self.options.foldAttribute)
             ;   calculator.walk(source.tree)
 
             let aligner: VerticalKeywordAligner = .init(movable: calculator.movable)
