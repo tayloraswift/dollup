@@ -349,6 +349,22 @@ import WhitespaceFormatter
 
         try #expect(WhitespaceFormatter.reindent(input, by: 4) == expected + "\n")
     }
+    @Test static func MultilineStringLiteralTrailingEscapedNewline() throws {
+        let input: String = #"""
+        propertyValueSwitchBlock += """
+            foo
+                bar\n
+            """
+        """#
+        let expected: String = #"""
+        propertyValueSwitchBlock += """
+        foo
+            bar\n
+        """
+        """#
+
+        try #expect(WhitespaceFormatter.reindent(input, by: 4) == expected + "\n")
+    }
     @Test static func MultilineStringLiteralInterpolationWhitespace() throws {
         let input: String = """
         let x: String = \"""
