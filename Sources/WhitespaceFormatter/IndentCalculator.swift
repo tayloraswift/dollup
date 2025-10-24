@@ -467,10 +467,6 @@ class IndentCalculator: SyntaxVisitor {
                     whitespaceRight = ""
                 }
 
-                if  whitespaceLeft.isEmpty, whitespaceRight.isEmpty {
-                    break
-                }
-
                 if  firstOfLine || lastOfLine {
                     self.region(
                         start: node.positionAfterSkippingLeadingTrivia,
