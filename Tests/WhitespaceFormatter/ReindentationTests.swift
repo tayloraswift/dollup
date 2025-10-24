@@ -351,13 +351,13 @@ import WhitespaceFormatter
     }
     @Test static func MultilineStringLiteralTrailingEscapedNewline() throws {
         let input: String = #"""
-        propertyValueSwitchBlock += """
+        x += """
             foo
                 bar\n
             """
         """#
         let expected: String = #"""
-        propertyValueSwitchBlock += """
+        x += """
         foo
             bar\n
         """
