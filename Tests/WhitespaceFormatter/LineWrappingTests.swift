@@ -296,6 +296,23 @@ import WhitespaceFormatter
 
         try #expect(WhitespaceFormatter.reformat(input, width: 40) == expected + "\n")
     }
+    @Test static func AttributeWrappingDisabled() throws {
+        ///                                     | +40
+        let input: String = """
+        @inline(__always) enum BlahBlahBlahBlahBlah {
+            case a
+            case b
+        }
+        """
+        let expected: String = """
+        @inline(__always) enum BlahBlahBlahBlahBlah {
+            case a
+            case b
+        }
+        """
+
+        try #expect(WhitespaceFormatter.reformat(input, width: 40) == expected + "\n")
+    }
 
     @Test static func Parentheses() throws {
         let input: String = """

@@ -1,45 +1,45 @@
 import SwiftSyntax
 
-public struct FoldAttributesOptions {
-    public var _alignment: Bool = true
-    public var _alwaysEmitIntoClient: Bool = true
-    public var attached: Bool = false
-    public var available: Bool = false
-    public var backDeployed: Bool = false
-    public var _cdecl: Bool = false
-    public var discardableResult: Bool = false
-    public var _disfavoredOverload: Bool = false
-    public var _documentation: Bool = false
-    public var dynamicCallable: Bool = true
-    public var dynamicMemberLookup: Bool = true
-    public var _effects: Bool = true
-    public var _exported: Bool = true
-    public var freestanding: Bool = false
-    public var frozen: Bool = true
-    public var globalActor: Bool = true
-    public var _hasStorage: Bool = true
-    public var _implements: Bool = false
-    public var _implementationOnly: Bool = true
-    public var inlinable: Bool = true
-    public var inline: Bool = true
-    public var nonobjc: Bool = true
-    public var _nonSendable: Bool = true
-    public var main: Bool = true
-    public var _marker: Bool = true
-    public var objc: Bool = true
-    public var objcMembers: Bool = true
-    public var _optimize: Bool = true
-    public var preconcurrency: Bool = true
-    public var propertyWrapper: Bool = true
-    public var resultBuilder: Bool = true
-    public var _semantics: Bool = false
-    public var _silgen_name: Bool = false
-    public var _specialize: Bool = false
-    public var _spi: Bool = true
-    public var testable: Bool = true
-    public var _transparent: Bool = true
-    public var usableFromInline: Bool = true
-    public var _weakLinked: Bool = true
+public struct AttributesOptions {
+    public var _alignment: Bool
+    public var _alwaysEmitIntoClient: Bool
+    public var attached: Bool
+    public var available: Bool
+    public var backDeployed: Bool
+    public var _cdecl: Bool
+    public var discardableResult: Bool
+    public var _disfavoredOverload: Bool
+    public var _documentation: Bool
+    public var dynamicCallable: Bool
+    public var dynamicMemberLookup: Bool
+    public var _effects: Bool
+    public var _exported: Bool
+    public var freestanding: Bool
+    public var frozen: Bool
+    public var globalActor: Bool
+    public var _hasStorage: Bool
+    public var _implements: Bool
+    public var _implementationOnly: Bool
+    public var inlinable: Bool
+    public var inline: Bool
+    public var nonobjc: Bool
+    public var _nonSendable: Bool
+    public var main: Bool
+    public var _marker: Bool
+    public var objc: Bool
+    public var objcMembers: Bool
+    public var _optimize: Bool
+    public var preconcurrency: Bool
+    public var propertyWrapper: Bool
+    public var resultBuilder: Bool
+    public var _semantics: Bool
+    public var _silgen_name: Bool
+    public var _specialize: Bool
+    public var _spi: Bool
+    public var testable: Bool
+    public var _transparent: Bool
+    public var usableFromInline: Bool
+    public var _weakLinked: Bool
 
     @available(*, unavailable, message: "@autoclosure is never foldable")
     public var autoclosure: Bool { false }
@@ -52,12 +52,100 @@ public struct FoldAttributesOptions {
     @available(*, unavailable, message: "@unknown is never foldable")
     public var unknown: Bool { false }
 
-    public var allOthers: DefaultBehavior = .nameOnly
-
-    public init() {}
+    public var allOthers: DefaultBehavior
 }
-extension FoldAttributesOptions {
-    func fold(_ node: AttributeSyntax) -> Bool {
+extension AttributesOptions {
+    static var foldDefaults: Self {
+        .init(
+            _alignment: true,
+            _alwaysEmitIntoClient: true,
+            attached: false,
+            available: false,
+            backDeployed: false,
+            _cdecl: false,
+            discardableResult: false,
+            _disfavoredOverload: false,
+            _documentation: false,
+            dynamicCallable: true,
+            dynamicMemberLookup: true,
+            _effects: true,
+            _exported: true,
+            freestanding: false,
+            frozen: true,
+            globalActor: true,
+            _hasStorage: true,
+            _implements: false,
+            _implementationOnly: true,
+            inlinable: true,
+            inline: true,
+            nonobjc: true,
+            _nonSendable: true,
+            main: true,
+            _marker: true,
+            objc: true,
+            objcMembers: true,
+            _optimize: true,
+            preconcurrency: true,
+            propertyWrapper: true,
+            resultBuilder: true,
+            _semantics: false,
+            _silgen_name: false,
+            _specialize: false,
+            _spi: true,
+            testable: true,
+            _transparent: true,
+            usableFromInline: true,
+            _weakLinked: true,
+            allOthers: .nameOnly
+        )
+    }
+    static var wrapDefaults: Self {
+        .init(
+            _alignment: false,
+            _alwaysEmitIntoClient: false,
+            attached: true,
+            available: true,
+            backDeployed: false,
+            _cdecl: false,
+            discardableResult: false,
+            _disfavoredOverload: false,
+            _documentation: true,
+            dynamicCallable: false,
+            dynamicMemberLookup: false,
+            _effects: false,
+            _exported: false,
+            freestanding: true,
+            frozen: false,
+            globalActor: false,
+            _hasStorage: false,
+            _implements: false,
+            _implementationOnly: false,
+            inlinable: false,
+            inline: false,
+            nonobjc: false,
+            _nonSendable: false,
+            main: false,
+            _marker: false,
+            objc: false,
+            objcMembers: false,
+            _optimize: false,
+            preconcurrency: false,
+            propertyWrapper: false,
+            resultBuilder: false,
+            _semantics: false,
+            _silgen_name: false,
+            _specialize: true,
+            _spi: false,
+            testable: false,
+            _transparent: false,
+            usableFromInline: false,
+            _weakLinked: false,
+            allOthers: .always
+        )
+    }
+}
+extension AttributesOptions {
+    func applies(to node: AttributeSyntax) -> Bool {
         guard
         let name: TokenSyntax = node.attributeName.as(IdentifierTypeSyntax.self)?.name else {
             return false

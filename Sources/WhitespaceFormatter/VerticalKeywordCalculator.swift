@@ -2,9 +2,9 @@ import SwiftSyntax
 
 final class VerticalKeywordCalculator: SyntaxVisitor {
     private(set) var movable: Set<AbsolutePosition>
-    private let options: FoldAttributesOptions
+    private let options: AttributesOptions
 
-    init(fold options: FoldAttributesOptions) {
+    init(fold options: AttributesOptions) {
         self.movable = []
         self.options = options
         super.init(viewMode: .sourceAccurate)
@@ -109,7 +109,7 @@ extension VerticalKeywordCalculator {
                 if !first {
                     self.mark(movable: attribute.atSign)
                 }
-                first = !self.options.fold(attribute)
+                first = !self.options.applies(to: attribute)
             } else {
                 first = false
             }
