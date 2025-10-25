@@ -61,7 +61,11 @@ extension WhitespaceFormatter {
         }
 
         while true {
-            let wrapper: LineWrapper = .init(text: source.text, wrap: self.options.wrapAttribute, width: self.options.width)
+            let wrapper: LineWrapper = .init(
+                text: source.text,
+                wrap: self.options.wrapAttribute,
+                width: self.options.width
+            )
             ;   wrapper.walk(source.tree)
 
             let linebreaks: [Linebreak] = wrapper.linebreaks

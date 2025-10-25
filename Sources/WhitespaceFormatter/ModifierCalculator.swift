@@ -11,75 +11,147 @@ final class ModifierCalculator: SyntaxVisitor {
     }
 
     override func visit(_ node: AccessorDeclSyntax) -> SyntaxVisitorContinueKind {
-        self.fold(attributes: node.attributes, modifiers: node.modifier.map { [$0] } ?? [], keyword: node.accessorSpecifier)
+        self.fold(
+            attributes: node.attributes,
+            modifiers: node.modifier.map { [$0] } ?? [],
+            keyword: node.accessorSpecifier
+        )
         return .visitChildren
     }
     override func visit(_ node: ActorDeclSyntax) -> SyntaxVisitorContinueKind {
-        self.fold(attributes: node.attributes, modifiers: node.modifiers, keyword: node.actorKeyword)
+        self.fold(
+            attributes: node.attributes,
+            modifiers: node.modifiers,
+            keyword: node.actorKeyword
+        )
         return .visitChildren
     }
     override func visit(_ node: AssociatedTypeDeclSyntax) -> SyntaxVisitorContinueKind {
-        self.fold(attributes: node.attributes, modifiers: node.modifiers, keyword: node.associatedtypeKeyword)
+        self.fold(
+            attributes: node.attributes,
+            modifiers: node.modifiers,
+            keyword: node.associatedtypeKeyword
+        )
         return .visitChildren
     }
     override func visit(_ node: ClassDeclSyntax) -> SyntaxVisitorContinueKind {
-        self.fold(attributes: node.attributes, modifiers: node.modifiers, keyword: node.classKeyword)
+        self.fold(
+            attributes: node.attributes,
+            modifiers: node.modifiers,
+            keyword: node.classKeyword
+        )
         return .visitChildren
     }
     override func visit(_ node: DeinitializerDeclSyntax) -> SyntaxVisitorContinueKind {
-        self.fold(attributes: node.attributes, modifiers: node.modifiers, keyword: node.deinitKeyword)
+        self.fold(
+            attributes: node.attributes,
+            modifiers: node.modifiers,
+            keyword: node.deinitKeyword
+        )
         return .visitChildren
     }
     override func visit(_ node: EnumCaseDeclSyntax) -> SyntaxVisitorContinueKind {
-        self.fold(attributes: node.attributes, modifiers: node.modifiers, keyword: node.caseKeyword)
+        self.fold(
+            attributes: node.attributes,
+            modifiers: node.modifiers,
+            keyword: node.caseKeyword
+        )
         return .visitChildren
     }
     override func visit(_ node: EnumDeclSyntax) -> SyntaxVisitorContinueKind {
-        self.fold(attributes: node.attributes, modifiers: node.modifiers, keyword: node.enumKeyword)
+        self.fold(
+            attributes: node.attributes,
+            modifiers: node.modifiers,
+            keyword: node.enumKeyword
+        )
         return .visitChildren
     }
     override func visit(_ node: ExtensionDeclSyntax) -> SyntaxVisitorContinueKind {
-        self.fold(attributes: node.attributes, modifiers: node.modifiers, keyword: node.extensionKeyword)
+        self.fold(
+            attributes: node.attributes,
+            modifiers: node.modifiers,
+            keyword: node.extensionKeyword
+        )
         return .visitChildren
     }
     override func visit(_ node: FunctionDeclSyntax) -> SyntaxVisitorContinueKind {
-        self.fold(attributes: node.attributes, modifiers: node.modifiers, keyword: node.funcKeyword)
+        self.fold(
+            attributes: node.attributes,
+            modifiers: node.modifiers,
+            keyword: node.funcKeyword
+        )
         return .visitChildren
     }
     override func visit(_ node: ImportDeclSyntax) -> SyntaxVisitorContinueKind {
-        self.fold(attributes: node.attributes, modifiers: node.modifiers, keyword: node.importKeyword)
+        self.fold(
+            attributes: node.attributes,
+            modifiers: node.modifiers,
+            keyword: node.importKeyword
+        )
         return .visitChildren
     }
     override func visit(_ node: InitializerDeclSyntax) -> SyntaxVisitorContinueKind {
-        self.fold(attributes: node.attributes, modifiers: node.modifiers, keyword: node.initKeyword)
+        self.fold(
+            attributes: node.attributes,
+            modifiers: node.modifiers,
+            keyword: node.initKeyword
+        )
         return .visitChildren
     }
     override func visit(_ node: MacroDeclSyntax) -> SyntaxVisitorContinueKind {
-        self.fold(attributes: node.attributes, modifiers: node.modifiers, keyword: node.macroKeyword)
+        self.fold(
+            attributes: node.attributes,
+            modifiers: node.modifiers,
+            keyword: node.macroKeyword
+        )
         return .visitChildren
     }
     override func visit(_ node: PrecedenceGroupDeclSyntax) -> SyntaxVisitorContinueKind {
-        self.fold(attributes: node.attributes, modifiers: node.modifiers, keyword: node.precedencegroupKeyword)
+        self.fold(
+            attributes: node.attributes,
+            modifiers: node.modifiers,
+            keyword: node.precedencegroupKeyword
+        )
         return .visitChildren
     }
     override func visit(_ node: ProtocolDeclSyntax) -> SyntaxVisitorContinueKind {
-        self.fold(attributes: node.attributes, modifiers: node.modifiers, keyword: node.protocolKeyword)
+        self.fold(
+            attributes: node.attributes,
+            modifiers: node.modifiers,
+            keyword: node.protocolKeyword
+        )
         return .visitChildren
     }
     override func visit(_ node: StructDeclSyntax) -> SyntaxVisitorContinueKind {
-        self.fold(attributes: node.attributes, modifiers: node.modifiers, keyword: node.structKeyword)
+        self.fold(
+            attributes: node.attributes,
+            modifiers: node.modifiers,
+            keyword: node.structKeyword
+        )
         return .visitChildren
     }
     override func visit(_ node: SubscriptDeclSyntax) -> SyntaxVisitorContinueKind {
-        self.fold(attributes: node.attributes, modifiers: node.modifiers, keyword: node.subscriptKeyword)
+        self.fold(
+            attributes: node.attributes,
+            modifiers: node.modifiers,
+            keyword: node.subscriptKeyword
+        )
         return .visitChildren
     }
     override func visit(_ node: TypeAliasDeclSyntax) -> SyntaxVisitorContinueKind {
-        self.fold(attributes: node.attributes, modifiers: node.modifiers, keyword: node.typealiasKeyword)
+        self.fold(
+            attributes: node.attributes,
+            modifiers: node.modifiers,
+            keyword: node.typealiasKeyword
+        )
         return .visitChildren
     }
     override func visit(_ node: VariableDeclSyntax) -> SyntaxVisitorContinueKind {
-        self.fold(attributes: node.attributes, modifiers: node.modifiers, keyword: node.bindingSpecifier)
+        self.fold(
+            attributes: node.attributes,
+            modifiers: node.modifiers,
+            keyword: node.bindingSpecifier
+        )
         return .visitChildren
     }
 
