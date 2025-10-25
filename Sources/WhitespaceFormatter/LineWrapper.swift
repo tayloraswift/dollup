@@ -3,12 +3,13 @@ import SwiftSyntax
 class LineWrapper: SyntaxVisitor {
     /// The original source text, used for measuring line lengths.
     let text: String
-
+    private let wrap: AttributesOptions
     private var line: [String.Index: LinebreakContext].Index?
     private var lines: [String.Index: LinebreakContext]
 
-    init(text: String, width: Int) {
+    init(text: String, wrap: AttributesOptions, width: Int) {
         self.text = text
+        self.wrap = wrap
         self.line = nil
         self.lines = Self.contexts(source: text, width: width)
 
@@ -174,6 +175,10 @@ class LineWrapper: SyntaxVisitor {
     }
 
     override func visit(_ node: AttributeSyntax) -> SyntaxVisitorContinueKind {
+        guard self.wrap.applies(to: node) else {
+            return .skipChildren
+        }
+
         guard
         let leftParen: TokenSyntax = node.leftParen,
         let arguments: AttributeSyntax.Arguments = node.arguments else {

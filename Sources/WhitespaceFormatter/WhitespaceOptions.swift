@@ -7,10 +7,11 @@ public struct WhitespaceOptions {
     public var indent: IndentOptions
     public var braces: BraceStyle?
     public var formatColonPadding: Bool
+    public var foldKeywords: Bool
     /// Use these options to control how attributes are folded. They have no effect unless
     /// ``foldKeywords`` is also enabled.
-    public var foldAttribute: FoldAttributesOptions
-    public var foldKeywords: Bool
+    public var foldAttribute: AttributesOptions
+    public var wrapAttribute: AttributesOptions
 }
 extension WhitespaceOptions {
     init() {
@@ -25,8 +26,9 @@ extension WhitespaceOptions {
             ),
             braces: .egyptian,
             formatColonPadding: true,
-            foldAttribute: .init(),
-            foldKeywords: false
+            foldKeywords: false,
+            foldAttribute: .foldDefaults,
+            wrapAttribute: .wrapDefaults
         )
     }
 }
