@@ -1,6 +1,6 @@
 import SwiftSyntax
 
-class VerticalKeywordAligner: SyntaxRewriter {
+class ModifierFolder: SyntaxRewriter {
     private let movable: Set<AbsolutePosition>
 
     init(movable: Set<AbsolutePosition>) {
@@ -21,6 +21,6 @@ class VerticalKeywordAligner: SyntaxRewriter {
         return node
     }
 }
-extension VerticalKeywordAligner: VerticalRewriter {
+extension ModifierFolder: VerticalRewriter {
     var separator: TriviaPiece { .spaces(1) }
 }
