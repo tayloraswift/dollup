@@ -1,6 +1,6 @@
 import SwiftSyntax
 
-final class VerticalKeywordCalculator: SyntaxVisitor {
+final class ModifierCalculator: SyntaxVisitor {
     private(set) var movable: Set<AbsolutePosition>
     private let options: AttributesOptions
 
@@ -97,7 +97,7 @@ final class VerticalKeywordCalculator: SyntaxVisitor {
         return .visitChildren
     }
 }
-extension VerticalKeywordCalculator {
+extension ModifierCalculator {
     private func fold(
         attributes: AttributeListSyntax,
         modifiers: some Collection<DeclModifierSyntax>,

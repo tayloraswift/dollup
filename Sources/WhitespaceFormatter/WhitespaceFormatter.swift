@@ -41,10 +41,10 @@ extension WhitespaceFormatter {
             source.update(with: aligned, onChange: self.reindent)
         }
         if  self.options.foldKeywords {
-            let calculator: VerticalKeywordCalculator = .init(fold: self.options.foldAttribute)
+            let calculator: ModifierCalculator = .init(fold: self.options.foldAttribute)
             ;   calculator.walk(source.tree)
 
-            let aligner: VerticalKeywordAligner = .init(movable: calculator.movable)
+            let aligner: ModifierFolder = .init(movable: calculator.movable)
             let aligned: String = "\(aligner.rewrite(source.tree))"
 
             source.update(with: aligned, onChange: self.reindent)
