@@ -572,6 +572,28 @@ import WhitespaceFormatter
 
         try #expect(WhitespaceFormatter.reindent(input, by: 4) == expected + "\n")
     }
+    @Test static func HangingIfLet() throws {
+        let input: String = """
+        func foo() {
+            if  let x: Int,
+            x > 0 {
+            } else if let y: String,
+            y.isEmpty {
+            }
+        }
+        """
+        let expected: String = """
+        func foo() {
+            if  let x: Int,
+                    x > 0 {
+            } else if let y: String,
+                y.isEmpty {
+            }
+        }
+        """
+
+        try #expect(WhitespaceFormatter.reindent(input, by: 4) == expected + "\n")
+    }
     @Test static func HangingGuard() throws {
         let input: String = """
         func f() {
