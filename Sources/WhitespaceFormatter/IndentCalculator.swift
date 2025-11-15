@@ -221,9 +221,9 @@ class IndentCalculator: SyntaxVisitor {
         }
 
         var identifier: TokenSyntax? = nil
-        var first: Bool = true
+        var skip: Bool = true
         for line: ConditionElementSyntax in node {
-            defer { first = false }
+            defer { skip = false }
 
             switch line.condition {
             case .availability(let condition):
@@ -239,7 +239,20 @@ class IndentCalculator: SyntaxVisitor {
 
             case .optionalBinding(let condition):
                 self.walk(condition)
-                if  first, condition.lacksPrecedingNewline {
+
+                // This is a special case for `if  let` with two spaces. This style is used
+                // to indicate the start of a hanging-indented condition list where subsequent
+                // conditions should be aligned with the first binding.
+                if  let previous: TokenSyntax = condition.bindingSpecifier.previousToken(
+                        viewMode: .sourceAccurate
+                    ),
+                        previous.tokenKind == .keyword(.if),
+                       !previous.lacksPrecedingNewline,
+                        previous.trailingTrivia == [.spaces(2)] {
+                    skip = false
+                }
+
+                if  skip, condition.lacksPrecedingNewline {
                     identifier = nil
                 } else if
                     let pattern: IdentifierPatternSyntax = condition.pattern.as(
