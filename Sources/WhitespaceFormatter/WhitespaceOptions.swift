@@ -7,6 +7,9 @@ public struct WhitespaceOptions {
     public var indent: IndentOptions
     public var braces: BraceStyle?
     public var formatColonPadding: Bool
+    /// If true, newlines between colons (`:`) in labeled expressions and values will be
+    /// removed, as well as newlines between expressions and trailing commas (`,`).
+    public var foldArguments: Bool
     public var foldKeywords: Bool
     /// Use these options to control how attributes are folded. They have no effect unless
     /// ``foldKeywords`` is also enabled.
@@ -26,6 +29,7 @@ extension WhitespaceOptions {
             ),
             braces: .egyptian,
             formatColonPadding: true,
+            foldArguments: true,
             foldKeywords: false,
             foldAttribute: .foldDefaults,
             wrapAttribute: .wrapDefaults

@@ -1,6 +1,6 @@
 import SwiftSyntax
 
-class ModifierFolder: SyntaxRewriter {
+final class ModifierFolder: SyntaxRewriter {
     private let movable: Set<AbsolutePosition>
 
     init(movable: Set<AbsolutePosition>) {
@@ -11,7 +11,7 @@ class ModifierFolder: SyntaxRewriter {
     override func visit(_ node: TokenSyntax) -> TokenSyntax {
         switch node.tokenKind {
         case .atSign, .keyword:
-            if  movable.contains(node.positionAfterSkippingLeadingTrivia) {
+            if  self.movable.contains(node.positionAfterSkippingLeadingTrivia) {
                 return self.align(node: node)
             }
         default:
