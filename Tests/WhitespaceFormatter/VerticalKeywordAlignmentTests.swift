@@ -123,6 +123,34 @@ import WhitespaceFormatter
 
         #expect(self.format(input) == expected + "\n")
     }
+    @Test static func BrokenAttributes() throws {
+        let input: String = """
+        @CustomMacro(
+            foo: "blah",
+            bar: "blah",
+        )
+        public struct Foo {
+            @CustomMacro(
+                foo: "blah",
+                bar: "blah",
+            )
+            public func foo() {}
+        }
+        """
+        let expected: String = """
+        @CustomMacro(
+            foo: "blah",
+            bar: "blah",
+        ) public struct Foo {
+            @CustomMacro(
+                foo: "blah",
+                bar: "blah",
+            ) public func foo() {}
+        }
+        """
+
+        #expect(self.format(input) == expected + "\n")
+    }
 }
 extension VerticalKeywordAlignmentTests {
     private static func format(_ input: consuming String) -> String {
