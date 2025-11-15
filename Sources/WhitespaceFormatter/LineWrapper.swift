@@ -67,6 +67,11 @@ class LineWrapper: SyntaxVisitor {
     }
 
     override func visit(_ node: ArrayExprSyntax) -> SyntaxVisitorContinueKind {
+        guard !node.elements.isEmpty else {
+            // we cannot line wrap an empty array `[]` (well we could, but it would be weird)
+            return .skipChildren
+        }
+
         switch self.limitViolated(by: node, tier: .inline) {
         case nil: return .visitChildren
         case true?: break
