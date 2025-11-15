@@ -151,6 +151,27 @@ import WhitespaceFormatter
 
         #expect(self.format(input) == expected + "\n")
     }
+    @Test static func ConditionalAttributes() throws {
+        let input: String = """
+        #if os(macOS) || os(iOS)
+        @Observable
+        #endif
+        @MainActor
+        public final class Observable {
+            init() {}
+        }
+        """
+        let expected: String = """
+        #if os(macOS) || os(iOS)
+        @Observable
+        #endif
+        @MainActor public final class Observable {
+            init() {}
+        }
+        """
+
+        #expect(self.format(input) == expected + "\n")
+    }
 }
 extension ModifierFoldingTests {
     private static func format(_ input: consuming String) -> String {
