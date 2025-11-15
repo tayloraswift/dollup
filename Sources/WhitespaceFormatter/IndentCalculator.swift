@@ -240,7 +240,9 @@ class IndentCalculator: SyntaxVisitor {
             case .optionalBinding(let condition):
                 self.walk(condition)
 
-                if  let previous: TokenSyntax = condition.bindingSpecifier.previousToken(viewMode: .sourceAccurate),
+                if  let previous: TokenSyntax = condition.bindingSpecifier.previousToken(
+                        viewMode: .sourceAccurate
+                    ),
                         previous.tokenKind == .keyword(.if),
                        !previous.lacksPrecedingNewline,
                         previous.trailingTrivia == [.spaces(2)] {
