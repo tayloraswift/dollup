@@ -172,6 +172,24 @@ import WhitespaceFormatter
 
         #expect(self.format(input) == expected + "\n")
     }
+    @Test static func ConditionalAttributesAfterFoldableAttribute() throws {
+        let input: String = """
+        @inlinable
+        #if os(macOS)
+        @available(*, unavailable)
+        #endif
+        public func foo() {}
+        """
+        let expected: String = """
+        @inlinable
+        #if os(macOS)
+        @available(*, unavailable)
+        #endif
+        public func foo() {}
+        """
+
+        #expect(self.format(input) == expected + "\n")
+    }
 }
 extension ModifierFoldingTests {
     private static func format(_ input: consuming String) -> String {
