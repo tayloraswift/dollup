@@ -240,6 +240,9 @@ class IndentCalculator: SyntaxVisitor {
             case .optionalBinding(let condition):
                 self.walk(condition)
 
+                // This is a special case for `if  let` with two spaces. This style is used
+                // to indicate the start of a hanging-indented condition list where subsequent
+                // conditions should be aligned with the first binding.
                 if  let previous: TokenSyntax = condition.bindingSpecifier.previousToken(
                         viewMode: .sourceAccurate
                     ),
