@@ -175,25 +175,37 @@ extension ModifierCalculator {
         modifiers: some Collection<DeclModifierSyntax>,
         keyword: TokenSyntax
     ) {
-        var first: Bool = true
+        var shouldAppearOnNewline: Bool = true
         for attribute: AttributeListSyntax.Element in attributes {
-            if case .attribute(let attribute) = attribute {
-                if !first {
-                    self.mark(movable: attribute.atSign)
-                }
-                first = !self.options.applies(to: attribute)
+            guard case .attribute(let attribute) = attribute else {
+                shouldAppearOnNewline = false
+                continue
+            }
+
+            if !shouldAppearOnNewline {
+                self.mark(movable: attribute.atSign)
+            }
+            if  self.options.applies(to: attribute) {
+                // the next token should still appear on the same line
+                shouldAppearOnNewline = false
+            } else if case false? = attribute.rightParen?.lacksPrecedingNewline {
+                // attribute has a closing parenthesis that appears on a new line,
+                // and therefore, the next token should keep flowing on the current line,
+                // even if the attribute would normally force it onto the next line
+                shouldAppearOnNewline = false
             } else {
-                first = false
+                // this is an attribute that prefers to break after, not within
+                shouldAppearOnNewline = true
             }
         }
         for modifier: DeclModifierSyntax in modifiers {
-            if  first {
-                first = false
+            if  shouldAppearOnNewline {
+                shouldAppearOnNewline = false
             } else {
                 self.mark(movable: modifier.name)
             }
         }
-        if !first {
+        if !shouldAppearOnNewline {
             self.mark(movable: keyword)
         }
     }
