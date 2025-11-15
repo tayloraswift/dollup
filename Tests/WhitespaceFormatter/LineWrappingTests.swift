@@ -578,4 +578,34 @@ import WhitespaceFormatter
 
         try #expect(WhitespaceFormatter.reformat(input, width: 60) == expected + "\n")
     }
+    @Test static func Atomics() throws {
+        ///                                                      | +60
+        let input: String = """
+        func encode(to encoder: inout Encoder) {
+            encoder {
+                $0["blah blah blah blah blah"] { "blah blah blah blah blah" } = ()
+                $0["blah blah blah blah blah"] { "blah blah blah blah blah" } = []
+                $0["blah blah blah blah blah"] { "blah blah blah blah blah" } = [:]
+            }
+        }
+        """
+        ///                                                      | +60
+        let expected: String = """
+        func encode(to encoder: inout Encoder) {
+            encoder {
+                $0["blah blah blah blah blah"] {
+                    "blah blah blah blah blah"
+                } = ()
+                $0["blah blah blah blah blah"] {
+                    "blah blah blah blah blah"
+                } = []
+                $0["blah blah blah blah blah"] {
+                    "blah blah blah blah blah"
+                } = [:]
+            }
+        }
+        """
+
+        try #expect(WhitespaceFormatter.reformat(input, width: 60) == expected + "\n")
+    }
 }
