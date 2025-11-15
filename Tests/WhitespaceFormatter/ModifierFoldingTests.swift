@@ -1,7 +1,7 @@
 import Testing
 import WhitespaceFormatter
 
-@Suite struct VerticalKeywordAlignmentTests {
+@Suite struct ModifierFoldingTests {
     @Test static func ModifiersOnly() throws {
         let input: String = """
         public
@@ -151,8 +151,47 @@ import WhitespaceFormatter
 
         #expect(self.format(input) == expected + "\n")
     }
+    @Test static func ConditionalAttributes() throws {
+        let input: String = """
+        #if os(macOS) || os(iOS)
+        @Observable
+        #endif
+        @MainActor
+        public final class Observable {
+            init() {}
+        }
+        """
+        let expected: String = """
+        #if os(macOS) || os(iOS)
+        @Observable
+        #endif
+        @MainActor public final class Observable {
+            init() {}
+        }
+        """
+
+        #expect(self.format(input) == expected + "\n")
+    }
+    @Test static func ConditionalAttributesAfterFoldableAttribute() throws {
+        let input: String = """
+        @inlinable
+        #if os(macOS)
+        @available(*, unavailable)
+        #endif
+        public func foo() {}
+        """
+        let expected: String = """
+        @inlinable
+        #if os(macOS)
+        @available(*, unavailable)
+        #endif
+        public func foo() {}
+        """
+
+        #expect(self.format(input) == expected + "\n")
+    }
 }
-extension VerticalKeywordAlignmentTests {
+extension ModifierFoldingTests {
     private static func format(_ input: consuming String) -> String {
         let formatter: WhitespaceFormatter = .init { $0.foldKeywords = true }
         var input: String = input
