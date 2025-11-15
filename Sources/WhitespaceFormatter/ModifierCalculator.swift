@@ -178,7 +178,7 @@ extension ModifierCalculator {
         var shouldAppearOnNewline: Bool = true
         for attribute: AttributeListSyntax.Element in attributes {
             guard case .attribute(let attribute) = attribute else {
-                shouldAppearOnNewline = false
+                shouldAppearOnNewline = true
                 continue
             }
 
