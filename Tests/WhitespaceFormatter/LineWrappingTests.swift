@@ -277,7 +277,7 @@ import WhitespaceFormatter
 
     @Test static func Attribute() throws {
         let input: String = """
-        @MacroWithVeryLongName(foo: "foo", bar: "bar", baz: "baz", quux: "quux") enum E {
+        @MacroWithVeryLongName(foo: "foo", bar: "bar", baz: "baz", quux: "quux") public enum E {
             case a
             case b
         }
@@ -288,7 +288,7 @@ import WhitespaceFormatter
             bar: "bar",
             baz: "baz",
             quux: "quux"
-        ) enum E {
+        ) public enum E {
             case a
             case b
         }
