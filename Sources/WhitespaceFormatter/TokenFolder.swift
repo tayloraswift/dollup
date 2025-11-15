@@ -1,6 +1,6 @@
 import SwiftSyntax
 
-class TokenFolder: SyntaxRewriter {
+final class TokenFolder: SyntaxRewriter {
     private let movable: [AbsolutePosition: Bool]
 
     init(movable: [AbsolutePosition: Bool]) {
