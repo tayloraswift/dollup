@@ -491,7 +491,26 @@ import WhitespaceFormatter
 
         try #expect(WhitespaceFormatter.reindent(input, by: 4) == expected + "\n")
     }
+    @Test static func IfConfigPostfix() throws {
+        let input: String = """
+        let x: [Int] = foo
+        .map { $0 + 1 }
+        #if FOO
+            .filter { $0 > 0 }
+        #endif
+                .sorted()
+        """
+        let expected: String = """
+        let x: [Int] = foo
+            .map { $0 + 1 }
+        #if FOO
+            .filter { $0 > 0 }
+        #endif
+            .sorted()
+        """
 
+        try #expect(WhitespaceFormatter.reindent(input, by: 4) == expected + "\n")
+    }
     @Test static func MemberAccess() throws {
         let input: String = """
         let x: [Int] = foo
