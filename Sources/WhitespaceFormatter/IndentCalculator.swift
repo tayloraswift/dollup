@@ -29,9 +29,7 @@ class IndentCalculator: SyntaxVisitor {
         }
     }
     override func visit(_ node: PostfixIfConfigExprSyntax) -> SyntaxVisitorContinueKind {
-        if  let base: ExprSyntax = node.base {
-            self.walk(base)
-        }
+        self.walkIfPresent(node.base)
         // always indent clauses of postfix ifconfig expressions
         self.visit(indentingClauses: node.config)
         return .skipChildren
