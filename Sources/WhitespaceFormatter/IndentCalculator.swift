@@ -21,23 +21,17 @@ class IndentCalculator: SyntaxVisitor {
     }
 
     override func visit(_ node: IfConfigDeclSyntax) -> SyntaxVisitorContinueKind {
-        guard self.options.ifConfig else {
+        if  self.options.ifConfig {
+            self.visit(indentingClauses: node)
+            return .skipChildren
+        } else {
             return .visitChildren
         }
-
-        var first: Bool = true
-        for clause: IfConfigClauseSyntax in node.clauses {
-            if  first {
-                first = false
-            } else {
-                self.deindent(before: clause.poundKeyword)
-            }
-            self.indent(after: clause.poundKeyword)
-
-            self.walkIfPresent(clause.condition)
-            self.walkIfPresent(clause.elements)
-        }
-        self.deindent(before: node.poundEndif)
+    }
+    override func visit(_ node: PostfixIfConfigExprSyntax) -> SyntaxVisitorContinueKind {
+        self.walkIfPresent(node.base)
+        // always indent clauses of postfix ifconfig expressions
+        self.visit(indentingClauses: node.config)
         return .skipChildren
     }
 
@@ -553,7 +547,21 @@ extension IndentCalculator {
             self.walk(node)
         }
     }
+    private func visit(indentingClauses node: IfConfigDeclSyntax) {
+        var first: Bool = true
+        for clause: IfConfigClauseSyntax in node.clauses {
+            if  first {
+                first = false
+            } else {
+                self.deindent(before: clause.poundKeyword)
+            }
+            self.indent(after: clause.poundKeyword)
 
+            self.walkIfPresent(clause.condition)
+            self.walkIfPresent(clause.elements)
+        }
+        self.deindent(before: node.poundEndif)
+    }
     private func visit(
         leftDelimiter: TokenSyntax?,
         arguments: LabeledExprListSyntax,
