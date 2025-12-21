@@ -527,6 +527,30 @@ import WhitespaceFormatter
 
         try #expect(WhitespaceFormatter.reindent(input, by: 4) == expected + "\n")
     }
+    @Test static func MemberAccessMultiline() throws {
+        let input: String = """
+        let x: [Int] = foo
+        .map {
+        $0 + 1
+        }
+            .filter {
+            $0 > 0
+            }
+                .sorted()
+        """
+        let expected: String = """
+        let x: [Int] = foo
+            .map {
+                $0 + 1
+            }
+            .filter {
+                $0 > 0
+            }
+            .sorted()
+        """
+
+        try #expect(WhitespaceFormatter.reindent(input, by: 4) == expected + "\n")
+    }
     @Test static func LeadingDot() throws {
         let input: String = """
         let x: [Int] = foo(
