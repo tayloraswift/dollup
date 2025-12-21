@@ -151,37 +151,39 @@ class IndentCalculator: SyntaxVisitor {
         return .skipChildren
     }
     override func visit(_ node: FunctionCallExprSyntax) -> SyntaxVisitorContinueKind {
-        self.walk(node.calledExpression)
-        return self.visit(
+        self.visit(
+            calledExpression: node.calledExpression,
             leftDelimiter: node.leftParen,
             arguments: node.arguments,
             rightDelimiter: node.rightParen,
             trailingClosure: node.trailingClosure,
             additionalClosures: node.additionalTrailingClosures
         )
+        return .skipChildren
     }
     override func visit(_ node: MacroExpansionExprSyntax) -> SyntaxVisitorContinueKind {
         self.walk(node.pound)
         self.walk(node.macroName)
         self.walkIfPresent(node.genericArgumentClause)
-        return self.visit(
+        self.visit(
             leftDelimiter: node.leftParen,
             arguments: node.arguments,
             rightDelimiter: node.rightParen,
             trailingClosure: node.trailingClosure,
             additionalClosures: node.additionalTrailingClosures
         )
+        return .skipChildren
     }
-
     override func visit(_ node: SubscriptCallExprSyntax) -> SyntaxVisitorContinueKind {
-        self.walk(node.calledExpression)
-        return self.visit(
+        self.visit(
+            calledExpression: node.calledExpression,
             leftDelimiter: node.leftSquare,
             arguments: node.arguments,
             rightDelimiter: node.rightSquare,
             trailingClosure: node.trailingClosure,
             additionalClosures: node.additionalTrailingClosures
         )
+        return .skipChildren
     }
 
     override func visit(_ node: GenericArgumentClauseSyntax) -> SyntaxVisitorContinueKind {
@@ -563,12 +565,47 @@ extension IndentCalculator {
         self.deindent(before: node.poundEndif)
     }
     private func visit(
+        calledExpression: ExprSyntax,
         leftDelimiter: TokenSyntax?,
         arguments: LabeledExprListSyntax,
         rightDelimiter: TokenSyntax?,
         trailingClosure: ClosureExprSyntax?,
         additionalClosures: MultipleTrailingClosureElementListSyntax,
-    ) -> SyntaxVisitorContinueKind {
+    ) {
+        if  let functor: MemberAccessExprSyntax = calledExpression.as(
+                MemberAccessExprSyntax.self
+            ),
+               !functor.period.lacksPrecedingNewline,
+            let base: ExprSyntax = functor.base {
+            self.walk(base)
+            self.indent(before: functor.period)
+            self.walk(functor.declName)
+            self.visit(
+                leftDelimiter: leftDelimiter,
+                arguments: arguments,
+                rightDelimiter: rightDelimiter,
+                trailingClosure: trailingClosure,
+                additionalClosures: additionalClosures
+            )
+            self.deindent(at: additionalClosures.endPositionBeforeTrailingTrivia)
+        } else {
+            self.walk(calledExpression)
+            self.visit(
+                leftDelimiter: leftDelimiter,
+                arguments: arguments,
+                rightDelimiter: rightDelimiter,
+                trailingClosure: trailingClosure,
+                additionalClosures: additionalClosures
+            )
+        }
+    }
+    private func visit(
+        leftDelimiter: TokenSyntax?,
+        arguments: LabeledExprListSyntax,
+        rightDelimiter: TokenSyntax?,
+        trailingClosure: ClosureExprSyntax?,
+        additionalClosures: MultipleTrailingClosureElementListSyntax,
+    ) {
         if  let left: TokenSyntax = leftDelimiter {
             self.indent(after: left)
         }
@@ -581,8 +618,6 @@ extension IndentCalculator {
 
         self.walkIfPresent(trailingClosure)
         self.walkIfPresent(additionalClosures)
-
-        return .skipChildren
     }
 
     private func outdent(token: TokenSyntax) {

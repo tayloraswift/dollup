@@ -527,6 +527,82 @@ import WhitespaceFormatter
 
         try #expect(WhitespaceFormatter.reindent(input, by: 4) == expected + "\n")
     }
+    @Test static func MemberAccessMultiline() throws {
+        let input: String = """
+        let x: [Int] = foo
+        .map {
+        $0 + 1
+        }
+            .filter {
+            $0 > 0
+            }
+                .sorted()
+        """
+        let expected: String = """
+        let x: [Int] = foo
+            .map {
+                $0 + 1
+            }
+            .filter {
+                $0 > 0
+            }
+            .sorted()
+        """
+
+        try #expect(WhitespaceFormatter.reindent(input, by: 4) == expected + "\n")
+    }
+    @Test static func MemberAccessBuilders() throws {
+        let input: String = """
+        if condition {
+            Image(systemName: isPinned ? "pin.fill" : "pin")
+                .font(.system(.callout))
+                .foregroundStyle(
+                Color.accentColor
+                )
+                .contentShape(Rectangle())
+                .accessibilityAddTraits(.isButton)
+                .onTapGesture {
+                if pinnedMarkets.contains(market) {
+                    pinnedMarkets.removeAll { $0 == market }
+                } else {
+                    pinnedMarkets.append(market)
+                }
+            }
+        } else {
+            Image(
+            systemName: isPinned ? "pin.fill" : "pin"
+            )
+                .font(.system(.callout))
+                .hidden()
+        }
+        """
+        let expected: String = """
+        if condition {
+            Image(systemName: isPinned ? "pin.fill" : "pin")
+                .font(.system(.callout))
+                .foregroundStyle(
+                    Color.accentColor
+                )
+                .contentShape(Rectangle())
+                .accessibilityAddTraits(.isButton)
+                .onTapGesture {
+                    if pinnedMarkets.contains(market) {
+                        pinnedMarkets.removeAll { $0 == market }
+                    } else {
+                        pinnedMarkets.append(market)
+                    }
+                }
+        } else {
+            Image(
+                systemName: isPinned ? "pin.fill" : "pin"
+            )
+                .font(.system(.callout))
+                .hidden()
+        }
+        """
+
+        try #expect(WhitespaceFormatter.reindent(input, by: 4) == expected + "\n")
+    }
     @Test static func LeadingDot() throws {
         let input: String = """
         let x: [Int] = foo(
