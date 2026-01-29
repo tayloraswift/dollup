@@ -597,9 +597,6 @@ extension IndentCalculator {
             switch link {
             case .property(_, let name):
                 self.walk(name)
-                if  indented {
-                    deindent = name.endPositionBeforeTrailingTrivia
-                }
 
             case .function(_, let name, let node):
                 self.walk(name)
@@ -611,9 +608,6 @@ extension IndentCalculator {
                         additionalClosures: node.additionalTrailingClosures
                     ) {
                     afterMultilineExpression = true
-                }
-                if  indented {
-                    deindent = node.additionalTrailingClosures.endPositionBeforeTrailingTrivia
                 }
 
             case .subscript(_, let name, let node):
@@ -627,16 +621,17 @@ extension IndentCalculator {
                     ) {
                     afterMultilineExpression = true
                 }
-                if  indented {
-                    deindent = node.additionalTrailingClosures.endPositionBeforeTrailingTrivia
-                }
 
             case .postfixIfConfig(let node):
-                self.walk(node)
+                self.walk(node.config)
                 afterMultilineExpression = true
-                if  indented {
-                    deindent = node.endPositionBeforeTrailingTrivia
-                }
+
+            case .postfixOperator(let node):
+                self.walk(node)
+            }
+
+            if  indented {
+                deindent = link.endPositionBeforeTrailingTrivia
             }
         }
 
