@@ -499,14 +499,34 @@ import WhitespaceFormatter
             .filter { $0 > 0 }
         #endif
                 .sorted()
+                .sorted()
         """
         let expected: String = """
         let x: [Int] = foo
             .map { $0 + 1 }
+            #if FOO
+                .filter { $0 > 0 }
+            #endif
+            .sorted()
+            .sorted()
+        """
+
+        try #expect(WhitespaceFormatter.reindent(input, by: 4) == expected + "\n")
+    }
+    @Test static func IfConfigPostfixSolitary() throws {
+        let input: String = """
+        let x: [Int] = foo
+        .map { $0 + 1 }
         #if FOO
             .filter { $0 > 0 }
         #endif
-            .sorted()
+        """
+        let expected: String = """
+        let x: [Int] = foo
+            .map { $0 + 1 }
+            #if FOO
+                .filter { $0 > 0 }
+            #endif
         """
 
         try #expect(WhitespaceFormatter.reindent(input, by: 4) == expected + "\n")
@@ -521,6 +541,22 @@ import WhitespaceFormatter
         let expected: String = """
         let x: [Int] = foo
             .map { $0 + 1 }
+            .filter { $0 > 0 }
+            .sorted()
+        """
+
+        try #expect(WhitespaceFormatter.reindent(input, by: 4) == expected + "\n")
+    }
+    @Test static func MemberAccessOptionalChaining() throws {
+        let input: String = """
+        let x: [Int] = foo
+        .map { $0 + 1 }?
+            .filter { $0 > 0 }
+                .sorted()
+        """
+        let expected: String = """
+        let x: [Int] = foo
+            .map { $0 + 1 }?
             .filter { $0 > 0 }
             .sorted()
         """
@@ -596,8 +632,48 @@ import WhitespaceFormatter
             Image(
                 systemName: isPinned ? "pin.fill" : "pin"
             )
-                .font(.system(.callout))
-                .hidden()
+            .font(.system(.callout))
+            .hidden()
+        }
+        """
+
+        try #expect(WhitespaceFormatter.reindent(input, by: 4) == expected + "\n")
+    }
+    @Test static func MemberAccessAfterMultilineTrailingClosure() throws {
+        let input: String = """
+        if condition {
+            Button("Cancel") {
+                isShowingCurrencyPicker = false
+            }
+                .keyboardShortcut(.cancelAction)
+        } else if other {
+            Button("Cancel") { isShowingCurrencyPicker = false }
+                .keyboardShortcut(.cancelAction)
+                .keyboardShortcut(.cancelAction)
+        } else {
+            Button("Cancel") {
+                isShowingCurrencyPicker = false
+            }
+                .keyboardShortcut(.cancelAction)
+                .keyboardShortcut(.cancelAction)
+        }
+        """
+        let expected: String = """
+        if condition {
+            Button("Cancel") {
+                isShowingCurrencyPicker = false
+            }
+            .keyboardShortcut(.cancelAction)
+        } else if other {
+            Button("Cancel") { isShowingCurrencyPicker = false }
+                .keyboardShortcut(.cancelAction)
+                .keyboardShortcut(.cancelAction)
+        } else {
+            Button("Cancel") {
+                isShowingCurrencyPicker = false
+            }
+            .keyboardShortcut(.cancelAction)
+            .keyboardShortcut(.cancelAction)
         }
         """
 
