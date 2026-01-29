@@ -29,9 +29,12 @@ class IndentCalculator: SyntaxVisitor {
         }
     }
     override func visit(_ node: PostfixIfConfigExprSyntax) -> SyntaxVisitorContinueKind {
-        self.walkIfPresent(node.base)
-        // always indent clauses of postfix ifconfig expressions
-        self.visit(indentingClauses: node.config)
+        if  let chain: MemberChain = .init(unrolling: node) {
+            self.visit(chain: chain)
+        } else {
+            self.walkIfPresent(node.base)
+            self.walk(node.config)
+        }
         return .skipChildren
     }
 
@@ -151,14 +154,18 @@ class IndentCalculator: SyntaxVisitor {
         return .skipChildren
     }
     override func visit(_ node: FunctionCallExprSyntax) -> SyntaxVisitorContinueKind {
-        self.visit(
-            calledExpression: node.calledExpression,
-            leftDelimiter: node.leftParen,
-            arguments: node.arguments,
-            rightDelimiter: node.rightParen,
-            trailingClosure: node.trailingClosure,
-            additionalClosures: node.additionalTrailingClosures
-        )
+        if  let chain: MemberChain = .init(unrolling: node) {
+            self.visit(chain: chain)
+        } else {
+            self.walk(node.calledExpression)
+            self.visit(
+                leftDelimiter: node.leftParen,
+                arguments: node.arguments,
+                rightDelimiter: node.rightParen,
+                trailingClosure: node.trailingClosure,
+                additionalClosures: node.additionalTrailingClosures
+            )
+        }
         return .skipChildren
     }
     override func visit(_ node: MacroExpansionExprSyntax) -> SyntaxVisitorContinueKind {
@@ -175,14 +182,18 @@ class IndentCalculator: SyntaxVisitor {
         return .skipChildren
     }
     override func visit(_ node: SubscriptCallExprSyntax) -> SyntaxVisitorContinueKind {
-        self.visit(
-            calledExpression: node.calledExpression,
-            leftDelimiter: node.leftSquare,
-            arguments: node.arguments,
-            rightDelimiter: node.rightSquare,
-            trailingClosure: node.trailingClosure,
-            additionalClosures: node.additionalTrailingClosures
-        )
+        if  let chain: MemberChain = .init(unrolling: node) {
+            self.visit(chain: chain)
+        } else {
+            self.walk(node.calledExpression)
+            self.visit(
+                leftDelimiter: node.leftSquare,
+                arguments: node.arguments,
+                rightDelimiter: node.rightSquare,
+                trailingClosure: node.trailingClosure,
+                additionalClosures: node.additionalTrailingClosures
+            )
+        }
         return .skipChildren
     }
 
@@ -535,11 +546,13 @@ class IndentCalculator: SyntaxVisitor {
     }
 
     override func visit(_ node: MemberAccessExprSyntax) -> SyntaxVisitorContinueKind {
-        if  let base: ExprSyntax = node.base {
-            self.walk(base)
-            self.indent(token: node.period)
+        if  let chain: MemberChain = .init(unrolling: node) {
+            self.visit(chain: chain)
+        } else {
+            self.walkIfPresent(node.base)
+            self.walk(node.period)
+            self.walk(node.declName)
         }
-        self.walk(node.declName)
         return .skipChildren
     }
 }
@@ -564,48 +577,83 @@ extension IndentCalculator {
         }
         self.deindent(before: node.poundEndif)
     }
-    private func visit(
-        calledExpression: ExprSyntax,
-        leftDelimiter: TokenSyntax?,
-        arguments: LabeledExprListSyntax,
-        rightDelimiter: TokenSyntax?,
-        trailingClosure: ClosureExprSyntax?,
-        additionalClosures: MultipleTrailingClosureElementListSyntax,
-    ) {
-        if  let functor: MemberAccessExprSyntax = calledExpression.as(
-                MemberAccessExprSyntax.self
-            ),
-               !functor.period.lacksPrecedingNewline,
-            let base: ExprSyntax = functor.base {
-            self.walk(base)
-            self.indent(before: functor.period)
-            self.walk(functor.declName)
-            self.visit(
-                leftDelimiter: leftDelimiter,
-                arguments: arguments,
-                rightDelimiter: rightDelimiter,
-                trailingClosure: trailingClosure,
-                additionalClosures: additionalClosures
-            )
-            self.deindent(at: additionalClosures.endPositionBeforeTrailingTrivia)
-        } else {
-            self.walk(calledExpression)
-            self.visit(
-                leftDelimiter: leftDelimiter,
-                arguments: arguments,
-                rightDelimiter: rightDelimiter,
-                trailingClosure: trailingClosure,
-                additionalClosures: additionalClosures
-            )
+
+    private func visit(chain: MemberChain) {
+        self.walk(chain.base)
+
+        var afterMultilineExpression: Bool = chain.base.containsInteriorNewlines
+        var indented: Bool = false
+        var deindent: AbsolutePosition? = nil
+
+        for link: MemberChain.Link in chain.flattened {
+            if  let period: TokenSyntax = link.period {
+                if !indented, !afterMultilineExpression, !period.lacksPrecedingNewline {
+                    indented = true
+                    self.indent(before: period)
+                }
+                self.walk(period)
+            }
+
+            switch link {
+            case .property(_, let name):
+                self.walk(name)
+                if  indented {
+                    deindent = name.endPositionBeforeTrailingTrivia
+                }
+
+            case .function(_, let name, let node):
+                self.walk(name)
+                if  self.visit(
+                        leftDelimiter: node.leftParen,
+                        arguments: node.arguments,
+                        rightDelimiter: node.rightParen,
+                        trailingClosure: node.trailingClosure,
+                        additionalClosures: node.additionalTrailingClosures
+                    ) {
+                    afterMultilineExpression = true
+                }
+                if  indented {
+                    deindent = node.additionalTrailingClosures.endPositionBeforeTrailingTrivia
+                }
+
+            case .subscript(_, let name, let node):
+                self.walk(name)
+                if  self.visit(
+                        leftDelimiter: node.leftSquare,
+                        arguments: node.arguments,
+                        rightDelimiter: node.rightSquare,
+                        trailingClosure: node.trailingClosure,
+                        additionalClosures: node.additionalTrailingClosures
+                    ) {
+                    afterMultilineExpression = true
+                }
+                if  indented {
+                    deindent = node.additionalTrailingClosures.endPositionBeforeTrailingTrivia
+                }
+
+            case .postfixIfConfig(let node):
+                self.walk(node)
+                afterMultilineExpression = true
+                if  indented {
+                    deindent = node.endPositionBeforeTrailingTrivia
+                }
+            }
+        }
+
+        if  let deindent: AbsolutePosition {
+            self.deindent(at: deindent)
+        } else if indented {
+            fatalError("Expected deindent position for indented member chain")
         }
     }
-    private func visit(
+
+    @discardableResult private func visit(
         leftDelimiter: TokenSyntax?,
         arguments: LabeledExprListSyntax,
         rightDelimiter: TokenSyntax?,
         trailingClosure: ClosureExprSyntax?,
         additionalClosures: MultipleTrailingClosureElementListSyntax,
-    ) {
+    ) -> Bool {
         if  let left: TokenSyntax = leftDelimiter {
             self.indent(after: left)
         }
@@ -618,6 +666,22 @@ extension IndentCalculator {
 
         self.walkIfPresent(trailingClosure)
         self.walkIfPresent(additionalClosures)
+
+        if  case true? = leftDelimiter?.containsPrecedingOrInteriorNewlines {
+            return true
+        } else if arguments.containsPrecedingOrInteriorNewlines {
+            return true
+        } else if
+            case true? = rightDelimiter?.containsPrecedingOrInteriorNewlines {
+            return true
+        } else if
+            case true? = trailingClosure?.containsPrecedingOrInteriorNewlines {
+            return true
+        } else if additionalClosures.containsPrecedingOrInteriorNewlines {
+            return true
+        } else {
+            return false
+        }
     }
 
     private func outdent(token: TokenSyntax) {

@@ -14,10 +14,18 @@ extension SyntaxProtocol {
         }
         return false
     }
+    var containsPrecedingOrInteriorNewlines: Bool {
+        for token: TokenSyntax in self.tokens(viewMode: .sourceAccurate) {
+            // only leading trivia can ever contain newlines
+            for case .newlines in token.leadingTrivia {
+                return true
+            }
+        }
+        return false
+    }
     var containsInteriorNewlines: Bool {
         let tokens: TokenSequence = self.tokens(viewMode: .sourceAccurate)
         for token: TokenSyntax in tokens.dropFirst() {
-            // only leading trivia can ever contain newlines
             for case .newlines in token.leadingTrivia {
                 return true
             }
