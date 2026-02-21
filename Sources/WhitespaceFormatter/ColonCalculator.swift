@@ -155,37 +155,13 @@ final class ColonCalculator: SyntaxVisitor {
         return .visitChildren
     }
     override func visit(
-        _ node: ConventionAttributeArgumentsSyntax
-    ) -> SyntaxVisitorContinueKind {
-        self.mark(node.colon, as: .right)
-        return .visitChildren
-    }
-    override func visit(
-        _ node: ConventionWitnessMethodAttributeArgumentsSyntax
-    ) -> SyntaxVisitorContinueKind {
-        self.mark(node.colon, as: .right)
-        return .visitChildren
-    }
-    override func visit(
         _ node: OriginallyDefinedInAttributeArgumentsSyntax
     ) -> SyntaxVisitorContinueKind {
         self.mark(node.colon, as: .right)
         return .visitChildren
     }
     override func visit(
-        _ node: UnderscorePrivateAttributeArgumentsSyntax
-    ) -> SyntaxVisitorContinueKind {
-        self.mark(node.colon, as: .right)
-        return .visitChildren
-    }
-    override func visit(
         _ node: DynamicReplacementAttributeArgumentsSyntax
-    ) -> SyntaxVisitorContinueKind {
-        self.mark(node.colon, as: .right)
-        return .visitChildren
-    }
-    override func visit(
-        _ node: UnavailableFromAsyncAttributeArgumentsSyntax
     ) -> SyntaxVisitorContinueKind {
         self.mark(node.colon, as: .right)
         return .visitChildren
