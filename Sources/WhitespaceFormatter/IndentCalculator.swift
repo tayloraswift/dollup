@@ -446,7 +446,7 @@ class IndentCalculator: SyntaxVisitor {
 
             case .stringSegment(let node):
                 let firstOfLine: Bool = newline
-                let lastOfLine: Bool
+                let lastOfLine: Bool?
 
                 var content: Substring = node.content.text[...]
                 if  case "\n"? = content.last {
@@ -456,7 +456,7 @@ class IndentCalculator: SyntaxVisitor {
                     newline = true
                 } else if node.trailingTrivia == [.backslashes(1), .newlines(1)] {
                     // line continuation
-                    lastOfLine = true
+                    lastOfLine = false
                     newline = true
                 } else if
                     case nil = next {
@@ -465,7 +465,7 @@ class IndentCalculator: SyntaxVisitor {
                     // this will never be read
                     newline = false
                 } else {
-                    lastOfLine = false
+                    lastOfLine = nil
                     newline = false
                 }
 
@@ -477,7 +477,7 @@ class IndentCalculator: SyntaxVisitor {
 
                     whitespaceLeft = content.prefix(while: \.isWhitespace)
                     whitespaceRight = content[i...]
-                } else if lastOfLine {
+                } else if case true? = lastOfLine {
                     // if the segment is all whitespace, it is considered a suffix, not a prefix
                     whitespaceLeft = ""
                     whitespaceRight = content[...]
@@ -487,7 +487,7 @@ class IndentCalculator: SyntaxVisitor {
                     whitespaceRight = ""
                 }
 
-                if  firstOfLine || lastOfLine {
+                if  firstOfLine || lastOfLine ?? false {
                     self.region(
                         start: node.positionAfterSkippingLeadingTrivia,
                         delta: 0,
@@ -495,9 +495,11 @@ class IndentCalculator: SyntaxVisitor {
                         suffix: whitespaceRight.isEmpty ? nil : whitespaceRight
                     )
                 }
-                if  lastOfLine {
+                if  let lastOfLine: Bool {
                     self.region(
-                        start: node.endPositionBeforeTrailingTrivia,
+                        start: lastOfLine
+                            ? node.endPositionBeforeTrailingTrivia
+                            : node.endPositionBeforeTrailingTrivia.advanced(by: 1),
                         delta: 0,
                         prefix: nil,
                         suffix: nil

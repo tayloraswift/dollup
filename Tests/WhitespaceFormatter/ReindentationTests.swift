@@ -331,6 +331,38 @@ import WhitespaceFormatter
 
         try #expect(WhitespaceFormatter.reindent(input, by: 4) == expected + "\n")
     }
+    @Test static func MultilineStringLiteralInteriorWhitespace() throws {
+        let input: String = #"""
+        let x: String = """
+                foo \
+            bar
+            """
+        """#
+        let expected: String = #"""
+        let x: String = """
+            foo \
+        bar
+        """
+        """#
+
+        try #expect(WhitespaceFormatter.reindent(input, by: 4) == expected + "\n")
+    }
+    @Test static func MultilineStringLiteralContinuationWhitespace() throws {
+        let input: String = #"""
+        let x: String = """
+            \
+        foo
+        """
+        """#
+        let expected: String = #"""
+        let x: String = """
+            \
+        foo
+        """
+        """#
+
+        try #expect(WhitespaceFormatter.reindent(input, by: 4) == expected + "\n")
+    }
     @Test static func MultilineStringLiteralTrailingWhitespace() throws {
         let input: String = """
         let x: String = \"""
