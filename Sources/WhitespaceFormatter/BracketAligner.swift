@@ -1,46 +1,46 @@
 import SwiftSyntax
 
-class BracketAligner: SyntaxRewriter {
+struct BracketAligner {
     private let brackets: [AbsolutePosition: BracketSide]
     private let style: BraceStyle
 
     init(style: BraceStyle, brackets: [AbsolutePosition: BracketSide]) {
         self.brackets = brackets
         self.style = style
-        super.init(viewMode: .sourceAccurate)
     }
 
-    override func visit(_ node: TokenSyntax) -> TokenSyntax {
+}
+extension BracketAligner: VerticalFolder {
+    var separator: TriviaPiece { self.style.before }
+
+    func fold(_ node: TokenSyntax) -> Bool? {
         switch node.tokenKind {
-        case .leftBrace: self.alignAsOpening(node: node)
-        case .leftSquare: self.alignAsOpening(node: node)
-        case .leftParen: self.alignAsOpening(node: node)
-        case .multilineStringQuote: self.alignAsOpening(node: node)
-        case .rawStringPoundDelimiter: self.alignAsOpening(node: node)
-        case .keyword(.else): self.alignToClosing(node: node)
-        case .keyword(.catch): self.alignToClosing(node: node)
-        case .keyword(.while): self.alignToClosing(node: node)
-        case .identifier: self.alignToClosing(node: node)
-        default: node
+        case .leftBrace: self.foldAsOpening(node: node)
+        case .leftSquare: self.foldAsOpening(node: node)
+        case .leftParen: self.foldAsOpening(node: node)
+        case .multilineStringQuote: self.foldAsOpening(node: node)
+        case .rawStringPoundDelimiter: self.foldAsOpening(node: node)
+        case .keyword(.else): self.foldAsBridging(node: node)
+        case .keyword(.catch): self.foldAsBridging(node: node)
+        case .keyword(.while): self.foldAsBridging(node: node)
+        case .identifier: self.foldAsBridging(node: node)
+        default: nil
         }
     }
-}
-extension BracketAligner: VerticalRewriter {
-    var separator: TriviaPiece { self.style.before }
 }
 extension BracketAligner {
-    private func alignAsOpening(node: TokenSyntax) -> TokenSyntax {
+    private func foldAsOpening(node: TokenSyntax) -> Bool? {
         if  case .opening? = self.brackets[node.positionAfterSkippingLeadingTrivia] {
-            return self.align(node: node)
+            return true
         } else {
-            return node
+            return nil
         }
     }
-    private func alignToClosing(node: TokenSyntax) -> TokenSyntax {
+    private func foldAsBridging(node: TokenSyntax) -> Bool? {
         if  case .bridging? = self.brackets[node.positionAfterSkippingLeadingTrivia] {
-            return self.align(node: node)
+            return true
         } else {
-            return node
+            return nil
         }
     }
 }
