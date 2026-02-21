@@ -634,6 +634,25 @@ import WhitespaceFormatter
         #expect(self.egyptian(input) == egyptian + "\n")
         #expect(self.allman(input) == allman + "\n")
     }
+    @Test static func LineComment() throws {
+        let input: String = """
+        struct Foo//:~Copyable
+        {
+        }
+        """
+        let egyptian: String = """
+        struct Foo/*:~Copyable*/ {
+        }
+        """
+        let allman: String = """
+        struct Foo//:~Copyable
+        {
+        }
+        """
+
+        #expect(self.egyptian(input) == egyptian + "\n")
+        #expect(self.allman(input) == allman + "\n")
+    }
 }
 extension BraceStyleTests {
     private static func egyptian(_ input: consuming String) -> String {
