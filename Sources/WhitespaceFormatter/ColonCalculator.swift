@@ -37,12 +37,6 @@ final class ColonCalculator: SyntaxVisitor {
         return .visitChildren
     }
     override func visit(
-        _ node: AvailabilityLabeledArgumentSyntax
-    ) -> SyntaxVisitorContinueKind {
-        self.mark(node.colon, as: .right)
-        return .visitChildren
-    }
-    override func visit(
         _ node: MultipleTrailingClosureElementSyntax
     ) -> SyntaxVisitorContinueKind {
         self.mark(node.colon, as: .right)
@@ -100,6 +94,99 @@ final class ColonCalculator: SyntaxVisitor {
         return .visitChildren
     }
     override func visit(_ node: GenericParameterSyntax) -> SyntaxVisitorContinueKind {
+        self.mark(node.colon, as: .right)
+        return .visitChildren
+    }
+
+
+    // for some reason this is not a normal labeled expression
+    override func visit(
+        _ node: AvailabilityLabeledArgumentSyntax
+    ) -> SyntaxVisitorContinueKind {
+        self.mark(node.colon, as: .right)
+        return .visitChildren
+    }
+    override func visit(
+        _ node: DocumentationAttributeArgumentSyntax
+    ) -> SyntaxVisitorContinueKind {
+        self.mark(node.colon, as: .right)
+        return .visitChildren
+    }
+    override func visit(
+        _ node: LabeledSpecializeArgumentSyntax
+    ) -> SyntaxVisitorContinueKind {
+        self.mark(node.colon, as: .right)
+        return .visitChildren
+    }
+    override func visit(
+        _ node: SpecializeAvailabilityArgumentSyntax
+    ) -> SyntaxVisitorContinueKind {
+        self.mark(node.colon, as: .right)
+        return .visitChildren
+    }
+    override func visit(
+        _ node: SpecializeTargetFunctionArgumentSyntax
+    ) -> SyntaxVisitorContinueKind {
+        self.mark(node.colon, as: .right)
+        return .visitChildren
+    }
+    override func visit(
+        _ node: ObjCSelectorPieceSyntax
+    ) -> SyntaxVisitorContinueKind {
+        self.mark(node.colon, as: .none)
+        return .visitChildren
+    }
+    override func visit(
+        _ node: DifferentiabilityWithRespectToArgumentSyntax
+    ) -> SyntaxVisitorContinueKind {
+        self.mark(node.colon, as: .right)
+        return .visitChildren
+    }
+    override func visit(
+        _ node: DerivativeAttributeArgumentsSyntax
+    ) -> SyntaxVisitorContinueKind {
+        self.mark(node.colon, as: .right)
+        return .visitChildren
+    }
+    override func visit(
+        _ node: BackDeployedAttributeArgumentsSyntax
+    ) -> SyntaxVisitorContinueKind {
+        self.mark(node.colon, as: .right)
+        return .visitChildren
+    }
+    override func visit(
+        _ node: ConventionAttributeArgumentsSyntax
+    ) -> SyntaxVisitorContinueKind {
+        self.mark(node.colon, as: .right)
+        return .visitChildren
+    }
+    override func visit(
+        _ node: ConventionWitnessMethodAttributeArgumentsSyntax
+    ) -> SyntaxVisitorContinueKind {
+        self.mark(node.colon, as: .right)
+        return .visitChildren
+    }
+    override func visit(
+        _ node: OriginallyDefinedInAttributeArgumentsSyntax
+    ) -> SyntaxVisitorContinueKind {
+        self.mark(node.colon, as: .right)
+        return .visitChildren
+    }
+    override func visit(
+        _ node: UnderscorePrivateAttributeArgumentsSyntax
+    ) -> SyntaxVisitorContinueKind {
+        self.mark(node.colon, as: .right)
+        return .visitChildren
+    }
+    override func visit(
+        _ node: DynamicReplacementAttributeArgumentsSyntax
+    ) -> SyntaxVisitorContinueKind {
+        self.mark(node.colon, as: .right)
+        return .visitChildren
+    }
+    override func visit(
+        _ node: UnavailableFromAsyncAttributeArgumentsSyntax
+    ) -> SyntaxVisitorContinueKind {
         self.mark(node.colon, as: .right)
         return .visitChildren
     }
