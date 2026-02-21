@@ -36,7 +36,7 @@ extension WhitespaceFormatter {
             ;   calculator.walk(source.tree)
 
             let aligner: BracketAligner = .init(style: style, brackets: calculator.brackets)
-            let aligned: String = "\(aligner.rewrite(source.tree))"
+            let aligned: String = aligner.rewrite(source.tree)
 
             source.update(with: aligned, onChange: self.reindent)
         }
@@ -45,7 +45,7 @@ extension WhitespaceFormatter {
             ;   calculator.walk(source.tree)
 
             let aligner: TokenFolder = .init(movable: calculator.movable)
-            let aligned: String = "\(aligner.rewrite(source.tree))"
+            let aligned: String = aligner.rewrite(source.tree)
 
             source.update(with: aligned, onChange: self.reindent)
         }
@@ -54,7 +54,7 @@ extension WhitespaceFormatter {
             ;   calculator.walk(source.tree)
 
             let aligner: ModifierFolder = .init(movable: calculator.movable)
-            let aligned: String = "\(aligner.rewrite(source.tree))"
+            let aligned: String = aligner.rewrite(source.tree)
 
             source.update(with: aligned, onChange: self.reindent)
         }
