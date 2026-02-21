@@ -10,14 +10,6 @@ class BracketAligner: SyntaxRewriter {
         super.init(viewMode: .sourceAccurate)
     }
 
-    override func visit(
-        _ node: MultipleTrailingClosureElementSyntax
-    ) -> MultipleTrailingClosureElementSyntax {
-        // important to pass the node *before* its children were rewritten, because the
-        // rewritten children may have non-canonical trivia
-        super.visit(node).with(\.label, self.align(node: node.label))
-    }
-
     override func visit(_ node: TokenSyntax) -> TokenSyntax {
         switch node.tokenKind {
         case .leftBrace: self.alignAsOpening(node: node)
@@ -28,6 +20,7 @@ class BracketAligner: SyntaxRewriter {
         case .keyword(.else): self.alignToClosing(node: node)
         case .keyword(.catch): self.alignToClosing(node: node)
         case .keyword(.while): self.alignToClosing(node: node)
+        case .identifier: self.alignToClosing(node: node)
         default: node
         }
     }
