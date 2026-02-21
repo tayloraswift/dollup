@@ -34,6 +34,13 @@ final class BracketCalculator: SyntaxVisitor {
         return .skipChildren
     }
 
+    override func visit(
+        _ node: MultipleTrailingClosureElementSyntax
+    ) -> SyntaxVisitorContinueKind {
+        self.brackets[node.label.positionAfterSkippingLeadingTrivia] = .bridging
+        return .visitChildren
+    }
+
     override func visit(_ node: IfExprSyntax) -> SyntaxVisitorContinueKind {
         if  let elseKeyword: TokenSyntax = node.elseKeyword {
             self.brackets[elseKeyword.positionAfterSkippingLeadingTrivia] = .bridging
