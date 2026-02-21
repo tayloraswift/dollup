@@ -1,7 +1,7 @@
 #!/bin/bash
 set -e
 
-SWIFT_VERSION=6.2.0
+SWIFT_VERSION=6.2.3
 
 HOST_ARCH=$(uname -m)
 DEST_ARCH=aarch64
