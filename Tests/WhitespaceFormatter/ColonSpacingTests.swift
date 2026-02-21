@@ -94,6 +94,18 @@ import WhitespaceFormatter
 
         #expect(self.format(input) == expected + "\n")
     }
+    @Test static func Attributes() throws {
+        let input: String = """
+        @_documentation(metadata: "see: merge(appending:)")
+        func merged() {}
+        """
+        let expected: String = """
+        @_documentation(metadata: "see: merge(appending:)")
+        func merged() {}
+        """
+
+        #expect(self.format(input) == expected + "\n")
+    }
 }
 extension ColonSpacingTests {
     private static func format(_ input: consuming String) -> String {
