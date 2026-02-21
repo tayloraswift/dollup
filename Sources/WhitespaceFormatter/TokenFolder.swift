@@ -1,21 +1,15 @@
 import SwiftSyntax
 
-final class TokenFolder: SyntaxRewriter {
+struct TokenFolder {
     private let movable: [AbsolutePosition: Bool]
 
     init(movable: [AbsolutePosition: Bool]) {
         self.movable = movable
-        super.init(viewMode: .sourceAccurate)
-    }
-
-    override func visit(_ node: TokenSyntax) -> TokenSyntax {
-        if  let space: Bool = self.movable[node.positionAfterSkippingLeadingTrivia] {
-            self.align(node: node, separator: space ? self.separator : nil)
-        } else {
-            node
-        }
     }
 }
-extension TokenFolder: VerticalRewriter {
+extension TokenFolder: VerticalFolder {
     var separator: TriviaPiece { .spaces(1) }
+    func fold(_ node: TokenSyntax) -> Bool? {
+        self.movable[node.positionAfterSkippingLeadingTrivia]
+    }
 }
