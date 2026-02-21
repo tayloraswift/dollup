@@ -88,10 +88,10 @@ extension VerticalFolder {
                 let last: Int = previous.trailingTrivia.pieces.indices.last {
                 let newComment: TriviaPiece
                 switch previous.trailingTrivia.pieces[last] {
-                case .lineComment(let text):
-                    newComment = .blockComment("/*\(text.dropFirst(2))*/")
                 case .docLineComment(let text):
-                    newComment = .docBlockComment("/**\(text.dropFirst(3))*/")
+                    newComment = .docBlockComment(Self.wrapComment("/**", text.dropFirst(3)))
+                case .lineComment(let text):
+                    newComment = .blockComment(Self.wrapComment("/*", text.dropFirst(2)))
                 default:
                     break lookback
                 }
@@ -126,5 +126,45 @@ extension VerticalFolder {
             }
         }
         return nil
+    }
+
+    private static func wrapComment(_ open: String, _ text: Substring) -> String {
+        var depth: Int = 0
+        var deficit: Int = 0
+        var openings: Int = 0
+        var closings: Int = 0
+
+        var i: String.Index = text.startIndex
+        while i < text.endIndex {
+            let remainder: Substring = text[i...]
+            if  remainder.starts(with: "/*") {
+                depth += 1
+                openings += 1
+                i = text.index(i, offsetBy: 2)
+            } else if
+                remainder.starts(with: "*/") {
+                depth -= 1
+                closings += 1
+
+                deficit = min(deficit, depth)
+                i = text.index(i, offsetBy: 2)
+            } else {
+                i = text.index(after: i)
+            }
+        }
+
+        var wrapped: String = open
+        for _: Int in 0 ..< abs(deficit) {
+            wrapped += "/*"
+        }
+
+        wrapped += text
+
+        // plus one for the initial opening tag
+        for _: Int in 0 ..< abs(deficit) + openings - closings + 1{
+            wrapped += "*/"
+        }
+
+        return wrapped
     }
 }
