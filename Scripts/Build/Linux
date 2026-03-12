@@ -13,10 +13,10 @@ sed \
     -e "s/__TRIPLE__/${arch}-unknown-linux-gnu/g" \
     Scripts/info.json > ${artifactbundle}/info.json
 
-swift build -c debug \
+swift build -c release \
     --product dollup \
     --scratch-path .build.${arch} \
     --static-swift-stdlib
 
-cp .build.${arch}/debug/dollup ${artifactbundle}/${arch}/dollup
+cp .build.${arch}/release/dollup ${artifactbundle}/${arch}/dollup
 zip -r "${artifactbundle}.zip" "${artifactbundle}"
