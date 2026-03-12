@@ -34,7 +34,7 @@ jobs:
             -   name: 🎀 Upload products 🎀
                 run: Scripts/Deploy *.artifactbundle.zip
                 env:
-                    DEPLOY_PLATFORM: "macOS-${{ runner.arch }}"
+                    DEPLOY_PLATFORM: "macOS"
                     DEPLOY_VERSION: ${{ github.head_ref || github.ref_name }}
 
     linux:
@@ -67,7 +67,7 @@ jobs:
 
             -   name: 🎀 Upload products 🎀
                 env:
-                    DEPLOY_PLATFORM: "linux-${{ runner.arch }}"
+                    DEPLOY_PLATFORM: "Linux"
                     DEPLOY_VERSION: ${{ github.head_ref || github.ref_name }}
 
                 run: Scripts/Deploy *.artifactbundle.zip
