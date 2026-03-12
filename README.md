@@ -7,21 +7,41 @@ Dollup is a tool for formatting Swift source code. It automatically adjusts inde
 
 ## Using Prebuilt Binaries
 
-Dollup supports Linux and macOS. We provide prebuilt binaries for several platforms.
+Dollup is easiest to use in precompiled form. The binaries are distributed from a parallel repo, [`ordo-one/dollup`](https://github.com/ordo-one/dollup).
+
+```swift
+dependencies: [
+    .package(url: "https://github.com/ordo-one/dollup", from: "1.0.0"),
+]
+```
+
+Adding the binary package dependency will automatically make the plugin available.
+
+```bash
+swift package dollup --allow-writing-to-package-directory
+```
+
+Some people find it helpful to add formatting enforcement to their CI pipelines.
+
+```yaml
+-   name: 🎀 Format 🎀
+    run: |
+        swift package dollup --allow-writing-to-package-directory
+        git diff --exit-code
+```
+
+Note that prebuilt binaries are only available for select platforms.
 
 | Platform | Architecture | Download |
 | -------- | ------------ | -------- |
-| macOS 15 | arm64 | [tar.gz](https://download.swiftinit.org/dollup/0.2.0/macOS-ARM64/dollup.tar.gz) |
-| Ubuntu 24.04 | arm64 | [tar.gz](https://download.swiftinit.org/dollup/0.2.0/Ubuntu-24.04-ARM64/dollup.tar.gz) |
-| Ubuntu 24.04 | x86_64 | [tar.gz](https://download.swiftinit.org/dollup/0.2.0/Ubuntu-24.04-X64/dollup.tar.gz) |
-| Ubuntu 22.04 | arm64 | [tar.gz](https://download.swiftinit.org/dollup/0.2.0/Ubuntu-22.04-ARM64/dollup.tar.gz) |
-| Ubuntu 22.04 | x86_64 | [tar.gz](https://download.swiftinit.org/dollup/0.2.0/Ubuntu-22.04-X64/dollup.tar.gz) |
+| macOS | arm64 | [zip](https://download.rarestype.com/dollup/master/macOS-arm64/dollup.artifactbundle.zip) |
+| Linux | arm64 | [zip](https://download.rarestype.com/dollup/master/Linux-aarch64/dollup.artifactbundle.zip) |
+| Linux | x86_64 | [zip](https://download.rarestype.com/dollup/master/Linux-x86_64/dollup.artifactbundle.zip) |
 
-Download the correct binary for your platform from the table above, extract it, and add the `dollup` binary to your `PATH`. The pre-built Linux binaries do not require the Swift runtime to be installed on the system.
 
 ## Building from Source
 
-To build the `dollup` executable, you will need the Swift 6.1 toolchain. Navigate to the project's root directory and run the following command:
+To build the `dollup` executable, you will need the Swift 6.2 (or newer) toolchain. Navigate to the project's root directory and run the following command:
 
 ```bash
 swift build
