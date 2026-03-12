@@ -121,10 +121,10 @@ jobs:
                     git config user.email "automation@noreply.rarestype.com"
 
                     git add Package.swift
-                    git commit -m "Release ${$DEPLOY_VERSION}"
-                    git tag "${$DEPLOY_VERSION}"
+                    git commit -m "Release ${DEPLOY_VERSION}"
+                    git tag "${DEPLOY_VERSION}"
                     git push origin master
-                    git push origin refs/tags/${$DEPLOY_VERSION}
+                    git push origin refs/tags/${DEPLOY_VERSION}
 
             -   name: 🎀 Publish release 🎀
                 uses: softprops/action-gh-release@v2
