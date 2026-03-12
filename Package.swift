@@ -68,8 +68,10 @@ let package = Package(
     ]
 )
 for target: Target in package.targets {
-    if case .plugin = target.type {
-        continue
+    switch target.type {
+    case .plugin: continue
+    case .binary: continue
+    default: break
     }
     {
         $0 = ($0 ?? []) + [
