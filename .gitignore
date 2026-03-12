@@ -1,5 +1,7 @@
 /.build
 /.build.*
+/*.artifactbundle
+/*.artifactbundle.zip
 
 /Package.resolved
 

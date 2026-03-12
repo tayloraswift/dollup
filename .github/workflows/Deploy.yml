@@ -10,75 +10,64 @@ on:
 
 jobs:
     macos:
-        runs-on: macos-15
+        runs-on: macos-26
         name: macOS
         steps:
-            -   name: Setup AWS CLI
+            -   name: 🎀 Setup AWS CLI 🎀
                 uses: aws-actions/configure-aws-credentials@v1
                 with:
                     aws-secret-access-key: ${{ secrets.AWS_S3_ACCESS_SECRET }}
                     aws-access-key-id: ${{ vars.AWS_S3_ACCESS_KEY }}
                     aws-region: us-east-1
 
-            -   name: Checkout repository
+            -   name: 🎀 Checkout repository 🎀
                 uses: actions/checkout@v3
 
-            -   name: Select Xcode 26.2
-                run: sudo xcode-select -s /Applications/Xcode_26.2.app/Contents/Developer
+            -   name: 🎀 Select Xcode 26.3 🎀
+                run: sudo xcode-select -s /Applications/Xcode_26.3.app/Contents/Developer
 
-            -   name: Build Dollup
-                run: |
-                    swift --version
-                    swift build -c release --product dollup
-                    tar -czf dollup.tar.gz -C .build/release dollup
-
-            -   name: Upload products
+            -   name: 🎀 Build Dollup 🎀
+                run: Scripts/Build/macOS
                 env:
-                    DOLLUP_PLATFORM: "${{ runner.os }}-${{ runner.arch }}"
-                    DOLLUP_VERSION: ${{ github.head_ref || github.ref_name }}
+                    DEPLOY_VERSION: ${{ github.head_ref || github.ref_name }}
 
-                run: Scripts/Deploy dollup.tar.gz
+            -   name: 🎀 Upload products 🎀
+                run: Scripts/Deploy *.artifactbundle.zip
+                env:
+                    DEPLOY_PLATFORM: "macOS-${{ runner.arch }}"
+                    DEPLOY_VERSION: ${{ github.head_ref || github.ref_name }}
 
     linux:
         strategy:
             matrix:
-                os:
-                    -   codename: jammy
-                        version: Ubuntu-22.04
-                        display: Ubuntu 22.04
+                runner:
+                    -   name: "Ubuntu (x86_64)"
+                        id: ubuntu-24.04
 
-                    -   codename: noble
-                        version: Ubuntu-24.04
-                        display: Ubuntu 24.04
-                arch:
-                    -   id: aarch64
-                        name: ARM64
+                    -   name: "Ubuntu (aarch64)"
+                        id: ubuntu-24.04-arm
 
-                    -   id: x86_64
-                        name: X64
-
-        runs-on: ubuntu-24.04
-        name: "${{ matrix.os.display }} (${{ matrix.arch.id }})"
+        runs-on: ["${{ matrix.runner.id }}"]
+        name: "${{ matrix.runner.name }}"
         steps:
-            -   name: Setup AWS CLI
+            -   name: 🎀 Setup AWS CLI 🎀
                 uses: aws-actions/configure-aws-credentials@v1
                 with:
                     aws-secret-access-key: ${{ secrets.AWS_S3_ACCESS_SECRET }}
                     aws-access-key-id: ${{ vars.AWS_S3_ACCESS_KEY }}
                     aws-region: us-east-1
 
-            -   name: Checkout repository
+            -   name: 🎀 Checkout repository 🎀
                 uses: actions/checkout@v3
 
-            -   name: Build Dollup
-                run: |
-                    Scripts/BuildForBinaryDistribution ${{ matrix.arch.id }} \
-                        --os ${{ matrix.os.codename }}
-                    tar -czf dollup.tar.gz -C .build.${{ matrix.arch.id }}/release dollup
-
-            -   name: Upload products
+            -   name: 🎀 Build Dollup 🎀
+                run: Scripts/Build/Linux
                 env:
-                    DOLLUP_PLATFORM: "${{ matrix.os.version }}-${{ matrix.arch.name }}"
-                    DOLLUP_VERSION: ${{ github.head_ref || github.ref_name }}
+                    DEPLOY_VERSION: ${{ github.head_ref || github.ref_name }}
 
-                run: Scripts/Deploy dollup.tar.gz
+            -   name: 🎀 Upload products 🎀
+                env:
+                    DEPLOY_PLATFORM: "linux-${{ runner.arch }}"
+                    DEPLOY_VERSION: ${{ github.head_ref || github.ref_name }}
+
+                run: Scripts/Deploy *.artifactbundle.zip
