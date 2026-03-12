@@ -8,10 +8,6 @@ let package = Package(
     ],
     products: [
         .executable(name: "dollup", targets: ["DollupTool"]),
-
-        .executable(name: "DollupTool", targets: ["DollupTool"]),
-        .plugin(name: "DollupPlugin", targets: ["DollupPlugin"]),
-
         .library(name: "Dollup", targets: ["Dollup"]),
         .library(name: "DollupConfig", targets: ["DollupConfig"]),
     ],
@@ -24,17 +20,6 @@ let package = Package(
             name: "DollupTool",
             dependencies: [
                 .target(name: "DollupConfig"),
-            ]
-        ),
-
-        .plugin(
-            name: "DollupPlugin",
-            capability: .command(
-                intent: .custom(verb: "dollup", description: "format source files"),
-                permissions: [.writeToPackageDirectory(reason: "code formatter")],
-            ),
-            dependencies: [
-                .target(name: "DollupTool"),
             ]
         ),
 
