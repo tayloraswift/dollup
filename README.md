@@ -34,9 +34,9 @@ Note that prebuilt binaries are only available for select platforms.
 
 | Platform | Architecture | Download |
 | -------- | ------------ | -------- |
-| macOS | arm64 | [zip](https://download.rarestype.com/dollup/master/macOS-arm64/dollup.artifactbundle.zip) |
-| Linux | arm64 | [zip](https://download.rarestype.com/dollup/master/Linux-aarch64/dollup.artifactbundle.zip) |
-| Linux | x86_64 | [zip](https://download.rarestype.com/dollup/master/Linux-x86_64/dollup.artifactbundle.zip) |
+| 🍏 macOS | arm64 | [zip](https://download.rarestype.com/dollup/master/macOS-arm64/dollup.artifactbundle.zip) |
+| 🐧 Linux | arm64 | [zip](https://download.rarestype.com/dollup/master/Linux-aarch64/dollup.artifactbundle.zip) |
+| 🐧 Linux | x86_64 | [zip](https://download.rarestype.com/dollup/master/Linux-x86_64/dollup.artifactbundle.zip) |
 
 
 ## Building from Source
