@@ -1,0 +1,15 @@
+{
+    "schemaVersion": "1.1",
+    "artifacts": {
+        "dollup": {
+            "type": "executable",
+            "version": "__VERSION__",
+            "variants": [
+                {
+                    "path": "__BINARY__/dollup",
+                    "supportedTriples": ["__TRIPLE__"]
+                }
+            ]
+        }
+    }
+}
