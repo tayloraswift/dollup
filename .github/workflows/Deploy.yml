@@ -16,7 +16,7 @@ jobs:
             DEPLOY_VERSION: ${{ github.head_ref || github.ref_name }}
         steps:
             -   name: 🎀 Setup AWS CLI 🎀
-                uses: aws-actions/configure-aws-credentials@v1
+                uses: aws-actions/configure-aws-credentials@v6
                 with:
                     aws-secret-access-key: ${{ secrets.AWS_S3_ACCESS_SECRET }}
                     aws-access-key-id: ${{ vars.AWS_S3_ACCESS_KEY }}
@@ -52,7 +52,7 @@ jobs:
             DEPLOY_VERSION: ${{ github.head_ref || github.ref_name }}
         steps:
             -   name: 🎀 Setup AWS CLI 🎀
-                uses: aws-actions/configure-aws-credentials@v1
+                uses: aws-actions/configure-aws-credentials@v6
                 with:
                     aws-secret-access-key: ${{ secrets.AWS_S3_ACCESS_SECRET }}
                     aws-access-key-id: ${{ vars.AWS_S3_ACCESS_KEY }}
