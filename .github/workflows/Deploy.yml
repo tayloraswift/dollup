@@ -110,10 +110,10 @@ jobs:
 
                     cd downstream
 
-                    sed -e "s/__CHECKSUM_MACOS_ARM64__/${CHECKSUM_MACOS_ARM64}/g" \
+                    sed -e "s/__CHECKSUM_MACOS__/${CHECKSUM_MACOS_ARM64}/g" \
                         -e "s/__CHECKSUM_LINUX_X86_64__/${CHECKSUM_LINUX_X86_64}/g" \
                         -e "s/__CHECKSUM_LINUX_AARCH64__/${CHECKSUM_LINUX_AARCH64}/g" \
-                        -e "s|__BUNDLE_URL_MACOS_ARM64__|${BUNDLE_URL_MACOS_ARM64}|g" \
+                        -e "s|__BUNDLE_URL_MACOS__|${BUNDLE_URL_MACOS_ARM64}|g" \
                         -e "s|__BUNDLE_URL_LINUX_X86_64__|${BUNDLE_URL_LINUX_X86_64}|g" \
                         -e "s|__BUNDLE_URL_LINUX_AARCH64__|${BUNDLE_URL_LINUX_AARCH64}|g" \
                         Package.template.swift > Package.swift
