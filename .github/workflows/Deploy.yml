@@ -84,10 +84,8 @@ jobs:
                     path: downstream
 
             -   name: 🎀 Generate Package.swift 🎀
-                env:
-                    HOST: "https://download.rarestype.com/dollup/$DEPLOY_VERSION"
                 run: |
-                    TAG="$DEPLOY_VERSION"
+                    HOST="https://download.rarestype.com/dollup/$DEPLOY_VERSION"
 
                     BUNDLE_URL_LINUX_AARCH64="$HOST/Linux-aarch64/dollup.artifactbundle.zip"
                     BUNDLE_URL_LINUX_X86_64="$HOST/Linux-x86_64/dollup.artifactbundle.zip"
@@ -119,11 +117,19 @@ jobs:
                         -e "s|__BUNDLE_URL_LINUX_AARCH64__|${BUNDLE_URL_LINUX_AARCH64}|g" \
                         Package.template.swift > Package.swift
 
-                    git config user.name "github-actions[bot]"
-                    git config user.email "github-actions[bot]@users.noreply.github.com"
+                    git config user.name "rarest automation"
+                    git config user.email "automation@noreply.rarestype.com"
 
                     git add Package.swift
-                    git commit -m "Release ${TAG}"
-                    git tag "${TAG}"
+                    git commit -m "Release ${$DEPLOY_VERSION}"
+                    git tag "${$DEPLOY_VERSION}"
                     git push origin master
-                    git push origin refs/tags/${TAG}
+                    git push origin refs/tags/${$DEPLOY_VERSION}
+
+            -   name: 🎀 Publish release 🎀
+                uses: softprops/action-gh-release@v2
+                with:
+                    repository: 'ordo-one/dollup'
+                    tag_name: ${{ github.head_ref || github.ref_name }}
+                    name: ${{ github.head_ref || github.ref_name }}
+                    token: ${{ secrets.ORDO_RELEASE_PAT }}
