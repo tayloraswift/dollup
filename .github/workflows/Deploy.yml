@@ -34,29 +34,21 @@ jobs:
             -   name: 🎀 Upload products 🎀
                 run: Scripts/Deploy *.artifactbundle.zip
                 env:
-                    DEPLOY_PLATFORM: "${{ runner.os }}-${{ runner.arch }}"
+                    DEPLOY_PLATFORM: "macOS-${{ runner.arch }}"
                     DEPLOY_VERSION: ${{ github.head_ref || github.ref_name }}
 
     linux:
         strategy:
             matrix:
-                os:
-                    -   codename: jammy
-                        version: Ubuntu-22.04
-                        display: Ubuntu 22.04
+                runner:
+                    -   name: "Ubuntu (x86_64)"
+                        id: ubuntu-24.04
 
-                    -   codename: noble
-                        version: Ubuntu-24.04
-                        display: Ubuntu 24.04
-                arch:
-                    -   id: aarch64
-                        name: ARM64
+                    -   name: "Ubuntu (aarch64)"
+                        id: ubuntu-24.04-arm
 
-                    -   id: x86_64
-                        name: X64
-
-        runs-on: [ubuntu-24.04, ${{ matrix.arch.name }}]
-        name: "${{ matrix.os.display }} (${{ matrix.arch.id }})"
+        runs-on: ["${{ matrix.runner.id }}"]
+        name: "${{ matrix.runner.name }}"
         steps:
             -   name: 🎀 Setup AWS CLI 🎀
                 uses: aws-actions/configure-aws-credentials@v1
@@ -75,7 +67,7 @@ jobs:
 
             -   name: 🎀 Upload products 🎀
                 env:
-                    DEPLOY_PLATFORM: "${{ matrix.os.version }}-${{ matrix.arch.name }}"
+                    DEPLOY_PLATFORM: "linux-${{ runner.arch }}"
                     DEPLOY_VERSION: ${{ github.head_ref || github.ref_name }}
 
                 run: Scripts/Deploy *.artifactbundle.zip
