@@ -12,13 +12,13 @@ jobs:
         name: Ubuntu 24.04
         steps:
             -   name: Install Swift
-                uses: tayloraswift/swift-install-action@master
+                uses: rarestype/swift-install-action@master
                 with:
                     swift-prefix: "swift-6.2.4-release/ubuntu2404/swift-6.2.4-RELEASE"
                     swift-id: "swift-6.2.4-RELEASE-ubuntu24.04"
 
             -   name: Checkout repository
-                uses: actions/checkout@v3
+                uses: actions/checkout@v6
 
             -   name: Run tests
                 run: Scripts/TestAll
@@ -28,7 +28,7 @@ jobs:
         name: macOS
         steps:
             -   name: Install Swift
-                uses: tayloraswift/swift-install-action@master
+                uses: rarestype/swift-install-action@master
                 with:
                     swift-prefix: "swift-6.2.4-release/xcode/swift-6.2.4-RELEASE"
                     swift-id: "swift-6.2.4-RELEASE"
@@ -38,7 +38,7 @@ jobs:
                     echo TOOLCHAINS=$(plutil -extract CFBundleIdentifier raw /Library/Developer/Toolchains/swift-6.2.4-RELEASE.xctoolchain/Info.plist) >> $GITHUB_ENV
 
             -   name: Checkout repository
-                uses: actions/checkout@v3
+                uses: actions/checkout@v6
 
             -   name: Run tests
                 run: Scripts/TestAll
