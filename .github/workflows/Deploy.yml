@@ -23,7 +23,7 @@ jobs:
                     aws-region: us-east-1
 
             -   name: 🎀 Checkout repository 🎀
-                uses: actions/checkout@v4
+                uses: actions/checkout@v6
 
             -   name: 🎀 Select Xcode 26.3 🎀
                 run: sudo xcode-select -s /Applications/Xcode_26.3.app/Contents/Developer
@@ -59,7 +59,7 @@ jobs:
                     aws-region: us-east-1
 
             -   name: 🎀 Checkout repository 🎀
-                uses: actions/checkout@v4
+                uses: actions/checkout@v6
 
             -   name: 🎀 Build Dollup 🎀
                 run: Scripts/Build/Linux
@@ -78,7 +78,7 @@ jobs:
             DEPLOY_VERSION: ${{ github.ref_name }}
         steps:
             -   name: 🎀 Checkout repository 🎀
-                uses: actions/checkout@v4
+                uses: actions/checkout@v6
                 with:
                     repository: 'ordo-one/dollup'
                     token: ${{ secrets.ORDO_RELEASE_PAT }}
