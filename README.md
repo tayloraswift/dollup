@@ -14,6 +14,10 @@ Dollup is a Swift formatter that emphasizes soundness of transformations and tra
 Dollup takes a different approach. It makes an effort to segregate formatting passes by risk of semantic corruption, distinguishing between operations that can safely run continuously and automatically, moderate complexity rewrites that can be automated but need to be performed carefully in isolation and applied through pull requests, and higher level refactors that require manual review. This enables developers to make informed decisions about the level of human oversight needed when enforcing formatting styles at the organizational level.
 
 <!-- DO NOT EDIT BELOW! AUTOSYNC CONTENT [STATUS TABLE] -->
+| Platform | Status |
+| -------- | ------|
+| 🐧 Linux | [![Status](https://raw.githubusercontent.com/tayloraswift/dollup/refs/badges/ci/Tests/Linux/status.svg)](https://github.com/tayloraswift/dollup/actions/workflows/Tests.yml) |
+| 🍏 Darwin | [![Status](https://raw.githubusercontent.com/tayloraswift/dollup/refs/badges/ci/Tests/macOS/status.svg)](https://github.com/tayloraswift/dollup/actions/workflows/Tests.yml) |
 <!-- DO NOT EDIT ABOVE! AUTOSYNC CONTENT [STATUS TABLE] -->
 
 ## Using prebuilt binaries
