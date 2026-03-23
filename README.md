@@ -1,11 +1,22 @@
-[![ci build status](https://github.com/tayloraswift/dollup/actions/workflows/Tests.yml/badge.svg)](https://github.com/tayloraswift/dollup/actions/workflows/Tests.yml/badge.svg)
-[![ci build status](https://github.com/tayloraswift/dollup/actions/workflows/Deploy.yml/badge.svg)](https://github.com/tayloraswift/dollup/actions/workflows/Deploy.yml/badge.svg)
+<div align="center">
 
-# dollup 🎀
+🎀 &nbsp; **dollup** &nbsp; 🎀
 
-Dollup is a tool for formatting Swift source code. It automatically adjusts indentation, wraps lines to a specified maximum width, and enforces a consistent brace style, helping to maintain a readable code style.
+a formally sound, risk-aware swift code formatter
 
-## Using Prebuilt Binaries
+</div>
+
+
+## Introduction
+
+Dollup is a Swift formatter that emphasizes soundness of transformations and transparent risk management. It was created out of a recognition that many existing Swift formatters may subtly alter the semantics of reformatted Swift code, and often mix safe and unsafe transformations within the same formatting commands, which undermines developer confidence when formatting large tracts of code at scale.
+
+Dollup takes a different approach. It makes an effort to segregate formatting passes by risk of semantic corruption, distinguishing between operations that can safely run continuously and automatically, moderate complexity rewrites that can be automated but need to be performed carefully in isolation and applied through pull requests, and higher level refactors that require manual review. This enables developers to make informed decisions about the level of human oversight needed when enforcing formatting styles at the organizational level.
+
+<!-- DO NOT EDIT BELOW! AUTOSYNC CONTENT [STATUS TABLE] -->
+<!-- DO NOT EDIT ABOVE! AUTOSYNC CONTENT [STATUS TABLE] -->
+
+## Using prebuilt binaries
 
 Dollup is easiest to use in precompiled form. The binaries are distributed from a parallel repo, [`ordo-one/dollup`](https://github.com/ordo-one/dollup).
 
@@ -39,7 +50,7 @@ Note that prebuilt binaries are only available for select platforms.
 | 🐧 Linux | x86_64 | [zip](https://download.rarestype.com/dollup/master/Linux-x86_64/dollup.artifactbundle.zip) |
 
 
-## Building from Source
+## Building from source
 
 To build the `dollup` executable, you will need the Swift 6.2 (or newer) toolchain. Navigate to the project's root directory and run the following command:
 
@@ -51,15 +62,16 @@ The compiled executable will be located in the `.build/debug` directory.
 
 ## Usage
 
-To format a Swift file or all Swift files within a directory, run the `dollup` executable with the path to the file or directory as an argument:
+Most users find the SwiftPM package plugin command to be simpler to use and sufficient for their formatting needs. Some users, typically those working on code generation systems, find it motivating to run `dollup` directly, as an executable.
+
+To format a Swift file or all Swift files within a directory, run the `dollup` executable with the path to the file or directory as an argument, which will reformat the specified file in place.
 
 ```bash
 swift run dollup [file-path]
 ```
 
-This will reformat the specified file in place.
-
 When a directory is provided, `dollup` will recursively format all `.swift` files within it.
+
 
 ## Configuration
 
@@ -96,13 +108,3 @@ import SystemPackage
 ```
 
 This configuration specifies that the code should be formatted with a maximum line width of 96 characters, Egyptian-style braces, and an indent width of 4 spaces. It also enables the integrity check, which ensures that the reformatted code is semantically equivalent to the original.
-
-## How it Works
-
-The `dollup` tool is built using **SwiftSyntax** to parse and transform Swift source code. It operates in several passes:
-
-1.  **Line Expansion**: The tool first ensures that code blocks with interior newlines are properly expanded, adding line breaks where necessary to enforce a consistent vertical layout.
-2.  **Re-indentation**: It then analyzes the code's structure to calculate the correct indentation level for each line, taking into account nested blocks, function calls, and other language constructs.
-3.  **Line Wrapping**: Finally, it iteratively wraps lines that exceed the specified maximum width, breaking long lines at appropriate points, such as after commas in argument lists or before operators in expressions.
-
-The tool is designed to be robust and preserves the semantic meaning of the code throughout the formatting process. An integrity check is performed by default to verify that no unintended changes have been introduced.

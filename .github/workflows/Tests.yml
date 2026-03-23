@@ -1,4 +1,4 @@
-name: tests
+name: Tests
 
 on:
     push:
@@ -7,38 +7,45 @@ on:
         branches: [ master ]
 
 jobs:
-    linux:
+    Linux:
         runs-on: ubuntu-24.04
         name: Ubuntu 24.04
         steps:
-            -   name: Install Swift
+            -   name: 🎀 Install Swift 🎀
                 uses: rarestype/swift-install-action@master
                 with:
                     swift-prefix: "swift-6.2.4-release/ubuntu2404/swift-6.2.4-RELEASE"
                     swift-id: "swift-6.2.4-RELEASE-ubuntu24.04"
 
-            -   name: Checkout repository
+            -   name: 🎀 Checkout repository 🎀
                 uses: actions/checkout@v6
 
-            -   name: Run tests
+            -   name: 🎀 Run tests 🎀
                 run: Scripts/TestAll
 
-    macos:
+            -   name: 🎀 Update badge 🎀
+                uses: rarestype/rarestbadge@v1
+                if: always()
+
+    macOS:
         runs-on: macos-26
-        name: macOS
         steps:
-            -   name: Install Swift
+            -   name: 🎀 Install Swift 🎀
                 uses: rarestype/swift-install-action@master
                 with:
                     swift-prefix: "swift-6.2.4-release/xcode/swift-6.2.4-RELEASE"
                     swift-id: "swift-6.2.4-RELEASE"
 
-            -   name: Select Swift version
+            -   name: 🎀 Select Swift version 🎀
                 run: |
                     echo TOOLCHAINS=$(plutil -extract CFBundleIdentifier raw /Library/Developer/Toolchains/swift-6.2.4-RELEASE.xctoolchain/Info.plist) >> $GITHUB_ENV
 
-            -   name: Checkout repository
+            -   name: 🎀 Checkout repository 🎀
                 uses: actions/checkout@v6
 
-            -   name: Run tests
+            -   name: 🎀 Run tests 🎀
                 run: Scripts/TestAll
+
+            -   name: 🎀 Update badge 🎀
+                uses: rarestype/rarestbadge@v1
+                if: always()
