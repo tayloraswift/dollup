@@ -1,19 +1,28 @@
-name: package
+name: Deploy
 
 on:
     workflow_dispatch:
-    #   We build semver tags, and the master branch.
+        inputs:
+            version:
+                description: 'The version to deploy'
+                required: true
+                type: string
+    workflow_call:
+        inputs:
+            version:
+                description: 'The version to deploy'
+                required: true
+                type: string
     push:
         branches: [ master ]
         tags:
             -   '[0-9]+.[0-9]+.[0-9]+'
 
 jobs:
-    macos:
+    macOS:
         runs-on: macos-26
-        name: macOS
         env:
-            DEPLOY_VERSION: ${{ github.head_ref || github.ref_name }}
+            DEPLOY_VERSION: ${{ inputs.version || github.ref_name }}
         steps:
             -   name: 🎀 Setup AWS CLI 🎀
                 uses: aws-actions/configure-aws-credentials@v6
@@ -34,9 +43,9 @@ jobs:
             -   name: 🎀 Upload products 🎀
                 run: Scripts/Deploy *.artifactbundle.zip
                 env:
-                    DEPLOY_PLATFORM: "macOS"
+                    DEPLOY_PLATFORM: "${{ github.job }}"
 
-    linux:
+    Linux:
         strategy:
             matrix:
                 runner:
@@ -49,7 +58,7 @@ jobs:
         runs-on: ["${{ matrix.runner.id }}"]
         name: "${{ matrix.runner.name }}"
         env:
-            DEPLOY_VERSION: ${{ github.head_ref || github.ref_name }}
+            DEPLOY_VERSION: ${{ inputs.version || github.ref_name }}
         steps:
             -   name: 🎀 Setup AWS CLI 🎀
                 uses: aws-actions/configure-aws-credentials@v6
@@ -67,15 +76,15 @@ jobs:
             -   name: 🎀 Upload products 🎀
                 run: Scripts/Deploy *.artifactbundle.zip
                 env:
-                    DEPLOY_PLATFORM: "Linux"
+                    DEPLOY_PLATFORM: "${{ github.job }}"
 
     release:
-        needs: [macos, linux]
+        needs: [macOS, Linux]
         runs-on: macos-26
         name: Release
         if: startsWith(github.ref, 'refs/tags/')
         env:
-            DEPLOY_VERSION: ${{ github.ref_name }}
+            DEPLOY_VERSION: ${{ inputs.version || github.ref_name }}
         steps:
             -   name: 🎀 Checkout repository 🎀
                 uses: actions/checkout@v6
