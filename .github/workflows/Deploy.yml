@@ -148,6 +148,5 @@ jobs:
                 uses: rarestype/rarestbadge@v1
                 if: always()
                 with:
-                    badge: Release/_all
+                    badge: SemanticRelease/_all
                     title: Release
-
