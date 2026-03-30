@@ -12,7 +12,7 @@ let package = Package(
         .library(name: "DollupConfig", targets: ["DollupConfig"]),
     ],
     dependencies: [
-        .package(url: "https://github.com/tayloraswift/swift-io", from: "0.1.0"),
+        .package(url: "https://github.com/rarestype/swift-io", from: "1.1.0"),
         .package(url: "https://github.com/swiftlang/swift-syntax", "602.0.0" ..< "603.0.0")
     ],
     targets: [
