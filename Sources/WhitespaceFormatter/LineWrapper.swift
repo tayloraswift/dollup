@@ -198,8 +198,12 @@ class LineWrapper: SyntaxVisitor {
         }
 
         self.break(after: leftParen)
-        switch arguments {
 
+        switch arguments {
+        #if canImport(SwiftSyntax603)
+        case .specializedArguments(let arguments):
+            self.break(after: arguments)
+        #endif
         #if canImport(SwiftSyntax602)
         case .abiArguments(let arguments):
             self.break(after: arguments.provider)
