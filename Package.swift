@@ -13,7 +13,7 @@ let package = Package(
     ],
     dependencies: [
         .package(url: "https://github.com/rarestype/swift-io", from: "1.1.0"),
-        .package(url: "https://github.com/swiftlang/swift-syntax", "602.0.0" ..< "603.0.0")
+        .package(url: "https://github.com/swiftlang/swift-syntax", "603.0.0" ..< "604.0.0")
     ],
     targets: [
         .executableTarget(
