@@ -25,11 +25,13 @@ Dollup takes a different approach. It makes an effort to segregate formatting pa
 
 Dollup is easiest to use in precompiled form. The binaries are distributed from a parallel repo, [`ordo-one/dollup`](https://github.com/ordo-one/dollup).
 
+<!-- DO NOT EDIT BELOW! AUTOSYNC CONTENT [ManifestDependency] -->
 ```swift
 dependencies: [
     .package(url: "https://github.com/ordo-one/dollup", from: "1.0.0"),
 ]
 ```
+<!-- DO NOT EDIT ABOVE! AUTOSYNC CONTENT [ManifestDependency] -->
 
 Adding the binary package dependency will automatically make the plugin available.
 
@@ -48,11 +50,13 @@ Some people find it helpful to add formatting enforcement to their CI pipelines.
 
 Note that prebuilt binaries are only available for select platforms.
 
+<!-- DO NOT EDIT BELOW! AUTOSYNC CONTENT [Downloads] -->
 | Platform | Architecture | Download |
 | -------- | ------------ | -------- |
 | 🍏 macOS | arm64 | [zip](https://download.rarestype.com/dollup/master/macOS-arm64/dollup.artifactbundle.zip) |
 | 🐧 Linux | arm64 | [zip](https://download.rarestype.com/dollup/master/Linux-aarch64/dollup.artifactbundle.zip) |
 | 🐧 Linux | x86_64 | [zip](https://download.rarestype.com/dollup/master/Linux-x86_64/dollup.artifactbundle.zip) |
+<!-- DO NOT EDIT ABOVE! AUTOSYNC CONTENT [Downloads] -->
 
 
 ## Building from source
