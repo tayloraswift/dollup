@@ -6,6 +6,11 @@ artifactbundle='dollup.artifactbundle'
 arch=$(uname -m)
 os=$(uname)
 
+if [ -z "$DEPLOY_VERSION" ]; then
+    echo "DEPLOY_VERSION is not set"
+    exit 1
+fi
+
 if [[ "$os" == 'Darwin' ]]; then
     triple="${arch}-apple-macosx"
     swift build -c release \

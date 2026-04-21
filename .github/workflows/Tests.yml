@@ -49,6 +49,8 @@ jobs:
 
             -   name: 🎀 Package 🎀
                 run: Scripts/Package
+                env:
+                    DEPLOY_VERSION: _unstable
 
             -   name: 🎀 Update badge 🎀
                 uses: rarestype/rarestbadge@v1
@@ -72,6 +74,8 @@ jobs:
 
             -   name: 🎀 Package 🎀
                 run: Scripts/Package
+                env:
+                    DEPLOY_VERSION: _unstable
 
             -   name: 🎀 Update badge 🎀
                 uses: rarestype/rarestbadge@v1
