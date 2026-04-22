@@ -31,10 +31,10 @@ jobs:
             code_changed: ${{ steps.changes.outputs.any_changed }}
 
     Linux:
-        runs-on: ubuntu-24.04
+        runs-on: ubuntu-24.04-arm
         name: Ubuntu 24.04
         needs: changes
-        if: ${{ needs.changes.outputs.code_changed == 'true' }}
+        if: needs.changes.outputs.code_changed == 'true'
         steps:
             -   name: 🎀 Checkout repository 🎀
                 uses: actions/checkout@v6
@@ -42,10 +42,15 @@ jobs:
             -   name: 🎀 Install Swift 🎀
                 uses: rarestype/swift-install-action@v1
                 with:
-                    swift-release: 6.3-RELEASE
+                    swift-release: 6.3.1-RELEASE
 
             -   name: 🎀 Run tests 🎀
                 run: Scripts/TestAll
+
+            -   name: 🎀 Package 🎀
+                run: Scripts/Package
+                env:
+                    DEPLOY_VERSION: _unstable
 
             -   name: 🎀 Update badge 🎀
                 uses: rarestype/rarestbadge@v1
@@ -54,7 +59,7 @@ jobs:
     macOS:
         runs-on: macos-26
         needs: changes
-        if: ${{ needs.changes.outputs.code_changed == 'true' }}
+        if: needs.changes.outputs.code_changed == 'true'
         steps:
             -   name: 🎀 Checkout repository 🎀
                 uses: actions/checkout@v6
@@ -62,10 +67,15 @@ jobs:
             -   name: 🎀 Install Swift 🎀
                 uses: rarestype/swift-install-action@v1
                 with:
-                    swift-release: 6.3-RELEASE
+                    swift-release: 6.3.1-RELEASE
 
             -   name: 🎀 Run tests 🎀
                 run: Scripts/TestAll
+
+            -   name: 🎀 Package 🎀
+                run: Scripts/Package
+                env:
+                    DEPLOY_VERSION: _unstable
 
             -   name: 🎀 Update badge 🎀
                 uses: rarestype/rarestbadge@v1

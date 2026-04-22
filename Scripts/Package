@@ -1,0 +1,37 @@
+#!/bin/bash
+
+set -euo pipefail
+
+artifactbundle='dollup.artifactbundle'
+arch=$(uname -m)
+os=$(uname)
+
+if [ -z "$DEPLOY_VERSION" ]; then
+    echo "DEPLOY_VERSION is not set"
+    exit 1
+fi
+
+if [[ "$os" == 'Darwin' ]]; then
+    triple="${arch}-apple-macosx"
+    swift build -c release \
+        --product dollup \
+        --scratch-path .build.${arch}
+elif [[ "$os" == 'Linux' ]]; then
+    triple="${arch}-unknown-linux-gnu"
+    swift build -c release \
+        --product dollup \
+        --scratch-path .build.${arch} \
+        --static-swift-stdlib
+else
+    echo "Unsupported OS"
+    exit 1
+fi
+
+mkdir -p "${artifactbundle}/${arch}"
+sed \
+    -e "s/__VERSION__/${DEPLOY_VERSION}/g" \
+    -e "s/__BINARY__/${arch}/g" \
+    -e "s/__TRIPLE__/${triple}/g" \
+    Scripts/info.json > "${artifactbundle}/info.json"
+
+cp .build.${arch}/release/dollup ${artifactbundle}/${arch}/dollup

@@ -3,4 +3,4 @@
 set -euo pipefail
 set -x
 
-swift test
+swift test -c release

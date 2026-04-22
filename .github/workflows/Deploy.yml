@@ -22,12 +22,12 @@ jobs:
         env:
             DEPLOY_VERSION: ${{ inputs.version }}
         steps:
-            -   name: 🎀 Setup AWS CLI 🎀
-                uses: aws-actions/configure-aws-credentials@v6
+            -   name: 🎀 Setup R2 🎀
+                uses: rarestype/r2-setup-action@v1
                 with:
-                    aws-secret-access-key: ${{ secrets.AWS_S3_ACCESS_SECRET }}
-                    aws-access-key-id: ${{ vars.AWS_S3_ACCESS_KEY }}
-                    aws-region: us-east-1
+                    cloudflare-account-id: ${{ vars.CLOUDFLARE_ACCOUNT_ID }}
+                    r2-access-key-id: ${{ secrets.R2_ACCESS_KEY }}
+                    r2-access-key: ${{ secrets.R2_ACCESS_SECRET }}
 
             -   name: 🎀 Checkout repository 🎀
                 uses: actions/checkout@v6
@@ -35,14 +35,17 @@ jobs:
             -   name: 🎀 Select Xcode 26.4 🎀
                 run: sudo xcode-select -s /Applications/Xcode_26.4.app/Contents/Developer
 
-            -   name: 🎀 Build Dollup 🎀
-                run: Scripts/Build/macOS
+            -   name: 🎀 Build for distribution 🎀
+                run: Scripts/Package
 
-            -   name: 🎀 Upload products 🎀
-                run: Scripts/Deploy *.artifactbundle.zip
-                env:
-                    DEPLOY_PLATFORM: "${{ github.job }}"
-
+            -   name: 🎀 Deploy prebuilts 🎀
+                uses: rarestype/r2-release-action@v1
+                with:
+                    from: .
+                    include: dollup.artifactbundle
+                    archive: dollup.artifactbundle.zip
+                    version: ${{ inputs.version }}
+                    bucket: rarest
     Linux:
         strategy:
             matrix:
@@ -58,12 +61,12 @@ jobs:
         env:
             DEPLOY_VERSION: ${{ inputs.version }}
         steps:
-            -   name: 🎀 Setup AWS CLI 🎀
-                uses: aws-actions/configure-aws-credentials@v6
+            -   name: 🎀 Setup R2 🎀
+                uses: rarestype/r2-setup-action@v1
                 with:
-                    aws-secret-access-key: ${{ secrets.AWS_S3_ACCESS_SECRET }}
-                    aws-access-key-id: ${{ vars.AWS_S3_ACCESS_KEY }}
-                    aws-region: us-east-1
+                    cloudflare-account-id: ${{ vars.CLOUDFLARE_ACCOUNT_ID }}
+                    r2-access-key-id: ${{ secrets.R2_ACCESS_KEY }}
+                    r2-access-key: ${{ secrets.R2_ACCESS_SECRET }}
 
             -   name: 🎀 Checkout repository 🎀
                 uses: actions/checkout@v6
@@ -71,15 +74,19 @@ jobs:
             -   name: 🎀 Install Swift 🎀
                 uses: rarestype/swift-install-action@v1
                 with:
-                    swift-release: 6.3-RELEASE
+                    swift-release: 6.3.1-RELEASE
 
-            -   name: 🎀 Build Dollup 🎀
-                run: Scripts/Build/Linux
+            -   name: 🎀 Build for distribution 🎀
+                run: Scripts/Package
 
-            -   name: 🎀 Upload products 🎀
-                run: Scripts/Deploy *.artifactbundle.zip
-                env:
-                    DEPLOY_PLATFORM: "${{ github.job }}"
+            -   name: 🎀 Deploy prebuilts 🎀
+                uses: rarestype/r2-release-action@v1
+                with:
+                    from: .
+                    include: dollup.artifactbundle
+                    archive: dollup.artifactbundle.zip
+                    version: ${{ inputs.version }}
+                    bucket: rarest
 
     release:
         needs: [macOS, Linux]
@@ -97,7 +104,7 @@ jobs:
 
             -   name: 🎀 Generate Package.swift 🎀
                 run: |
-                    HOST="https://download.rarestype.com/dollup/$DEPLOY_VERSION"
+                    HOST="https://get.rarestype.com/dollup/$DEPLOY_VERSION"
 
                     BUNDLE_URL_LINUX_AARCH64="$HOST/Linux-aarch64/dollup.artifactbundle.zip"
                     BUNDLE_URL_LINUX_X86_64="$HOST/Linux-x86_64/dollup.artifactbundle.zip"
