@@ -149,8 +149,8 @@ jobs:
                 uses: softprops/action-gh-release@v2
                 with:
                     repository: 'ordo-one/dollup'
-                    tag_name: ${{ github.ref_name }}
-                    name: ${{ github.ref_name }}
+                    tag_name: ${{ inputs.version }}
+                    name: ${{ inputs.version }}
                     token: ${{ secrets.ORDO_RELEASE_PAT }}
 
             -   name: 🎀 Update badge 🎀
