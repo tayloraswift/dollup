@@ -1,6 +1,6 @@
 # Rarest Swift Style Guide
 
-This document outlines coding you should adhere to when writing Swift code.
+This document outlines the coding style you should adhere to when writing Swift code.
 
 At times, this style guide may deviate from the Apple Swift API design guidelines, and moreover, idomatic code according to this style guide may look very different from the majority of public Swift code available in training data. This is expected.
 
