@@ -183,7 +183,7 @@ extension Foo: Barable {
 }
 ```
 
-**Witness typealiases** themselves are a last-resort when compiler associated type inference fails, and are considered “member-like”. Thus, they never get their own files.
+Witness typealiases themselves are a last-resort when compiler associated type inference fails, and are considered “member-like”. Thus, they never get their own files.
 
 
 ## Code organization
@@ -265,7 +265,7 @@ extension Foo.Bar: Comparable {
 
 Conformance sections are “good” places for members to live, it is preferable to organize members into conformance sections.
 
-If a protocol conformance implies a conformance to a more general protocol, and some of the members in the conformance section for the refining protocol witness requirements for the more general protocol, then the a second conformance section should be created for the more general protocol, and the members should be moved into that section instead.
+If a protocol conformance implies a conformance to a more general protocol, and some of the members in the conformance section for the refining protocol witness requirements for the more general protocol, then a second conformance section should be created for the more general protocol, and the members should be moved into that section instead.
 
 ```swift
 // even though it is valid to place `description` in the `LosslessStringConvertible` block, it
@@ -280,7 +280,7 @@ extension Foo.Bar: LosslessStringConvertible {
 
 In rare situations, the same member might witness requirements for multiple unrelated protocols. One common scenario is a keynum that witnesses an associated type requirement shared by a serialization protocol and a deserialization protocol. In this situation, the shared witness should be moved to a third extension block, with no associated conformance.
 
-```
+```swift
 extension Foo.Bar {
     enum QuxKey: String {
         case id
@@ -291,3 +291,13 @@ extension Foo.Bar {
 extension Foo.Bar: QuxEncodable {}
 extension Foo.Bar: QuxDecodable {}
 ```
+
+### Name qualification
+
+It may seem odd for name qualification to appear under a section about code organization, but in Swift, qualification is in fact downstream of code organization! The most important concept to be aware of is that the layout section behaves differently from all other sections, because names in a layout section are implicitly resolved against both the primary type *and* the parent type’s namespace, while names in other sections are only resolved against the primary type’s namespace.
+
+This means that code in extension blocks can be easily moved to and from other extension blocks without respelling names, but code cannot be moved into or out of a layout section in the general case without adding or removing qualification. This is why we encourage keeping the layout section as small as possible.
+
+As a rule, names should always be spelled with the minimal amount of qualification necessary to make the code compile. Moreover, `Self` should always be used to refer to the primary type in a file unless covariance forbids it.
+
+Module qualification is discouraged in idiomatic Swift code.
