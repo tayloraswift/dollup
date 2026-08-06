@@ -341,3 +341,31 @@ If a test suite has no stored properties and no `init`, all test functions shoul
 If a test suite has an `init`, or stored properties, then the test functions should go in a separate extension block.
 
 Test helpers, including static properties, always go in separate extension blocks, at the end of a file.
+
+
+### Asserting behaviors
+
+There are many ways to write the same test, but some patterns are more fluent than others. In particular, using the right patterns can help reduce the number of instances of `Issue.record` that appear in a test case.
+
+#### Using `#require`
+
+The `#require` macro can be used to unwrap optionals. However, direct comparison via optional-chaining is often more concise, and preferred when possible.
+
+```swift
+#expect(parsed?.count == expected)
+```
+
+#### Extracting case payloads
+
+Use optionals to store extracted enum case payloads, and run comparisons against the optional values.
+
+```swift
+let value: UInt64?
+if  case .uint64(let uint64)? = magnitude {
+    value = uint64
+} else {
+    value = nil
+}
+
+#expect(value == expected)
+```
