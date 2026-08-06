@@ -532,7 +532,7 @@ When a closure receives a tuple as its single argument, prefer splatting the tup
 let result: [(Int, Double)] = enumerated.map {
     ($0, $1 * 2) // $0 is index, $1 is value
 }
-
+// good — another example
 let histogram: [(Double, Double)] = items.enumerated().map {
     let midpoint: Double = range.min + (Double.init($0) + 0.5) * width
     return (midpoint: midpoint, count: $1)
