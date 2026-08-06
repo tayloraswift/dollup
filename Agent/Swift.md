@@ -303,7 +303,202 @@ As a rule, names should always be spelled with the minimal amount of qualificati
 Module qualification is discouraged in idiomatic Swift code.
 
 
-## Unit tests
+## Writing code
+
+In general, we believe in the principle that code is edited far more often than it is written, and that code is read far more often than it is edited. So we prioritize ease of reading, editing, and writing, in that order. In particular, navigating counts as reading, so we always prioritize keeping code navigable over simply making code fast to write or generate.
+
+### Type annotations
+
+Type annotations should always appear in any position where they are supported in the Swift language. Type annotations make it easier to read code and gather assumptions, and reduce the amount of context needed to understand a snippet you haven’t worked on in a while. They also provide a handy audit trail when making changes to code.
+
+```swift
+let list: [String] = ["a", "b", "c"]
+for item: String in list {}
+```
+
+#### Initializer calls
+
+Initializer calls should always be written with the explicit `init` tokens. There are several reasons why we do this. First, it reduces the temptation to omit type annotations, as `init` may be used with leading dot syntax, allowing one to write the following:
+
+```swift
+let foo: [Int] = .init(values)
+```
+
+instead of this:
+
+```swift
+// bad! don’t do this! here, the developer was likely tempted to remove the `[Int]` type
+// annotation, because `[Int]` already appears nearby in the `[Int](values)` expression
+let foo = [Int](values)
+```
+
+We always want references to types to live in syntactical positions where there is zero ambiguity as to whether the token refers to a type, or an expression.
+
+```swift
+// good — there is no ambiguity that `stat` is a type
+let foo: stat = .init()
+// bad — sourcekit-lsp context is needed in order to deduce that `stat` is a type
+let foo = stat()
+```
+
+A second reason why we like `init` is navigational — if one writes `Foo(bar)`, it is not possible to Ctrl-click the `Foo` token and jump to the initializer being called, as the developer will be forced to break flow and clarify whether she wishes to travel to the primary type definition of `Foo` or the initializer. However `Foo.init(bar)` provides clickable areas for each definition the developer might wish to jump to. As an AI coding agent, you might also experience the same friction when running sourcekit-lsp queries, and find `init` tokens useful for the same reasons.
+
+
+#### Type conversions within complex expressions
+
+The `.init` spelling, with leading dot syntax, is a powerful tool but can also make code difficult to read in complex expressions. It can also mask unwanted same-type conversions between numeric types, such as redundant `Int`-to-`Int` or `Double`-to-`Double` conversions.
+
+In general, `init` should be written without leading type qualification if it would be clear to a user familiar with the API what the type conversion taking place is.
+
+```swift
+// here, we do not need to qualify with `Markdown.init(parsing: utf8)`, because a user familiar
+// with the hypothetical API here would know what `init(parsing:)` is calling.
+let document: Document = .init(markdown: .init(parsing: utf8))
+```
+
+Leading type qualification should be used if there are many possibilities as to what `init`s are being called, such as in complex arithmetic expressions.
+
+```swift
+// The `Double.init(z)` makes it crystal clear that two `Double`s are being added, and that no
+// “weird” heterogenous arithmetic is taking place here. Note that this example is actually
+// unambiguous, and would compile without `Double` qualification, but this isn’t immediately
+// obvious in the thicket of generic standard library numerical APIs.
+let result: Double = x + Double.init(z)
+```
+
+
+### Explicit `self`
+
+When writing instance members, always refer to other instance members with explicit `self`. Although `self` is not a “type annotation”, it serves a similar purpose when scanning code, as it greatly reduces the cognitive burden and context needed to understand a particular snippet of code.
+
+```swift
+// always say `self` if the thing being referenced is an instance member
+let foo: Int = self.bar
+```
+
+Similarly, static members should be referred to with explicit `Self` (for enum, struct, or protocol members), or the name of the type (for class members).
+
+In the future, we plan to have an IndexStoreDB–powered formatter that will enforce this rule automatically. But for now, it is your responsibility as a coding agent to ensure that instance member references are always qualified with `self`.
+
+
+### Naming
+
+Naming is a famously challenging skill for developers of all experience levels, and as an AI coding agent, choosing good names will make it much less likely that your human teammate will recoil in disgust at the code you have worked to provide.
+
+
+#### Prefer full words, or single letters
+
+Prefer spelling out complete words, unless the abbreviation is a common standalone term of art, like “*min*” or “*max*”. Avoid abbreviating variable or function names. Always spell out abbreviated compound words.
+
+Omit suffixes like `-Value` that add no clarity, or are redundant in the context of static type information.
+
+Default to single letters like `i` for indices, unless a longer name would provide meaningful clarity.
+
+```swift
+// `j` is just a marker, a longer name would provide no clarity
+let j: String.Index = string.index(after: i)
+// `colon` points to a `:` character, so we name this index variable `colon`
+let colon: String.Index = string.firstIndex(of: ":")
+```
+
+The following are examples of good names:
+
+| good example | notes |
+| --- | --- |
+| `probability` | — |
+| `frequency` | — |
+| `relativeError` | not “relError“ |
+| `i` | use this as a throwaway counter variable, such as an index |
+| `max` | “max” is acceptable, and preferred over “maximum”, as it’s a term of art, despite being an abbreviation |
+
+The following are examples of bad names to avoid:
+
+| bad example | notes |
+| --- | --- |
+| `prob` | — |
+| `freq` | — |
+| `relError` | — |
+| `tempFoo` | say `temporaryFoo`, or just `temporary` |
+| `numItems` | say `items` or `itemCount` |
+| `avgVal` | just say `average`, don’t say “Val” — everything is a value! |
+| `newValue` | just say `new` — again, everything is a value, so “Value” adds nothing! |
+| `sizeInt` | just say `size` — the -`Int` suffix is redundant if we are using type annotations well |
+
+
+#### Let mathematics read like mathematics
+
+Default to single letters like `x`, if reproducing well known mathematical formulae.
+
+```swift
+// good — everyone remembers “a squared plus b squared equals c squared” from grade school
+let c: Double = .sqrt(a * a + b * b)
+
+// bad — this is verbosity that obsfucates, rather than clarifies, the underlying math
+let hypotenuse: Double = .sqrt(sideOne * sideOne + sideTwo * sideTwo)
+```
+
+Use proper mathematical symbols for well-known concepts.
+
+| good example | notes |
+| --- | --- |
+| `μ` | mean |
+| `σ` | standard deviation |
+
+| bad example | notes |
+| --- | --- |
+| `mean` | not that “bad” depending on context, but `μ` is just better |
+| `stdDev` | bad for multiple reasons, as previously discussed |
+
+
+#### Shadowing `self`
+
+Shadow the `self` keyword if something is semantically an instance method, but cannot be expressed as such due to the constraints of the language. Common examples include operator declarations.
+
+```swift
+// good — this would be a `mutating` instance func if it weren’t an operator
+static func += (self: inout Self, next: Self) {}
+
+// bad — the “left-hand” aspect of the `inout` parameter is the least interesting
+// thing about it! same with the second parameter.
+static func += (lhs: inout Self, rhs: Self) {}
+```
+
+When switching on `enum` variants with payloads, shadow `self` if you are conceptually switching on cases of `self`.
+
+```swift
+// good, if the enum wrapper is a performance shim we are using to avoid heavyweight
+// existentials or subclassing, we don’t want to think about the wrapper when writing
+// the implementations for each case
+switch self {
+case .bool(let self): ...
+case .int(let self): ...
+case .float(let self): ...
+}
+
+// bad — this is likely obscuring what all three cases have in common.
+switch self {
+case .bool(let bool): ...
+case .int(let int): ...
+case .float(let float): ...
+}
+```
+
+But only do this for variant-like enums.
+
+```swift
+// good — we should be thinking about the relationship between the `id` and the `value`.
+switch self {
+case .foo(id: let id, let value): ...
+}
+
+// bad — treating the `id` as the new conceptual `self` is a bridge too far.
+switch self {
+case .foo(id: let self, let value): ...
+}
+```
+
+
+## Writing tests
 
 Unit tests should always use the modern Swift Testing framework. XCTest should never be used.
 
@@ -327,9 +522,11 @@ Suite names are generally nouns, and should not end in the word `Test`. (You may
 
 The ideal **test function** is a `static func`, upgrade to an instance method only if the test requires some context that requires initializing an instance of the suite. One reason to upgrade to instance methods is to reduce setup burden, by factoring out shared preambled into the suite’s initializer.
 
-The names of **test functions** should begin with a capital letter, and should not be prefixed or suffixed with the word `test`, as this would be redundant with the `@Test` attribute.
+The names of test functions should almost always begin with a capital letter. This is a special naming convention specific to test functions. Test function names should not be prefixed or suffixed with the word `test`, as this would be redundant with the `@Test` attribute.
 
 If capitalizing the name of a test function would conflict with a type name, rename the test function, do not start using module qualification. One technique for dealing with this situation is to rename the test function from a singular noun to a plural noun. For example, you might rename a test that exercises floating point logic from `Float()` to `Floats()` to avoid shadowing the standard library type.
+
+A rare exception to the capital letter rule is proper nouns and trademarks — for example, the name of the famous Apple device should always be spelled `iPhone`, never `IPhone`.
 
 
 ### Test sections
