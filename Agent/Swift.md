@@ -468,11 +468,11 @@ When switching on `enum` variants with payloads, shadow `self` if you are concep
 ```swift
 // good, if the enum wrapper is a performance shim we are using to avoid heavyweight
 // existentials or subclassing, we don’t want to think about the wrapper when writing
-// the implementations for each case
+// a simple manual method dispatch
 switch self {
-case .bool(let self): ...
-case .int(let self): ...
-case .float(let self): ...
+case .bool(let self): self.encode(to: &encoder)
+case .int(let self): self.encode(to: &encoder)
+case .float(let self): self.encode(to: &encoder)
 }
 
 // bad — this is likely obscuring what all three cases have in common.
