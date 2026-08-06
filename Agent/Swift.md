@@ -312,6 +312,7 @@ In general, we believe in the principle that code is edited far more often than 
 Type annotations should always appear in any position where they are supported in the Swift language. Type annotations make it easier to read code and gather assumptions, and reduce the amount of context needed to understand a snippet you haven’t worked on in a while. They also provide a handy audit trail when making changes to code.
 
 ```swift
+let (name, age): (String, Int) = ("Alice", 30)
 let list: [String] = ["a", "b", "c"]
 for item: String in list {}
 ```
@@ -495,6 +496,53 @@ case .foo(id: let id, let value): ...
 switch self {
 case .foo(id: let self, let value): ...
 }
+```
+
+#### Closure parameters
+
+Shorthand closure argument names (`$0`, `$1`) are good, use them for simple closures. You should only start naming closure parameters if closures are very large (>50 lines), if they include nested closures where you need to disambiguate outer parameters, or if the closure logic becomes significantly more readable with named parameters.
+
+If you decide to name a closure parameter, always include a type annotation. It’s okay to omit the return type, if type inference allows for it.
+
+```swift
+// good — these are clear and recognizable patterns
+let sum: Double = values.reduce(0, +)
+let squares: Double = values.reduce(0) { $0 + $1 * $1 }
+
+// bad — the ceremonious names harm pattern recognition. also, they’re missing type annotations!
+let sum: Double = values.reduce(0) { accumulator, value in accumulator + value }
+let squares: Double = values.reduce(0) { (accumulator, value) in accumulator + value * value }
+```
+
+When a closure receives a tuple as its single argument, **prefer splatting the tuple elements into separate shorthand arguments** (`$0`, `$1`, `$2`, etc.) rather than accessing tuple members (`$0.0`, `$0.1`, `$0.2`, etc.).
+
+```swift
+// good - splat tuple elements into $0, $1, $2
+let result: [(Int, Double)] = enumerated.map {
+    ($0, $1 * 2) // $0 is index, $1 is value
+}
+
+let histogram: [(Double, Double)] = items.enumerated().map {
+    let midpoint: Double = range.min + (Double.init($0) + 0.5) * width
+    return (midpoint: midpoint, count: $1)
+}
+```
+
+#### Grouping variables with tuples
+
+Tuples are one of Swift’s finest features, use them freely! Consider grouping related variables using tuples with named elements instead of separate variables.
+
+```swift
+// good — these values go together, in fact, the author is probably intending to assemble a
+// `Range` out of them!
+let range: (min: Int64, max: Int64) = (
+    min: .init(expected.μ - 3 * Double.sqrt(expected.σ²)),
+    max: .init(expected.μ + 3 * Double.sqrt(expected.σ²))
+)
+
+// bad — we are using suffixes to indicate something that could have been modeled structurally
+let minRange: Int64 = .init(expected.μ - 3 * Double.sqrt(expected.σ²))
+let maxRange: Int64 = .init(expected.μ + 3 * Double.sqrt(expected.σ²))
 ```
 
 
