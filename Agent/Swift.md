@@ -301,3 +301,43 @@ This means that code in extension blocks can be easily moved to and from other e
 As a rule, names should always be spelled with the minimal amount of qualification necessary to make the code compile. Moreover, `Self` should always be used to refer to the primary type in a file unless covariance forbids it.
 
 Module qualification is discouraged in idiomatic Swift code.
+
+
+## Unit tests
+
+Unit tests should always use the modern Swift Testing framework. XCTest should never be used.
+
+Avoid `@testable` in finalized production code — it is okay for experimentation and iteration, but should be removed before libraries are considered release-ready.
+
+### Test suites
+
+Tests should be organized into **suites**, which look like this:
+
+```swift
+// Parsing.swift
+import Testing
+
+@Suite struct Parsing {}
+```
+
+Suite names are generally nouns, and should not end in the word `Test`. (You may encounter legacy code that uses the -`Test` suffix; it is okay to keep the suffix when modifying existing tests, but avoid using it for new tests.)
+
+
+### Test functions
+
+The ideal **test function** is a `static func`, upgrade to an instance method only if the test requires some context that requires initializing an instance of the suite. One reason to upgrade to instance methods is to reduce setup burden, by factoring out shared preambled into the suite’s initializer.
+
+The names of **test functions** should begin with a capital letter, and should not be prefixed or suffixed with the word `test`, as this would be redundant with the `@Test` attribute.
+
+If capitalizing the name of a test function would conflict with a type name, rename the test function, do not start using module qualification. One technique for dealing with this situation is to rename the test function from a singular noun to a plural noun. For example, you might rename a test that exercises floating point logic from `Float()` to `Floats()` to avoid shadowing the standard library type.
+
+
+### Test sections
+
+It is natural to wonder if test suites should be organized into layout, constructor, and conformance sections, similar to the way that library code is organized. The answer is no, although similar principles apply.
+
+If a test suite has no stored properties and no `init`, all test functions should be placed in the primary type definition.
+
+If a test suite has an `init`, or stored properties, then the test functions should go in a separate extension block.
+
+Test helpers, including static properties, always go in separate extension blocks, at the end of a file.
