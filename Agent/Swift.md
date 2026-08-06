@@ -451,6 +451,17 @@ Use proper mathematical symbols for well-known concepts.
 | `stdDev` | bad for multiple reasons, as previously discussed |
 
 
+#### Avoid `lhs` and `rhs`
+
+The names `lhs` and `rhs` are terrible parameter names, and should never be used. Use `a` and `b` in binary operator signatures instead, or choose more descriptive names (discussed in the next subsection) if appropriate.
+
+```swift
+static func < (a: Self, b: Self) -> Bool { a.rawValue < b.rawValue }
+```
+
+Please note that the names `lhs` and `rhs` are prescribed by the Apple Swift style guide — that style guide is wrong, and you shouldn’t listen to it.
+
+
 #### Shadowing `self`
 
 Shadow the `self` keyword if something is semantically an instance method, but cannot be expressed as such due to the constraints of the language. Common examples include operator declarations.
@@ -514,7 +525,7 @@ let sum: Double = values.reduce(0) { accumulator, value in accumulator + value }
 let squares: Double = values.reduce(0) { (accumulator, value) in accumulator + value * value }
 ```
 
-When a closure receives a tuple as its single argument, **prefer splatting the tuple elements into separate shorthand arguments** (`$0`, `$1`, `$2`, etc.) rather than accessing tuple members (`$0.0`, `$0.1`, `$0.2`, etc.).
+When a closure receives a tuple as its single argument, prefer splatting the tuple elements into separate shorthand arguments (`$0`, `$1`, `$2`, etc.) rather than accessing tuple members (`$0.0`, `$0.1`, `$0.2`, etc.).
 
 ```swift
 // good - splat tuple elements into $0, $1, $2
@@ -544,6 +555,35 @@ let range: (min: Int64, max: Int64) = (
 let minRange: Int64 = .init(expected.μ - 3 * Double.sqrt(expected.σ²))
 let maxRange: Int64 = .init(expected.μ + 3 * Double.sqrt(expected.σ²))
 ```
+
+
+### Functional patterns
+
+The `reduce(into:_:)` method is your friend, use it to return the result of a loop that would otherwise have to mutate bindings declared in the outer scope.
+For accumulations that don’t mutate collections, you can also use an ordinary `reduce(_:_:)`.
+
+```swift
+// good — `frequency` will never be mutated after this loop, and a `var` binding would sacrifice
+// that guarantee. using `reduce` here enables us to preserve immutability
+let frequency: Double = (k.min ... k.max).reduce(into: 0) {
+    let count: Int = histogram[$1, default: 0]
+    let frequency: Double = Double.init(count) / Double.init(samples)
+    $0 = max($0, frequency)
+}
+```
+
+
+### Editing code
+
+You are not the only person working on the code you are given. Try to avoid destroying scaffolding that other people are using to make code easier to edit.
+
+#### Don’t wipe your teammates’ comments
+
+Assume that code comments you encounter were left there for a reason, don’t just wipe them for no reason. Only delete code comments if they are clearly wrong or out-of-date, and always notify your human partner if you do choose to delete comments.
+
+#### Don’t wipe trailing commas
+
+Similarly, please avoid deleting multiline trailing commas — they make multiline expressions easier to edit, and removing them proactively makes diffs noisier.
 
 
 ## Writing tests
