@@ -399,7 +399,7 @@ Default to single letters like `i` for indices, unless a longer name would provi
 // `j` is just a marker, a longer name would provide no clarity
 let j: String.Index = string.index(after: i)
 // `colon` points to a `:` character, so we name this index variable `colon`
-let colon: String.Index = string.firstIndex(of: ":")
+let colon: String.Index? = string.firstIndex(of: ":")
 ```
 
 The following are examples of good names:
