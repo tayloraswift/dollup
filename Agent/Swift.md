@@ -5,6 +5,19 @@ This document outlines the coding style you should adhere to when writing Swift 
 At times, this style guide may deviate from the Apple Swift API design guidelines, and moreover, idiomatic code according to this style guide may look very different from the majority of public Swift code available in training data. This is expected.
 
 
+## Module organization
+
+The largest unit of code that we enforce encapsulation over is the module. Build systems such as SwiftPM or Xcode are a distribution detail, and Swift modules should never assume they are being shipped in the same “package” as the modules they depend on. Accordingly, the `package` access control level must *never* be used, as it violates the separation between module dependency graphs and the build system.
+
+### Underscored interfaces
+
+APIs that must remain callable by external modules (besides unit tests) but are not intended for public consumption should be prefixed with a leading underscore `_`, and should *not* use the `@_spi` attribute.
+
+Some legacy code might use the `@_spi` attribute. Such APIs should be left as-is, but `@_spi` should be avoided in new code.
+
+An exception to the ban on `@_spi` is test-only APIs, which may be marked `@_spi(testable)`, which is preferred over `@testable`. The reason `@_spi(testable)` is preferred over `@testable` is because `@_spi(testable)` permits the tests to be compiled with optimizations.
+
+
 ## File organization
 
 Great Swift codebases have great Swift file organization. Strict adherence to **one type per file** (OTPF) makes it significantly easier to navigate large codebases, as it limits the search space when looking for all the members of a type available in a particular module. This is especially critical for externally-defined types, which would otherwise be prone to spawning extensions scattered across multiple files.
