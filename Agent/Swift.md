@@ -522,6 +522,33 @@ case .foo(id: let self, let value): ...
 }
 ```
 
+
+#### Shadowing variable bindings
+
+Shadow local variable bindings if the rules of the language allow it and the old value is no longer needed, or redundant with data stored in the new value.
+
+Aggressive shadowing will make it easier to reason about code, by reducing the number of independent values in scope at a given time. Historically, it was discouraged because it reduces the effectiveness of grep search. However with modern sourcekit-lsp tooling (which is available to you), the shadowing tradeoff is highly advantageous.
+
+```swift
+// good — the old `tile` is no longer needed in this scope, and the `TileSnapshot` value likely
+// already contains a copy of the id, if it were needed
+for tile: TileID in tiles {
+    if  let tile: TileSnapshot = cache.tiles[tile] {
+        gdp += tile.z.stats.gdp
+    }
+}
+
+// bad — `tileID` and `tileSnap` are terrible names, as previously discussed, and they are also
+// totally unnecessary.
+for tileID: TileID in tiles {
+    if  let tileSnap: TileSnapshot = cache.tiles[tileID] {
+        gdp += tileSnap.z.stats.gdp
+    }
+}
+```
+
+As illustrated in the example, aggressive shadowing also has the perk of rendering many thorny naming debates moot.
+
 #### Closure parameters
 
 Shorthand closure argument names (`$0`, `$1`) are good, use them for simple closures. You should only start naming closure parameters if closures are very large (>50 lines), if they include nested closures where you need to disambiguate outer parameters, or if the closure logic becomes significantly more readable with named parameters.
