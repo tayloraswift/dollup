@@ -108,6 +108,13 @@ Operator functions, including top-level free functions, never go in `lexemes.swi
 The `operators.swift` file is used to store top-level operator functions. It rarely appears because operator functions are almost always namespaced `static func`s, which always go in an ordinary file associated with that namespace type. Namespaced operator functions are preferred, so `operators.swift` should only be created as a last resort.
 
 
+### Macro declaration files
+
+In rare circumstances, a macro may be given a lowercased name; accordingly, the name of the file it lives in should be lowercased to match the macro name.
+
+Macros shouldn’t usually have names that collide with special files, but if this does somehow occur, consult with your human teammate for guidance.
+
+
 ### Schema keynums
 
 **Schema keynums**, or just *keynums*, are enums that define serialization keys. They are frequently named `CodingKey`, `ObjectKey`, `DocumentKey`, etc. They look like this:
