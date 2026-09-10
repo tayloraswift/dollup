@@ -21,6 +21,8 @@ jobs:
                 id: changes
                 with:
                     files_ignore_from_source_file: .github/autosync/Skip.txt
+                    files_ignore: |
+                        Agent
         outputs:
             code_changed: ${{ steps.changes.outputs.any_changed }}
 
