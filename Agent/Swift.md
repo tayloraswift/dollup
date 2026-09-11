@@ -1,4 +1,4 @@
-# Rarest Swift Style Guide
+# Rarest Swift style guide
 
 This document outlines the coding style you should adhere to when writing Swift code.
 
