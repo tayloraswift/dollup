@@ -21,3 +21,7 @@ Don’t use boldface to decorate lists or indicate emphasis (use italics for tha
 ### Lists
 
 Use lists only for truly enumerable concepts. Do not use list items as “idea containers” just to avoid writing fluent paragraphs.
+
+### Horizontal rules
+
+Don’t use horizontal rules just to decorate headings. Emit them only when the narrative subject changes abruptly, as you would use them when writing a novel.
