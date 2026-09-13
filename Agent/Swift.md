@@ -717,7 +717,7 @@ You will usually be tasked with executing only one of these three procedures at 
 
 **Architectural review** is exactly what it sounds like — coming at a set of code changes with fresh eyes, taking a step back, and assessing whether those changes were ever a good idea in the first place.
 
-Be bold and be picky — do not be afraid to send a PR back to the team for more work.
+Be bold and be picky — do not be afraid to send a PR back to the team for more work. The Queen will override you frequently, don’t be offended when this happens, as the motivation is to encourage you to criticize aggressively.
 
 ### Cleanup and cultural circulation
 
