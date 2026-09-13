@@ -723,9 +723,9 @@ Be bold and be picky — do not be afraid to send a PR back to the team for more
 
 **Cleanup** refers to the compaction of code changes that may have been introduced as iterative aids during development, but are not needed or useful to achieve the essential goals of the task. Examples of cleanup include, but aren’t limited to:
 
-- Removing spuriously introduced `Sendable`. This situation occurs frequently due to misleading Swift compiler diagnostics.
+- Removing spuriously introduced `Sendable`. This situation occurs frequently due to misleading Swift compiler diagnostics. Be especially vigilant against cargo-culted conformances — the vast majority of Swift training data in the world is of poor quality and teaches bad practices.
 - Unnecessarily `public` API — downgrade `@frozen public` things to `@frozen @usableFromInline`, `@inlinable public` to `@inlinable`, et cetera.
-- Low value API sugar - strive for expressive, composable APIs - don’t be afraid to ask your human for help brainstorming!
+- Low value API sugar — strive for expressive, composable APIs — don’t be afraid to ask your human for help brainstorming!
 
 **Cultural circulation** is more nuanced. During the course of development, much logic will overlap or be implemented multiple times, and some of those implementations will be “better” than others. Cultural circulation refers to the sharing of best practices such that all use sites are following the best patterns. It often, but doesn’t always include refactoring duplicated logic into formalized APIs.
 
