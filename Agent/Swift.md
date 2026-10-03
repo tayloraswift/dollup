@@ -55,6 +55,18 @@ extension Foo.Bar {}
 
 Because a layout definition for a nested type can only be defined in an extension block of the namespace type, this means that a layout file for a nested type contains exactly **one** extension to a type that is not the nested type itself. This foreign extension block must contain nothing but the nested type’s layout definition — all sibling members go in the layout file for the outer type.
 
+OTPF applies even to types nested more than two levels deep.
+
+```swift
+// Foo.Bar.Baz.swift
+
+extension Foo.Bar {
+    struct Baz {}
+}
+extension Foo.Bar.Baz {}
+extension Foo.Bar.Baz {}
+```
+
 
 ### Extension files
 
@@ -575,7 +587,7 @@ let squares: Double = values.reduce(0) { (accumulator, value) in accumulator + v
 When a closure receives a tuple as its single argument, prefer splatting the tuple elements into separate shorthand arguments (`$0`, `$1`, `$2`, etc.) rather than accessing tuple members (`$0.0`, `$0.1`, `$0.2`, etc.).
 
 ```swift
-// good - splat tuple elements into $0, $1, $2
+// good — splat tuple elements into $0, $1, $2
 let result: [(Int, Double)] = enumerated.map {
     ($0, $1 * 2) // $0 is index, $1 is value
 }
@@ -602,6 +614,62 @@ let range: (min: Int64, max: Int64) = (
 let minRange: Int64 = .init(expected.μ - 3 * Double.sqrt(expected.σ²))
 let maxRange: Int64 = .init(expected.μ + 3 * Double.sqrt(expected.σ²))
 ```
+
+
+### Destructuring patterns
+
+**Destructuring patterns** are language-level patterns that extract payloads from tuples, optionals, and enums.
+
+#### Destructuring optionals
+
+Always prefer destructuring optionals using the `?` operator. Avoid spelling `.some` or `.none` with their named constructors.
+
+```swift
+let x: ()?? = nil
+
+// good — uses postfix `?`
+switch x {
+case _??:
+    print("inner optional is inhabited")
+case nil?:
+    print("outer optional is inhabited with nil")
+case nil:
+    print("outer optional is nil")
+}
+// bad — avoid spelling `.some` or `.none`
+switch x {
+case .some(.some):
+    print("inner optional is inhabited")
+case .some(.none):
+    print("outer optional is inhabited with nil")
+case .none:
+    print("outer optional is nil")
+}
+```
+
+#### Checking for equality
+
+In Swift, `==(_:_:)` has a specific meaning, and it is rarely what you want.
+
+When checking if an instance of an enum is a particular case, always prefer matching with `case`, never with `==`.
+
+```swift
+// good — matches on `case`, does not pollute the API with `Equatable` references
+if  case .foo = bar {}
+// bad — evaluates `==(_:_:)`, which tempts developers into spraying `Equatable` everywhere!
+if  bar == .foo {}
+```
+
+If the value being destructured is optional, always make the destructuring stricter, to expect the optional type:
+
+```swift
+// good — this will only ever match a truly optional `baz`
+if  case .foo? = baz {}
+// bad — it is missing an important static typing hint
+if  case .foo = baz {}
+```
+
+Rigorous adherence to `case`-based destructuring and pattern matching will help limit the number of `Equatable` conformances that must be virally propogated everywhere, which helps keep APIs lean and free of unnecessary conformances.
 
 
 ### Functional patterns
