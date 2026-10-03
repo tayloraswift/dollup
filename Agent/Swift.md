@@ -53,8 +53,6 @@ extension Foo.Bar {}
 extension Foo.Bar {}
 ```
 
-Because a layout definition for a nested type can only be defined in an extension block of the namespace type, this means that a layout file for a nested type contains exactly **one** extension to a type that is not the nested type itself. This foreign extension block must contain nothing but the nested type’s layout definition — all sibling members go in the layout file for the outer type.
-
 OTPF applies even to types nested more than two levels deep.
 
 ```swift
@@ -66,6 +64,8 @@ extension Foo.Bar {
 extension Foo.Bar.Baz {}
 extension Foo.Bar.Baz {}
 ```
+
+Because a layout definition for a nested type can only be defined in an extension block of the namespace type, this means that a layout file for a nested type contains exactly **one** extension to a type that is not the nested type itself. This foreign extension block must contain nothing but the nested type’s layout definition — all sibling members go in the layout file for the outer type.
 
 
 ### Extension files
