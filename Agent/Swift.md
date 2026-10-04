@@ -399,6 +399,34 @@ Leading type qualification should be used if there are many possibilities as to 
 let result: Double = x + Double.init(z)
 ```
 
+#### Prohibition of SE-0213 (“Literal initialization via coercion”)
+
+Do not use [literal coercion via implicit initializer invocation](https://github.com/swiftlang/swift-evolution/blob/main/proposals/0213-literal-init-via-coercion.md), under any circumstances.
+
+Literal coercion via implicit initializer invocation is special carve-out to the usual typechecking behavior of the compiler, which affects expression such as this:
+
+```swift
+let bytes: [UInt8] = try Path("Public/rules.ion").read()
+//                       ^~~~
+// implicit initializer call affects the inferred type of the argument!
+```
+
+Although this looks like a call to `Path.init(_: String)`, it will in fact be resolved to `Path.init(_: Path)` if such an overload exists at build time, and `Path` conforms to `ExpressibleByStringLiteral`. Incredibly, the behavior will *change* depending on whether `Path` is spelled with an explicit `init` token, as this disables literal coercion.
+
+SE-0213 was originally (and shortsightedly) bolted onto the language to alleviate a common beginner stumbling block when writing overflowing literal expressions such as `UInt64(0xffff_ffff_ffff_ffff)`. However, it is always better to spell such expressions as `(0xffff_ffff_ffff_ffff as UInt64)`.
+
+```swift
+// good — the type context is provided by the type annotation, which is the best source of type context
+let x: UInt64 = 0xffff_ffff_ffff_ffff
+
+// okay — usually we would refactor this to avoid the awkward `as`, but this is still significantly
+// better than literal coercion via implicit initializer invocation
+let x: UInt64 = (0xffff_ffff_ffff_ffff as UInt64) &+ 1
+
+// bad — avoid SE-0213 like the plague, and in this situation, insertion of the `init` token will surface
+// the problem as a compiler error
+let x: UInt64 = UInt64(0xffff_ffff_ffff_ffff) &+ 1
+```
 
 ### Explicit `self`
 
