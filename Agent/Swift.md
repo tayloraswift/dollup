@@ -428,6 +428,9 @@ let x: UInt64 = (0xffff_ffff_ffff_ffff as UInt64) &+ 1
 let x: UInt64 = UInt64(0xffff_ffff_ffff_ffff) &+ 1
 ```
 
+Because SE-0213 only goes into effect when the interstitial `init` token is omitted, it can be incredibly difficult to determine whether literal coercion is taking place, even with the assistance of sourcekit-lsp, as there is no physical token to run a semantic query against. As such, it constitutes an additional systemic motivation for mandating the explicit spelling of `init` everywhere.
+
+
 ### Explicit `self`
 
 When writing instance members, always refer to other instance members with explicit `self`. Although `self` is not a “type annotation”, it serves a similar purpose when scanning code, as it greatly reduces the cognitive burden and context needed to understand a particular snippet of code.
