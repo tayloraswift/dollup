@@ -719,6 +719,23 @@ let frequency: Double = (k.min ... k.max).reduce(into: 0) {
 ```
 
 
+### Constants
+
+When defining constants, prefer inlinable `static var` computed properties over `static let` properties.
+
+
+```swift
+// good — this is, in many ways, easier for the compiler to optimize than a stored `let`
+@inlinable static var mask: UInt32 { 0xff000000 }
+
+// bad — this introduces avoidable lazy initialization and thread safety concerns, and
+// is often harder to optimize, particularly across module boundaries
+@usableFromInline static let mask: UInt32 = 0xff000000
+```
+
+In idiomatic Swift code, `static let`s have few motivating use cases that aren’t better-served by `static` computed properties. Contrary to beginner intuition, `static` computed properties are often more concurrency- and optimizer-friendly than their stored counterparts, and defaulting to them will help you avoid falling down maddening `Sendable` rabbit holes. 
+
+
 ### Editing code
 
 You are not the only person working on the code you are given. Try to avoid destroying scaffolding that other people are using to make code easier to edit.
