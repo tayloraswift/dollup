@@ -721,8 +721,7 @@ let frequency: Double = (k.min ... k.max).reduce(into: 0) {
 
 ### Constants
 
-When defining constants, prefer inlinable `static var` computed properties over `static let` properties.
-
+When defining constants, prefer `static var` computed properties over `static let` properties. If constants are being accessed across module boundaries, the computed property should be `@inlinable`, not `@usableFromInline`, to facilitate constant folding.
 
 ```swift
 // good — this is, in many ways, easier for the compiler to optimize than a stored `let`
