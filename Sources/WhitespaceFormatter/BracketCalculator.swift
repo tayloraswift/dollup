@@ -1,14 +1,17 @@
+import SwiftDiagnostics
 import SwiftSyntax
 
 final class BracketCalculator: SyntaxVisitor {
-    private(set) var brackets: [AbsolutePosition: BracketSide]
+    private var matched: [AbsolutePosition: BracketSide]
+    private var errored: MismatchError?
 
     private let style: BraceStyle
     private var stack: [Scope]
     private var line: UInt
 
     init(style: BraceStyle) {
-        self.brackets = [:]
+        self.matched = [:]
+        self.errored = nil
 
         self.style = style
         self.stack = []
@@ -37,29 +40,29 @@ final class BracketCalculator: SyntaxVisitor {
     override func visit(
         _ node: MultipleTrailingClosureElementSyntax
     ) -> SyntaxVisitorContinueKind {
-        self.brackets[node.label.positionAfterSkippingLeadingTrivia] = .bridging
+        self.matched[node.label.positionAfterSkippingLeadingTrivia] = .bridging
         return .visitChildren
     }
 
     override func visit(_ node: IfExprSyntax) -> SyntaxVisitorContinueKind {
         if  let elseKeyword: TokenSyntax = node.elseKeyword {
-            self.brackets[elseKeyword.positionAfterSkippingLeadingTrivia] = .bridging
+            self.matched[elseKeyword.positionAfterSkippingLeadingTrivia] = .bridging
         }
         return .visitChildren
     }
     override func visit(_ node: DoStmtSyntax) -> SyntaxVisitorContinueKind {
         for catchClause: CatchClauseSyntax in node.catchClauses {
             let catchKeyword: TokenSyntax = catchClause.catchKeyword
-            self.brackets[catchKeyword.positionAfterSkippingLeadingTrivia] = .bridging
+            self.matched[catchKeyword.positionAfterSkippingLeadingTrivia] = .bridging
         }
         return .visitChildren
     }
     override func visit(_ node: GuardStmtSyntax) -> SyntaxVisitorContinueKind {
-        self.brackets[node.elseKeyword.positionAfterSkippingLeadingTrivia] = .bridging
+        self.matched[node.elseKeyword.positionAfterSkippingLeadingTrivia] = .bridging
         return .visitChildren
     }
     override func visit(_ node: RepeatStmtSyntax) -> SyntaxVisitorContinueKind {
-        self.brackets[node.whileKeyword.positionAfterSkippingLeadingTrivia] = .bridging
+        self.matched[node.whileKeyword.positionAfterSkippingLeadingTrivia] = .bridging
         return .visitChildren
     }
 
@@ -89,6 +92,17 @@ final class BracketCalculator: SyntaxVisitor {
     }
 }
 extension BracketCalculator {
+    var brackets: [AbsolutePosition: BracketSide] {
+        get throws {
+            if  let error: MismatchError = self.errored {
+                throw error
+            } else {
+                return self.matched
+            }
+        }
+    }
+}
+extension BracketCalculator {
     /// Despite official documentation, newlines can and do appear in trailing trivia.
     /// One example is the trailing newline after a multiline opening string quote.
     private func skip(_ trivia: Trivia) {
@@ -103,6 +117,10 @@ extension BracketCalculator {
         }
     }
     private func push(_ token: TokenSyntax, type: BracketType) {
+        guard case nil = self.errored else {
+            return
+        }
+
         var element: Syntax? = token.parent
 
         while let parent: Syntax = element?.parent, !parent.kind.isSyntaxCollection {
@@ -128,23 +146,27 @@ extension BracketCalculator {
         )
     }
     private func pop(_ token: TokenSyntax, type: BracketType) {
-        guard let scope: Scope = self.stack.popLast() else {
+        guard case nil = self.errored,
+        let scope: Scope = self.stack.popLast() else {
+            return
+        }
+
+        if  scope.type != type {
+            self.errored = .init(
+                expected: scope.type,
+                found: type,
+                token: token
+            )
             return
         }
 
         let position: AbsolutePosition = token.positionAfterSkippingLeadingTrivia
 
-        guard case type = scope.type else {
-            fatalError(
-                "[\(position)]: mismatched delimiter, expected '\(scope.type)', got '\(type)'"
-            )
-        }
-
         if  scope.soft, scope.line < self.line {
             // delimiters are movable if they are on a different line
             // than their opening delimiter
-            self.brackets[scope.open] = .opening
-            self.brackets[position] = .closing
+            self.matched[scope.open] = .opening
+            self.matched[position] = .closing
         }
     }
 }
