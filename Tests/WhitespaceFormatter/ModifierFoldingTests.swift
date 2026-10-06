@@ -16,7 +16,7 @@ import WhitespaceFormatter
         }
         """
 
-        #expect(self.format(input) == expected + "\n")
+        #expect(try self.format(input) == expected + "\n")
     }
     @Test static func ModifiersWithAttributes() throws {
         let input: String = """
@@ -34,7 +34,7 @@ import WhitespaceFormatter
         }
         """
 
-        #expect(self.format(input) == expected + "\n")
+        #expect(try self.format(input) == expected + "\n")
     }
     @Test static func EffectsSpecifiers() throws {
         let input: String = """
@@ -73,7 +73,7 @@ import WhitespaceFormatter
         }
         """
 
-        #expect(self.format(input) == expected + "\n")
+        #expect(try self.format(input) == expected + "\n")
     }
     @Test static func MultipleAttributes() throws {
         let input: String = """
@@ -92,7 +92,7 @@ import WhitespaceFormatter
         }
         """
 
-        #expect(self.format(input) == expected + "\n")
+        #expect(try self.format(input) == expected + "\n")
     }
     @Test static func LongAttributes() throws {
         let input: String = """
@@ -121,7 +121,7 @@ import WhitespaceFormatter
         }
         """
 
-        #expect(self.format(input) == expected + "\n")
+        #expect(try self.format(input) == expected + "\n")
     }
     @Test static func BrokenAttributes() throws {
         let input: String = """
@@ -149,7 +149,7 @@ import WhitespaceFormatter
         }
         """
 
-        #expect(self.format(input) == expected + "\n")
+        #expect(try self.format(input) == expected + "\n")
     }
     @Test static func ConditionalAttributes() throws {
         let input: String = """
@@ -170,7 +170,7 @@ import WhitespaceFormatter
         }
         """
 
-        #expect(self.format(input) == expected + "\n")
+        #expect(try self.format(input) == expected + "\n")
     }
     @Test static func ConditionalAttributesAfterFoldableAttribute() throws {
         let input: String = """
@@ -188,14 +188,14 @@ import WhitespaceFormatter
         public func foo() {}
         """
 
-        #expect(self.format(input) == expected + "\n")
+        #expect(try self.format(input) == expected + "\n")
     }
 }
 extension ModifierFoldingTests {
-    private static func format(_ input: consuming String) -> String {
+    private static func format(_ input: consuming String) throws -> String {
         let formatter: WhitespaceFormatter = .init { $0.foldKeywords = true }
         var input: String = input
-        formatter.reformat(&input, check: true)
+        try formatter.reformat(&input, check: true)
         return input
     }
 }

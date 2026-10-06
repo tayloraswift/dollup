@@ -20,7 +20,7 @@ import WhitespaceFormatter
         ]
         """
 
-        #expect(self.format(input) == expected + "\n")
+        #expect(try self.format(input) == expected + "\n")
     }
     @Test static func SwitchCases() throws {
         let input: String = """
@@ -40,7 +40,7 @@ import WhitespaceFormatter
         }
         """
 
-        #expect(self.format(input) == expected + "\n")
+        #expect(try self.format(input) == expected + "\n")
     }
     @Test static func FunctionNames() throws {
         let input: String = """
@@ -50,7 +50,7 @@ import WhitespaceFormatter
         function(_:)
         """
 
-        #expect(self.format(input) == expected + "\n")
+        #expect(try self.format(input) == expected + "\n")
     }
     @Test static func OperatorDeclarations() throws {
         let input: String = """
@@ -62,7 +62,7 @@ import WhitespaceFormatter
         infix operator <- : RangeFormationPrecedence
         """
 
-        #expect(self.format(input) == expected + "\n")
+        #expect(try self.format(input) == expected + "\n")
     }
     @Test static func Available() throws {
         let input: String = """
@@ -74,7 +74,7 @@ import WhitespaceFormatter
         var foo: Int { 1 }
         """
 
-        #expect(self.format(input) == expected + "\n")
+        #expect(try self.format(input) == expected + "\n")
     }
     @Test static func Ternaries() throws {
         let input: String = """
@@ -92,7 +92,7 @@ import WhitespaceFormatter
             : 2
         """
 
-        #expect(self.format(input) == expected + "\n")
+        #expect(try self.format(input) == expected + "\n")
     }
     @Test static func Attributes() throws {
         let input: String = """
@@ -104,14 +104,14 @@ import WhitespaceFormatter
         func merged() {}
         """
 
-        #expect(self.format(input) == expected + "\n")
+        #expect(try self.format(input) == expected + "\n")
     }
 }
 extension ColonSpacingTests {
-    private static func format(_ input: consuming String) -> String {
+    private static func format(_ input: consuming String) throws -> String {
         let formatter: WhitespaceFormatter = .init { $0.formatColonPadding = true }
         var input: String = input
-        formatter.reformat(&input, check: true)
+        try formatter.reformat(&input, check: true)
         return input
     }
 }

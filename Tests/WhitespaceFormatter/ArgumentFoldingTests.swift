@@ -28,7 +28,7 @@ import WhitespaceFormatter
         }
         """
 
-        #expect(self.format(input) == expected + "\n")
+        #expect(try self.format(input) == expected + "\n")
     }
     @Test static func Unlabeled() throws {
         let input: String = """
@@ -54,14 +54,14 @@ import WhitespaceFormatter
         }
         """
 
-        #expect(self.format(input) == expected + "\n")
+        #expect(try self.format(input) == expected + "\n")
     }
 }
 extension ArgumentFoldingTests {
-    private static func format(_ input: consuming String) -> String {
+    private static func format(_ input: consuming String) throws -> String {
         let formatter: WhitespaceFormatter = .init { $0.foldArguments = true }
         var input: String = input
-        formatter.reformat(&input, check: true)
+        try formatter.reformat(&input, check: true)
         return input
     }
 }
