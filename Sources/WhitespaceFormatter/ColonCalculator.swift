@@ -179,7 +179,7 @@ extension ColonCalculator {
     }
 }
 extension ColonCalculator {
-    func reformat(tokens: TokenSequence) -> String {
+    func reformat(tokens: TokenSequence) throws -> String {
         var tokens: TokenSequence.Iterator = tokens.makeIterator()
         var next: TokenSyntax? = tokens.next()
         var text: String = ""
@@ -232,12 +232,7 @@ extension ColonCalculator {
                     text.append(" ")
 
                 case nil:
-                    fatalError(
-                        """
-                        unmarked colon at [\(current.positionAfterSkippingLeadingTrivia)], \
-                        buffer: ... '\(text.suffix(64))'
-                        """
-                    )
+                    throw UnmarkedError.init(token: current)
                 }
             } else {
                 text += "\(current)"
