@@ -19,7 +19,7 @@ extension DollupConfiguration {
         try self.configure(file: id, settings: &settings)
         var after: String = source
 
-        settings.whitespace.reformat(&after, check: settings.check)
+        try settings.whitespace.reformat(&after, check: settings.check)
 
         if !after.utf8.elementsEqual(source.utf8) {
             return after
@@ -47,7 +47,11 @@ extension DollupConfiguration {
 }
 extension DollupConfiguration {
     public static func run(in path: FilePath) throws {
-        let status: FileStatus = try .status(of: path)
+        guard
+        let status: FileStatus = try path.status else {
+            return
+        }
+
         if  status.is(.regular) {
             try self.run(on: path)
             return
@@ -61,19 +65,12 @@ extension DollupConfiguration {
 
         try path.directory.walk {
             let path: FilePath = $0 / $1
-
-            let status: FileStatus = try .status(of: path)
-            if status.is(.directory) {
-                return true
-            }
-
-            format:
-            if  status.is(.regular),
+            if  case true? = try path.status?.is(.regular),
                 case "swift" = $1.extension {
                 try self.run(on: path)
             }
-
-            return false
+        } directory: { _, _ in
+            .descend
         }
     }
 

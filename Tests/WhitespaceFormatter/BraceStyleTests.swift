@@ -13,8 +13,8 @@ import WhitespaceFormatter
         let x: [Int] = y.map { $0 + 1 }
         """
 
-        #expect(self.egyptian(input) == egyptian + "\n")
-        #expect(self.allman(input) == allman + "\n")
+        #expect(try self.egyptian(input) == egyptian + "\n")
+        #expect(try self.allman(input) == allman + "\n")
     }
     @Test static func RepeatWhile() throws {
         let input: String = """
@@ -67,8 +67,8 @@ import WhitespaceFormatter
         while condition
         """
 
-        #expect(self.egyptian(input) == egyptian + "\n")
-        #expect(self.allman(input) == allman + "\n")
+        #expect(try self.egyptian(input) == egyptian + "\n")
+        #expect(try self.allman(input) == allman + "\n")
     }
     @Test static func DoCatch() throws {
         let input: String = """
@@ -119,8 +119,8 @@ import WhitespaceFormatter
         }
         """
 
-        #expect(self.egyptian(input) == egyptian + "\n")
-        #expect(self.allman(input) == allman + "\n")
+        #expect(try self.egyptian(input) == egyptian + "\n")
+        #expect(try self.allman(input) == allman + "\n")
     }
     @Test static func GuardElse() throws {
         let input: String = """
@@ -153,8 +153,8 @@ import WhitespaceFormatter
         }
         """
 
-        #expect(self.egyptian(input) == egyptian + "\n")
-        #expect(self.allman(input) == allman + "\n")
+        #expect(try self.egyptian(input) == egyptian + "\n")
+        #expect(try self.allman(input) == allman + "\n")
     }
     @Test static func IfElse() throws {
         let input: String = """
@@ -183,8 +183,8 @@ import WhitespaceFormatter
         }
         """
 
-        #expect(self.egyptian(input) == egyptian + "\n")
-        #expect(self.allman(input) == allman + "\n")
+        #expect(try self.egyptian(input) == egyptian + "\n")
+        #expect(try self.allman(input) == allman + "\n")
     }
     @Test static func TrailingClosures() throws {
         let input: String = """
@@ -233,8 +233,8 @@ import WhitespaceFormatter
         }
         """
 
-        #expect(self.egyptian(input) == egyptian + "\n")
-        #expect(self.allman(input) == allman + "\n")
+        #expect(try self.egyptian(input) == egyptian + "\n")
+        #expect(try self.allman(input) == allman + "\n")
     }
     @Test static func TernaryExpressions() throws {
         let input: String = #"""
@@ -280,8 +280,8 @@ import WhitespaceFormatter
         """
         """#
 
-        #expect(self.egyptian(input) == egyptian + "\n")
-        #expect(self.allman(input) == allman + "\n")
+        #expect(try self.egyptian(input) == egyptian + "\n")
+        #expect(try self.allman(input) == allman + "\n")
     }
     @Test static func Tuples() throws {
         let input: String = """
@@ -334,7 +334,7 @@ import WhitespaceFormatter
         )
         """
 
-        #expect(self.egyptian(input) == egyptian + "\n")
+        #expect(try self.egyptian(input) == egyptian + "\n")
     }
     @Test static func StandingExpressions() throws {
         let input: String = """
@@ -350,7 +350,7 @@ import WhitespaceFormatter
         }
         """
 
-        #expect(self.egyptian(input) == egyptian + "\n")
+        #expect(try self.egyptian(input) == egyptian + "\n")
     }
     @Test static func Arrays() throws {
         let input: String = """
@@ -375,7 +375,7 @@ import WhitespaceFormatter
         ]
         """
 
-        #expect(self.egyptian(input) == egyptian + "\n")
+        #expect(try self.egyptian(input) == egyptian + "\n")
     }
     @Test static func Strings() throws {
         let input: String = #"""
@@ -412,8 +412,8 @@ import WhitespaceFormatter
         """
         """#
 
-        #expect(self.egyptian(input) == egyptian + "\n")
-        #expect(self.allman(input) == allman + "\n")
+        #expect(try self.egyptian(input) == egyptian + "\n")
+        #expect(try self.allman(input) == allman + "\n")
     }
     @Test static func StringsWithPounds() throws {
         let input: String = ##"""
@@ -450,8 +450,8 @@ import WhitespaceFormatter
         """#
         """##
 
-        #expect(self.egyptian(input) == egyptian + "\n")
-        #expect(self.allman(input) == allman + "\n")
+        #expect(try self.egyptian(input) == egyptian + "\n")
+        #expect(try self.allman(input) == allman + "\n")
     }
     @Test static func StringsAsCodeBlockItems() throws {
         let input: String = #"""
@@ -492,8 +492,8 @@ import WhitespaceFormatter
         }
         """#
 
-        #expect(self.egyptian(input) == egyptian + "\n")
-        #expect(self.allman(input) == allman + "\n")
+        #expect(try self.egyptian(input) == egyptian + "\n")
+        #expect(try self.allman(input) == allman + "\n")
     }
     @Test static func FunctionTypes() throws {
         let input: String = #"""
@@ -525,7 +525,7 @@ import WhitespaceFormatter
         ) -> Int
         """#
 
-        #expect(self.egyptian(input) == egyptian + "\n")
+        #expect(try self.egyptian(input) == egyptian + "\n")
     }
     @Test static func ArgumentsWithoutLabels() throws {
         let input: String = #"""
@@ -553,7 +553,7 @@ import WhitespaceFormatter
         )
         """#
 
-        #expect(self.egyptian(input) == egyptian + "\n")
+        #expect(try self.egyptian(input) == egyptian + "\n")
     }
     @Test static func Delimiters() throws {
         let input: String = #"""
@@ -631,8 +631,8 @@ import WhitespaceFormatter
         }
         """#
 
-        #expect(self.egyptian(input) == egyptian + "\n")
-        #expect(self.allman(input) == allman + "\n")
+        #expect(try self.egyptian(input) == egyptian + "\n")
+        #expect(try self.allman(input) == allman + "\n")
     }
     @Test static func LineComment() throws {
         let input: String = """
@@ -650,8 +650,8 @@ import WhitespaceFormatter
         }
         """
 
-        #expect(self.egyptian(input) == egyptian + "\n")
-        #expect(self.allman(input) == allman + "\n")
+        #expect(try self.egyptian(input) == egyptian + "\n")
+        #expect(try self.allman(input) == allman + "\n")
     }
     @Test static func LineCommentInjection() throws {
         let input: String = """
@@ -669,21 +669,21 @@ import WhitespaceFormatter
         }
         """
 
-        #expect(self.egyptian(input) == egyptian + "\n")
-        #expect(self.allman(input) == allman + "\n")
+        #expect(try self.egyptian(input) == egyptian + "\n")
+        #expect(try self.allman(input) == allman + "\n")
     }
 }
 extension BraceStyleTests {
-    private static func egyptian(_ input: consuming String) -> String {
+    private static func egyptian(_ input: consuming String) throws -> String {
         let formatter: WhitespaceFormatter = .init { $0.braces = .egyptian }
         var input: String = input
-        formatter.reformat(&input, check: true)
+        try formatter.reformat(&input, check: true)
         return input
     }
-    private static func allman(_ input: consuming String) -> String {
+    private static func allman(_ input: consuming String) throws -> String {
         let formatter: WhitespaceFormatter = .init { $0.braces = .allman }
         var input: String = input
-        formatter.reformat(&input, check: true)
+        try formatter.reformat(&input, check: true)
         return input
     }
 }

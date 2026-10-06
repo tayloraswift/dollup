@@ -700,6 +700,22 @@ if  case .foo? = baz {}
 if  case .foo = baz {}
 ```
 
+Keep in mind, however, that `case` provides no benefit over `==` for expressions that perform no destructuring and simply wrap a call to `==(_:_:)` via `~=`. You don’t need to rewrite `==` comparisons as `case` patterns unless `case` is contributing a genuine destructuring operation to the comparison.
+
+```swift
+let x: Int?
+let y: Int
+let magic: Int = 13
+// good — this does call `Int.==(_:_:)`, but it avoids calling `==(_:_:)` on `Optional`,
+// so the `case` pattern is well-motivated
+if  case magic? = x {}
+
+// unnecessary if `y` is non-optional, this is merely disguising an `Equatable.==(_:_:)`
+// call with more-innocuous syntax. If `y` were optional, this should instead be written
+// as `case magic?`, with the trailing `?`
+if  case magic = y {}
+```
+
 Rigorous adherence to `case`-based destructuring and pattern matching will help limit the number of `Equatable` conformances that must be virally propogated everywhere, which helps keep APIs lean and free of unnecessary conformances.
 
 
@@ -732,7 +748,7 @@ When defining constants, prefer `static var` computed properties over `static le
 @usableFromInline static let mask: UInt32 = 0xff000000
 ```
 
-In idiomatic Swift code, `static let`s have few motivating use cases that aren’t better-served by `static` computed properties. Contrary to beginner intuition, `static` computed properties are often more concurrency- and optimizer-friendly than their stored counterparts, and defaulting to them will help you avoid falling down maddening `Sendable` rabbit holes. 
+In idiomatic Swift code, `static let`s have few motivating use cases that aren’t better-served by `static` computed properties. Contrary to beginner intuition, `static` computed properties are often more concurrency- and optimizer-friendly than their stored counterparts, and defaulting to them will help you avoid falling down maddening `Sendable` rabbit holes.
 
 
 ### Editing code

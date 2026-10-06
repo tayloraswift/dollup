@@ -15,8 +15,12 @@ extension WhitespaceFormatter {
     }
 }
 extension WhitespaceFormatter {
-    public func reformat(_ text: inout String, check: Bool) {
+    public func reformat(_ text: inout String, check: Bool) throws {
         var source: Source = .init(operators: self.options.operators, text: consume text)
+        defer {
+            text = source.text
+        }
+
         let original: Syntax = source.tree
         let expander: LineExpander = .init(text: source.text)
         ;   expander.walk(source.tree)
@@ -35,7 +39,7 @@ extension WhitespaceFormatter {
             let calculator: BracketCalculator = .init(style: style)
             ;   calculator.walk(source.tree)
 
-            let aligner: BracketAligner = .init(style: style, brackets: calculator.brackets)
+            let aligner: BracketAligner = .init(style: style, brackets: try calculator.brackets)
             let aligned: String = aligner.rewrite(source.tree)
 
             source.update(with: aligned, onChange: self.reindent)
@@ -62,7 +66,7 @@ extension WhitespaceFormatter {
             let calculator: ColonCalculator = .init()
             ;   calculator.walk(source.tree)
 
-            let reformatted: String = calculator.reformat(
+            let reformatted: String = try calculator.reformat(
                 tokens: source.tree.tokens(viewMode: .sourceAccurate)
             )
 
@@ -87,8 +91,6 @@ extension WhitespaceFormatter {
                 didChange: true
             )
         }
-
-        text = source.text
 
         guard check else {
             return

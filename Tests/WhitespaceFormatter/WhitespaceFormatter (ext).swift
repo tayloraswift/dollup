@@ -20,7 +20,7 @@ extension WhitespaceFormatter {
             $0.width = width
         }
         var source: String = source
-        formatter.reformat(&source, check: true)
+        try formatter.reformat(&source, check: true)
         return source
     }
 }
