@@ -30,19 +30,7 @@ extension DollupConfiguration {
 }
 extension DollupConfiguration {
     @MainActor public static func main() {
-        guard CommandLine.arguments.count == 2 else {
-            print("no file path given!")
-            SystemProcess.exit(with: 1)
-        }
-
-        let path: FilePath = .init(CommandLine.arguments[1])
-
-        do {
-            try self.run(in: path)
-        } catch {
-            print("error formatting file '\(path)': \(error)")
-            SystemProcess.exit(with: 1)
-        }
+        DollupCommand<Self>.Format.main()
     }
 }
 extension DollupConfiguration {

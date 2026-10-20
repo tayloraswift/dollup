@@ -21,3 +21,8 @@ import SystemPackage
         print("> reformatted '\(file)'")
     }
 }
+extension Main: DollupDistribution {
+    static var name: String { "dollup" }
+    static var plugin: String { "DollupPlugin" }
+    static var binary: String { "DollupBinary" }
+}

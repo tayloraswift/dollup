@@ -12,6 +12,7 @@ let package = Package(
         .library(name: "DollupConfig", targets: ["DollupConfig"]),
     ],
     dependencies: [
+        .package(url: "https://github.com/rarestype/h", from: "1.0.1"),
         .package(url: "https://github.com/rarestype/swift-io", from: "3.0.0"),
         .package(url: "https://github.com/swiftlang/swift-syntax", "603.0.0" ..< "604.0.0")
     ],
@@ -27,6 +28,8 @@ let package = Package(
             name: "DollupConfig",
             dependencies: [
                 .target(name: "Dollup"),
+                .product(name: "SHA2", package: "h"),
+                .product(name: "System_ArgumentParser", package: "swift-io"),
                 .product(name: "SystemIO", package: "swift-io"),
             ]
         ),
