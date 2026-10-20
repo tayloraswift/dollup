@@ -15,12 +15,23 @@ on:
                 description: 'The version to deploy'
                 required: true
                 type: string
+            executable:
+                description: 'The executable product name'
+                required: false
+                default: 'dollup'
+                type: string
+            repository:
+                description: 'The downstream binary distribution repository'
+                required: false
+                default: 'ordo-one/dollup'
+                type: string
 
 jobs:
     macOS:
         runs-on: macos-26
         env:
             DEPLOY_VERSION: ${{ inputs.version }}
+            DEPLOY_PRODUCT: ${{ inputs.executable || 'dollup' }}
         steps:
             -   name: 🎀 Setup R2 🎀
                 uses: rarestype/r2-setup-action@v1
@@ -42,8 +53,8 @@ jobs:
                 uses: rarestype/r2-release-action@v1
                 with:
                     from: .
-                    include: dollup.artifactbundle
-                    archive: dollup.artifactbundle.zip
+                    include: ${{ inputs.executable || 'dollup' }}.artifactbundle
+                    archive: ${{ inputs.executable || 'dollup' }}.artifactbundle.zip
                     version: ${{ inputs.version }}
                     bucket: rarest
     Linux:
@@ -60,6 +71,7 @@ jobs:
         name: "${{ matrix.runner.name }}"
         env:
             DEPLOY_VERSION: ${{ inputs.version }}
+            DEPLOY_PRODUCT: ${{ inputs.executable || 'dollup' }}
         steps:
             -   name: 🎀 Setup R2 🎀
                 uses: rarestype/r2-setup-action@v1
@@ -83,8 +95,8 @@ jobs:
                 uses: rarestype/r2-release-action@v1
                 with:
                     from: .
-                    include: dollup.artifactbundle
-                    archive: dollup.artifactbundle.zip
+                    include: ${{ inputs.executable || 'dollup' }}.artifactbundle
+                    archive: ${{ inputs.executable || 'dollup' }}.artifactbundle.zip
                     version: ${{ inputs.version }}
                     bucket: rarest
 
@@ -94,29 +106,31 @@ jobs:
         name: Release
         env:
             DEPLOY_VERSION: ${{ inputs.version }}
+            DEPLOY_PRODUCT: ${{ inputs.executable || 'dollup' }}
         steps:
             -   name: 🎀 Checkout repository 🎀
                 uses: actions/checkout@v6
                 with:
-                    repository: 'ordo-one/dollup'
+                    repository: ${{ inputs.repository || 'ordo-one/dollup' }}
                     token: ${{ secrets.ORDO_RELEASE_PAT }}
                     path: downstream
 
-            -   name: 🎀 Generate Package.swift 🎀
+            -   name: 🎀 Generate distribution repository 🎀
                 run: |
-                    HOST="https://get.rarestype.com/dollup/$DEPLOY_VERSION"
+                    HOST="https://get.rarestype.com/${DEPLOY_PRODUCT}/${DEPLOY_VERSION}"
+                    ARCHIVE="${DEPLOY_PRODUCT}.artifactbundle.zip"
 
-                    BUNDLE_URL_LINUX_AARCH64="$HOST/Linux-aarch64/dollup.artifactbundle.zip"
-                    BUNDLE_URL_LINUX_X86_64="$HOST/Linux-x86_64/dollup.artifactbundle.zip"
-                    BUNDLE_URL_MACOS_ARM64="$HOST/macOS-arm64/dollup.artifactbundle.zip"
+                    BUNDLE_URL_LINUX_AARCH64="${HOST}/Linux-aarch64/${ARCHIVE}"
+                    BUNDLE_URL_LINUX_X86_64="${HOST}/Linux-x86_64/${ARCHIVE}"
+                    BUNDLE_URL_MACOS_ARM64="${HOST}/macOS-arm64/${ARCHIVE}"
 
                     echo "macOS Bundle URL: ${BUNDLE_URL_MACOS_ARM64}"
                     echo "Linux Bundle URL (x86_64): ${BUNDLE_URL_LINUX_X86_64}"
                     echo "Linux Bundle URL (aarch64): ${BUNDLE_URL_LINUX_AARCH64}"
 
-                    curl "$BUNDLE_URL_LINUX_AARCH64" -o Linux-aarch64.zip
-                    curl "$BUNDLE_URL_LINUX_X86_64" -o Linux-x86_64.zip
-                    curl "$BUNDLE_URL_MACOS_ARM64" -o macOS-arm64.zip
+                    curl "${BUNDLE_URL_LINUX_AARCH64}" -o Linux-aarch64.zip
+                    curl "${BUNDLE_URL_LINUX_X86_64}" -o Linux-x86_64.zip
+                    curl "${BUNDLE_URL_MACOS_ARM64}" -o macOS-arm64.zip
 
                     CHECKSUM_LINUX_AARCH64=$(swift package compute-checksum Linux-aarch64.zip)
                     CHECKSUM_LINUX_X86_64=$(swift package compute-checksum Linux-x86_64.zip)
@@ -126,20 +140,24 @@ jobs:
                     echo "Linux Checksum (x86_64): ${CHECKSUM_LINUX_X86_64}"
                     echo "Linux Checksum (aarch64): ${CHECKSUM_LINUX_AARCH64}"
 
-                    cd downstream
+                    unzip -q macOS-arm64.zip
 
-                    sed -e "s/__CHECKSUM_MACOS__/${CHECKSUM_MACOS_ARM64}/g" \
-                        -e "s/__CHECKSUM_LINUX_X86_64__/${CHECKSUM_LINUX_X86_64}/g" \
-                        -e "s/__CHECKSUM_LINUX_AARCH64__/${CHECKSUM_LINUX_AARCH64}/g" \
-                        -e "s|__BUNDLE_URL_MACOS__|${BUNDLE_URL_MACOS_ARM64}|g" \
-                        -e "s|__BUNDLE_URL_LINUX_X86_64__|${BUNDLE_URL_LINUX_X86_64}|g" \
-                        -e "s|__BUNDLE_URL_LINUX_AARCH64__|${BUNDLE_URL_LINUX_AARCH64}|g" \
-                        Package.template.swift > Package.swift
+                    ./${DEPLOY_PRODUCT}.artifactbundle/arm64/${DEPLOY_PRODUCT} distribute \
+                        --output downstream \
+                        --url-macos "${BUNDLE_URL_MACOS_ARM64}" \
+                        --url-linux-x86-64 "${BUNDLE_URL_LINUX_X86_64}" \
+                        --url-linux-aarch64 "${BUNDLE_URL_LINUX_AARCH64}" \
+                        --checksum-macos "${CHECKSUM_MACOS_ARM64}" \
+                        --checksum-linux-x86-64 "${CHECKSUM_LINUX_X86_64}" \
+                        --checksum-linux-aarch64 "${CHECKSUM_LINUX_AARCH64}"
+
+                    cd downstream
 
                     git config user.name "rarest automation"
                     git config user.email "automation@noreply.rarestype.com"
 
-                    git add Package.swift
+                    git rm -f --ignore-unmatch Package.template.swift
+                    git add Package.swift Plugins
                     git commit -m "Release ${DEPLOY_VERSION}"
                     git tag "${DEPLOY_VERSION}"
                     git push origin master
@@ -148,7 +166,7 @@ jobs:
             -   name: 🎀 Publish release 🎀
                 uses: softprops/action-gh-release@v2
                 with:
-                    repository: 'ordo-one/dollup'
+                    repository: ${{ inputs.repository || 'ordo-one/dollup' }}
                     tag_name: ${{ inputs.version }}
                     name: ${{ inputs.version }}
                     token: ${{ secrets.ORDO_RELEASE_PAT }}

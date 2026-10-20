@@ -27,6 +27,7 @@ let package = Package(
             name: "DollupConfig",
             dependencies: [
                 .target(name: "Dollup"),
+                .product(name: "System_ArgumentParser", package: "swift-io"),
                 .product(name: "SystemIO", package: "swift-io"),
             ]
         ),
