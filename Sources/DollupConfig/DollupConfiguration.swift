@@ -2,21 +2,11 @@ import Dollup
 import SystemIO
 
 public protocol DollupConfiguration {
-    static var name: String { get }
-    static var verb: String { get }
-    static var pluginName: String { get }
-    static var binaryTargetName: String { get }
-
     static func configure(file: FilePath?, settings: inout DollupSettings) throws
     static func filter(file: FilePath) throws -> Bool
     static func report(file: FilePath) throws
 }
 extension DollupConfiguration {
-    public static var name: String { "dollup" }
-    public static var verb: String { Self.name }
-    public static var pluginName: String { "DollupPlugin" }
-    public static var binaryTargetName: String { "DollupBinary" }
-
     public static func filter(file _: FilePath) throws -> Bool { true }
     public static func report(file _: FilePath) throws {}
 }
@@ -40,7 +30,7 @@ extension DollupConfiguration {
 }
 extension DollupConfiguration {
     @MainActor public static func main() {
-        DollupCommand<Self>.main()
+        DollupCommand<Self>.Format.main()
     }
 }
 extension DollupConfiguration {

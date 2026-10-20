@@ -3,7 +3,7 @@ import SHA2
 import System_ArgumentParser
 import SystemIO
 
-extension DollupCommand {
+extension DollupCommand where Configuration: DollupDistribution {
     struct Distribute {
         @Option(
             name: .customLong("output"),
@@ -57,7 +57,7 @@ extension DollupCommand.Distribute: ParsableCommand {
 
         let pluginDirectory: FilePath.Directory = self.output
             / "Plugins"
-            / Configuration.pluginName
+            / Configuration.plugin
         try pluginDirectory.create()
 
         let manifest: FilePath = self.output / "Package.swift"
@@ -83,19 +83,19 @@ extension DollupCommand.Distribute {
             name: "\(Configuration.name)",
             products: [
                 .plugin(
-                    name: "\(Configuration.pluginName)",
-                    targets: ["\(Configuration.pluginName)"]
+                    name: "\(Configuration.plugin)",
+                    targets: ["\(Configuration.plugin)"]
                 ),
                 .executable(
                     name: "\(Configuration.name)",
-                    targets: ["\(Configuration.binaryTargetName)"]
+                    targets: ["\(Configuration.binary)"]
                 ),
             ],
             targets: [
                 binary,
 
                 .plugin(
-                    name: "\(Configuration.pluginName)",
+                    name: "\(Configuration.plugin)",
                     capability: .command(
                         intent: .custom(
                             verb: "\(Configuration.verb)",
@@ -104,7 +104,7 @@ extension DollupCommand.Distribute {
                         permissions: [.writeToPackageDirectory(reason: "code formatter")],
                     ),
                     dependencies: [
-                        .target(name: "\(Configuration.binaryTargetName)"),
+                        .target(name: "\(Configuration.binary)"),
                     ]
                 ),
             ]
@@ -131,7 +131,7 @@ extension DollupCommand.Distribute {
             }
 
             return .binaryTarget(
-                name: "\(Configuration.binaryTargetName)",
+                name: "\(Configuration.binary)",
                 url: url,
                 checksum: checksum
             )

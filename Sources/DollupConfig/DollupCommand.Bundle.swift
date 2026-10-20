@@ -2,7 +2,7 @@ import ArgumentParser
 import System_ArgumentParser
 import SystemIO
 
-extension DollupCommand {
+extension DollupCommand where Configuration: DollupDistribution {
     struct Bundle {
         @Argument(
             help: "The executable binary to package into the artifact bundle"

@@ -13,6 +13,8 @@ extension DollupCommand {
             help: "Path to a newline-delimited list of files to format"
         ) var filelist: FilePath?
 
+        // Passed by the generated command plugin for future target- and
+        // dependency-scoped rules (#45).
         @Option(
             name: .customLong("target"),
             help: "The name of the target being formatted"
