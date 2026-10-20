@@ -2,7 +2,7 @@ import ArgumentParser
 import System_ArgumentParser
 import SystemIO
 
-extension DollupCommand {
+extension DollupCommand where Configuration: DollupConfiguration {
     struct Format {
         @Argument(
             help: "Paths to Swift files or directories to format"

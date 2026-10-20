@@ -1,4 +1,4 @@
-public protocol DollupDistribution: DollupConfiguration {
+public protocol DollupDistribution {
     /// The name of the executable and downstream package.
     static var name: String { get }
     /// The SwiftPM command plugin verb used to invoke the formatter.
@@ -14,7 +14,7 @@ extension DollupDistribution {
     public static var plugin: String { "DollupPlugin" }
     public static var binary: String { "DollupBinary" }
 }
-extension DollupDistribution {
+extension DollupDistribution where Self: DollupConfiguration {
     @MainActor public static func main() {
         DollupCommand<Self>.main()
     }
