@@ -132,24 +132,13 @@ jobs:
                     curl "${BUNDLE_URL_LINUX_X86_64}" -o Linux-x86_64.zip
                     curl "${BUNDLE_URL_MACOS_ARM64}" -o macOS-arm64.zip
 
-                    CHECKSUM_LINUX_AARCH64=$(swift package compute-checksum Linux-aarch64.zip)
-                    CHECKSUM_LINUX_X86_64=$(swift package compute-checksum Linux-x86_64.zip)
-                    CHECKSUM_MACOS_ARM64=$(swift package compute-checksum macOS-arm64.zip)
-
-                    echo "macOS Checksum: ${CHECKSUM_MACOS_ARM64}"
-                    echo "Linux Checksum (x86_64): ${CHECKSUM_LINUX_X86_64}"
-                    echo "Linux Checksum (aarch64): ${CHECKSUM_LINUX_AARCH64}"
-
                     unzip -q macOS-arm64.zip
 
                     ./${DEPLOY_PRODUCT}.artifactbundle/arm64/${DEPLOY_PRODUCT} distribute \
                         --output downstream \
-                        --url-macos "${BUNDLE_URL_MACOS_ARM64}" \
-                        --url-linux-x86-64 "${BUNDLE_URL_LINUX_X86_64}" \
-                        --url-linux-aarch64 "${BUNDLE_URL_LINUX_AARCH64}" \
-                        --checksum-macos "${CHECKSUM_MACOS_ARM64}" \
-                        --checksum-linux-x86-64 "${CHECKSUM_LINUX_X86_64}" \
-                        --checksum-linux-aarch64 "${CHECKSUM_LINUX_AARCH64}"
+                        --macos "${BUNDLE_URL_MACOS_ARM64}" \
+                        --linux-x86-64 "${BUNDLE_URL_LINUX_X86_64}" \
+                        --linux-aarch64 "${BUNDLE_URL_LINUX_AARCH64}"
 
                     cd downstream
 

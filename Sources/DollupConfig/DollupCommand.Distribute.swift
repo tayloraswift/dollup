@@ -1,4 +1,5 @@
 import ArgumentParser
+import SHA2
 import System_ArgumentParser
 import SystemIO
 
@@ -10,34 +11,19 @@ extension DollupCommand {
         ) var output: FilePath.Directory = "."
 
         @Option(
-            name: .customLong("url-macos"),
+            name: .customLong("macos"),
             help: "The artifact bundle URL for macOS (arm64)"
-        ) var urlMacOS: String
+        ) var macOS: String
 
         @Option(
-            name: .customLong("url-linux-x86-64"),
+            name: .customLong("linux-x86-64"),
             help: "The artifact bundle URL for Linux (x86_64)"
-        ) var urlLinuxX86_64: String
+        ) var linuxX86_64: String
 
         @Option(
-            name: .customLong("url-linux-aarch64"),
+            name: .customLong("linux-aarch64"),
             help: "The artifact bundle URL for Linux (aarch64)"
-        ) var urlLinuxAArch64: String
-
-        @Option(
-            name: .customLong("checksum-macos"),
-            help: "The artifact bundle checksum for macOS (arm64)"
-        ) var checksumMacOS: String
-
-        @Option(
-            name: .customLong("checksum-linux-x86-64"),
-            help: "The artifact bundle checksum for Linux (x86_64)"
-        ) var checksumLinuxX86_64: String
-
-        @Option(
-            name: .customLong("checksum-linux-aarch64"),
-            help: "The artifact bundle checksum for Linux (aarch64)"
-        ) var checksumLinuxAArch64: String
+        ) var linuxAArch64: String
     }
 }
 extension DollupCommand.Distribute: ParsableCommand {
@@ -46,20 +32,49 @@ extension DollupCommand.Distribute: ParsableCommand {
     }
 
     func run() throws {
+        let archives: (
+            macOS: FilePath,
+            linuxX86_64: FilePath,
+            linuxAArch64: FilePath
+        ) = (
+            macOS: "macOS-arm64.zip",
+            linuxX86_64: "Linux-x86_64.zip",
+            linuxAArch64: "Linux-aarch64.zip"
+        )
+        let checksums: (
+            macOS: SHA256,
+            linuxX86_64: SHA256,
+            linuxAArch64: SHA256
+        ) = (
+            macOS: .init(hashing: try archives.macOS.read()),
+            linuxX86_64: .init(hashing: try archives.linuxX86_64.read()),
+            linuxAArch64: .init(hashing: try archives.linuxAArch64.read())
+        )
+
+        print("macOS Checksum: \(checksums.macOS)")
+        print("Linux Checksum (x86_64): \(checksums.linuxX86_64)")
+        print("Linux Checksum (aarch64): \(checksums.linuxAArch64)")
+
         let pluginDirectory: FilePath.Directory = self.output
             / "Plugins"
             / Configuration.pluginName
         try pluginDirectory.create()
 
         let manifest: FilePath = self.output / "Package.swift"
-        try manifest.overwrite(with: self.manifest.utf8)
+        try manifest.overwrite(with: self.manifest(checksums: checksums).utf8)
 
         let plugin: FilePath = pluginDirectory / "Main.swift"
         try plugin.overwrite(with: self.plugin.utf8)
     }
 }
 extension DollupCommand.Distribute {
-    var manifest: String {
+    func manifest(
+        checksums: (
+            macOS: SHA256,
+            linuxX86_64: SHA256,
+            linuxAArch64: SHA256
+        )
+    ) -> String {
         """
         // swift-tools-version: 6.2
         import PackageDescription
@@ -98,20 +113,20 @@ extension DollupCommand.Distribute {
         var binary: Target {
             var url: String {
                 #if os(macOS)
-                "\(self.urlMacOS)"
+                "\(self.macOS)"
                 #elseif arch(x86_64)
-                "\(self.urlLinuxX86_64)"
+                "\(self.linuxX86_64)"
                 #else
-                "\(self.urlLinuxAArch64)"
+                "\(self.linuxAArch64)"
                 #endif
             }
             var checksum: String {
                 #if os(macOS)
-                "\(self.checksumMacOS)"
+                "\(checksums.macOS)"
                 #elseif arch(x86_64)
-                "\(self.checksumLinuxX86_64)"
+                "\(checksums.linuxX86_64)"
                 #else
-                "\(self.checksumLinuxAArch64)"
+                "\(checksums.linuxAArch64)"
                 #endif
             }
 

@@ -4,6 +4,10 @@ import SystemIO
 
 extension DollupCommand {
     struct Bundle {
+        @Argument(
+            help: "The executable binary to package into the artifact bundle"
+        ) var executable: FilePath
+
         @Option(
             name: .customLong("version"),
             help: "The version string for the artifact bundle"
@@ -22,15 +26,14 @@ extension DollupCommand.Bundle: ParsableCommand {
 
     func run() throws {
         let bundle: FilePath.Directory = self.output
-            ?? .init("\(Configuration.name).artifactbundle")
+            ?? "\(Configuration.name).artifactbundle"
         let destination: FilePath.Directory = bundle / Self.arch
         try destination.create()
 
-        let executable: FilePath = .init(CommandLine.arguments[0])
         let binary: FilePath = destination / Configuration.name
         try binary.remove(force: true)
         try binary.overwrite(
-            with: try executable.read([UInt8].self)[...],
+            with: try self.executable.read()[...],
             permissions: (.rwx, .rx, .rx)
         )
 

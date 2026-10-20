@@ -25,4 +25,5 @@ else
     exit 1
 fi
 
-.build.${arch}/release/${product} bundle --version "${DEPLOY_VERSION}"
+.build.${arch}/release/${product} bundle .build.${arch}/release/${product} \
+    --version "${DEPLOY_VERSION}"
