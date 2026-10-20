@@ -136,7 +136,7 @@ jobs:
 
                     ./${DEPLOY_PRODUCT}.artifactbundle/arm64/${DEPLOY_PRODUCT} distribute \
                         --output downstream \
-                        --macos "${BUNDLE_URL_MACOS_ARM64}" \
+                        --macOS "${BUNDLE_URL_MACOS_ARM64}" \
                         --linux-x86-64 "${BUNDLE_URL_LINUX_X86_64}" \
                         --linux-aarch64 "${BUNDLE_URL_LINUX_AARCH64}"
 

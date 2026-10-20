@@ -11,7 +11,7 @@ extension DollupCommand where Configuration: DollupDistribution {
         ) var output: FilePath.Directory = "."
 
         @Option(
-            name: .customLong("macos"),
+            name: .customLong("macOS"),
             help: "The artifact bundle URL for macOS (arm64)"
         ) var macOS: String
 
