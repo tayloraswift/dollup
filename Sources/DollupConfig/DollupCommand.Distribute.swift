@@ -28,7 +28,13 @@ extension DollupCommand where Configuration: DollupDistribution {
 }
 extension DollupCommand.Distribute: ParsableCommand {
     static var configuration: CommandConfiguration {
-        .init(commandName: "distribute")
+        .init(
+            commandName: "distribute",
+            abstract: """
+            Generates a downstream binary distribution repository from macOS-arm64.zip, \
+            Linux-x86_64.zip, and Linux-aarch64.zip in the working directory
+            """
+        )
     }
 
     func run() throws {
@@ -146,7 +152,7 @@ extension DollupCommand.Distribute {
         import PackagePlugin
 
         @main struct Main: CommandPlugin {
-            func performCommand(context: PluginContext, arguments: [String]) async throws {
+            func performCommand(context: PluginContext, arguments _: [String]) async throws {
                 let tool: PluginContext.Tool = try context.tool(named: "\#(Configuration.name)")
                 let manifest: URL = context.package.directoryURL.appendingPathComponent(
                     "Package.swift"
@@ -155,7 +161,7 @@ extension DollupCommand.Distribute {
                     "Plugins"
                 )
 
-                try Self.run(tool, arguments: arguments + [manifest.path, plugins.path])
+                try Self.run(tool, arguments: [manifest.path, plugins.path])
 
                 for case let target as SwiftSourceModuleTarget in context.package.targets {
                     let files: FileList = target.sourceFiles(withSuffix: ".swift")
@@ -174,8 +180,10 @@ extension DollupCommand.Distribute {
                     }
                     try list.write(to: filelist, atomically: true, encoding: .utf8)
 
-                    var invocation: [String] = arguments
-                    invocation += ["--target", target.name]
+                    var invocation: [String] = [
+                        "format-as-plugin",
+                        "--target", target.name,
+                    ]
                     for dependency: any Target in target.recursiveTargetDependencies {
                         invocation += ["--dependency", dependency.name]
                     }
