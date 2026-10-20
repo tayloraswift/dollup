@@ -2,7 +2,7 @@ import DollupConfig
 import SystemPackage
 
 /// These are the settings Dollup uses to format itself.
-@main enum Main: DollupConfiguration, DollupDistribution {
+@main enum Main: DollupConfiguration {
     public static func configure(file _: FilePath?, settings: inout DollupSettings) {
         settings.check = true
         settings.whitespace {
@@ -20,4 +20,9 @@ import SystemPackage
     public static func report(file: FilePath) {
         print("> reformatted '\(file)'")
     }
+}
+extension Main: DollupDistribution {
+    static var name: String { "dollup" }
+    static var plugin: String { "DollupPlugin" }
+    static var binary: String { "DollupBinary" }
 }

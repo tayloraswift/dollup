@@ -1,11 +1,8 @@
 import ArgumentParser
 
-struct DollupCommand<Configuration> {
-}
-extension DollupCommand: Decodable {
-}
-extension DollupCommand: ParsableArguments {
-}
+struct DollupCommand<Configuration> {}
+extension DollupCommand: Decodable {}
+extension DollupCommand: ParsableArguments {}
 extension DollupCommand: ParsableCommand
     where Configuration: DollupConfiguration & DollupDistribution {
     static var configuration: CommandConfiguration {

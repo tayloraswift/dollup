@@ -9,10 +9,7 @@ public protocol DollupDistribution {
     static var binary: String { get }
 }
 extension DollupDistribution {
-    public static var name: String { "dollup" }
     public static var verb: String { Self.name }
-    public static var plugin: String { "DollupPlugin" }
-    public static var binary: String { "DollupBinary" }
 }
 extension DollupDistribution where Self: DollupConfiguration {
     @MainActor public static func main() {
