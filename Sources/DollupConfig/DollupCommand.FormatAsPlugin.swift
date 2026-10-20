@@ -2,7 +2,7 @@ import ArgumentParser
 import System_ArgumentParser
 import SystemIO
 
-extension DollupCommand where Configuration: DollupDistribution & DollupConfiguration {
+extension DollupCommand where Configuration: DollupConfiguration {
     struct FormatAsPlugin {
         @Option(
             name: .customLong("filelist"),
