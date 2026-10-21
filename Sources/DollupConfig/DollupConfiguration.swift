@@ -70,7 +70,7 @@ extension DollupConfiguration {
         }
     }
 
-    public static func check(in path: FilePath) throws -> [FileDiagnostics] {
+    public static func check(in path: FilePath) throws -> [OneTypePerFile.Diagnostics] {
         guard
         let status: FileStatus = try path.status else {
             throw """
@@ -79,7 +79,7 @@ extension DollupConfiguration {
         }
 
         if  status.is(.regular) {
-            if  let diagnostics: FileDiagnostics = try self.check(on: path) {
+            if  let diagnostics: OneTypePerFile.Diagnostics = try self.check(on: path) {
                 return [diagnostics]
             } else {
                 return []
@@ -92,12 +92,12 @@ extension DollupConfiguration {
             """ as DollupError
         }
 
-        var results: [FileDiagnostics] = []
+        var results: [OneTypePerFile.Diagnostics] = []
         try path.directory.walk {
             let path: FilePath = $0 / $1
             if  case true? = try path.status?.is(.regular),
                 case "swift" = $1.extension {
-                if  let diagnostics: FileDiagnostics = try self.check(on: path) {
+                if  let diagnostics: OneTypePerFile.Diagnostics = try self.check(on: path) {
                     results.append(diagnostics)
                 }
             }
@@ -107,7 +107,7 @@ extension DollupConfiguration {
         return results
     }
 
-    public static func check(on file: FilePath) throws -> FileDiagnostics? {
+    public static func check(on file: FilePath) throws -> OneTypePerFile.Diagnostics? {
         if  try self.filter(file: file) {
             let source: String = try file.read()
             return OneTypePerFile.diagnose(source: source, in: file)

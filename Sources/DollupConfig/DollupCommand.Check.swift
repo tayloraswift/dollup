@@ -19,10 +19,10 @@ extension DollupCommand.Check: ParsableCommand {
         var failed: Bool = false
         for path: FilePath in self.paths {
             do {
-                let diagnostics: [FileDiagnostics] = try Configuration.check(in: path)
+                let diagnostics: [OneTypePerFile.Diagnostics] = try Configuration.check(in: path)
                 if !diagnostics.isEmpty {
                     failed = true
-                    for diagnostic in diagnostics {
+                    for diagnostic: OneTypePerFile.Diagnostics in diagnostics {
                         print(diagnostic)
                     }
                 }

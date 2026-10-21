@@ -3,7 +3,7 @@ import SwiftDiagnostics
 import SystemIO
 import Testing
 
-@Suite struct OneTypePerFileTests {
+@Suite struct OneTypePerFileRules {
     @Test static func LayoutFileValid() {
         let source: String = """
         public struct Foo {
@@ -13,23 +13,23 @@ import Testing
             public func bar() {}
         }
         """
-        let diags: [Diagnostic] = OneTypePerFile.check(
+        let diagnostics: [Diagnostic] = OneTypePerFile.check(
             source: source,
-            in: FilePath("Foo.swift")
+            in: FilePath.init("Foo.swift")
         )
-        #expect(diags.isEmpty)
+        #expect(diagnostics.isEmpty)
     }
 
     @Test static func LayoutFileMismatch() {
         let source: String = """
         public struct Bar {}
         """
-        let diags: [Diagnostic] = OneTypePerFile.check(
+        let diagnostics: [Diagnostic] = OneTypePerFile.check(
             source: source,
-            in: FilePath("Foo.swift")
+            in: FilePath.init("Foo.swift")
         )
-        #expect(diags.count == 1)
-        #expect(diags.first?.message.contains("does not match filename") == true)
+        #expect(diagnostics.count == 1)
+        #expect(diagnostics.first?.message.contains("does not match filename") == true)
     }
 
     @Test static func LayoutFileMultipleTypes() {
@@ -37,13 +37,13 @@ import Testing
         public struct Foo {}
         public struct Bar {}
         """
-        let diags: [Diagnostic] = OneTypePerFile.check(
+        let diagnostics: [Diagnostic] = OneTypePerFile.check(
             source: source,
-            in: FilePath("Foo.swift")
+            in: FilePath.init("Foo.swift")
         )
-        #expect(diags.count == 1)
+        #expect(diagnostics.count == 1)
         #expect(
-            diags.first?.message.contains(
+            diagnostics.first?.message.contains(
                 "found type 'Bar' in file 'Foo.swift' which defines 'Foo'"
             ) == true
         )
@@ -55,13 +55,13 @@ import Testing
             public struct Nested {}
         }
         """
-        let diags: [Diagnostic] = OneTypePerFile.check(
+        let diagnostics: [Diagnostic] = OneTypePerFile.check(
             source: source,
-            in: FilePath("Foo.swift")
+            in: FilePath.init("Foo.swift")
         )
-        #expect(diags.count == 1)
+        #expect(diagnostics.count == 1)
         #expect(
-            diags.first?.message.contains(
+            diagnostics.first?.message.contains(
                 "nested type 'Nested' must be defined in its own file 'Foo.Nested.swift'"
             ) == true
         )
@@ -74,13 +74,13 @@ import Testing
             public func helper() {}
         }
         """
-        let diags: [Diagnostic] = OneTypePerFile.check(
+        let diagnostics: [Diagnostic] = OneTypePerFile.check(
             source: source,
-            in: FilePath("Foo.swift")
+            in: FilePath.init("Foo.swift")
         )
-        #expect(diags.count == 1)
+        #expect(diagnostics.count == 1)
         #expect(
-            diags.first?.message.contains(
+            diagnostics.first?.message.contains(
                 "cannot contain extension to foreign type 'Bar'"
             ) == true
         )
@@ -95,11 +95,11 @@ import Testing
             }
         }
         """
-        let diags: [Diagnostic] = OneTypePerFile.check(
+        let diagnostics: [Diagnostic] = OneTypePerFile.check(
             source: source,
-            in: FilePath("Foo.swift")
+            in: FilePath.init("Foo.swift")
         )
-        #expect(diags.isEmpty)
+        #expect(diagnostics.isEmpty)
     }
 
     @Test static func LayoutFileComplexKeynumViolates() {
@@ -112,13 +112,13 @@ import Testing
             }
         }
         """
-        let diags: [Diagnostic] = OneTypePerFile.check(
+        let diagnostics: [Diagnostic] = OneTypePerFile.check(
             source: source,
-            in: FilePath("Foo.swift")
+            in: FilePath.init("Foo.swift")
         )
-        #expect(diags.count == 1)
+        #expect(diagnostics.count == 1)
         #expect(
-            diags.first?.message.contains(
+            diagnostics.first?.message.contains(
                 "schema keynum 'CodingKeys' has grown members beyond enum cases"
             ) == true
         )
@@ -131,11 +131,11 @@ import Testing
         @available(*, deprecated, renamed: "Foo")
         public typealias OldFoo = Foo
         """
-        let diags: [Diagnostic] = OneTypePerFile.check(
+        let diagnostics: [Diagnostic] = OneTypePerFile.check(
             source: source,
-            in: FilePath("Foo.swift")
+            in: FilePath.init("Foo.swift")
         )
-        #expect(diags.isEmpty)
+        #expect(diagnostics.isEmpty)
     }
 
     @Test static func LayoutFileFreeFunctionAlone() {
@@ -143,11 +143,11 @@ import Testing
         public func Partition(slice: inout [Int]) {}
         public func Partition(slice: inout [String]) {}
         """
-        let diags: [Diagnostic] = OneTypePerFile.check(
+        let diagnostics: [Diagnostic] = OneTypePerFile.check(
             source: source,
-            in: FilePath("Partition.swift")
+            in: FilePath.init("Partition.swift")
         )
-        #expect(diags.isEmpty)
+        #expect(diagnostics.isEmpty)
     }
 
     @Test static func LayoutFileFreeFunctionWithPrimaryType() {
@@ -155,13 +155,13 @@ import Testing
         public struct Foo {}
         public func Foo() {}
         """
-        let diags: [Diagnostic] = OneTypePerFile.check(
+        let diagnostics: [Diagnostic] = OneTypePerFile.check(
             source: source,
-            in: FilePath("Foo.swift")
+            in: FilePath.init("Foo.swift")
         )
-        #expect(diags.count == 1)
+        #expect(diagnostics.count == 1)
         #expect(
-            diags.first?.message.contains(
+            diagnostics.first?.message.contains(
                 "free function 'Foo' cannot coexist with type 'Foo'"
             ) == true
         )
@@ -178,11 +178,11 @@ import Testing
             public func doSomething() {}
         }
         """
-        let diags: [Diagnostic] = OneTypePerFile.check(
+        let diagnostics: [Diagnostic] = OneTypePerFile.check(
             source: source,
-            in: FilePath("Foo.Bar.swift")
+            in: FilePath.init("Foo.Bar.swift")
         )
-        #expect(diags.isEmpty)
+        #expect(diagnostics.isEmpty)
     }
 
     @Test static func NestedLayoutFileForeignExtensionSiblingViolation() {
@@ -192,13 +192,13 @@ import Testing
             public func sibling() {}
         }
         """
-        let diags: [Diagnostic] = OneTypePerFile.check(
+        let diagnostics: [Diagnostic] = OneTypePerFile.check(
             source: source,
-            in: FilePath("Foo.Bar.swift")
+            in: FilePath.init("Foo.Bar.swift")
         )
-        #expect(diags.count == 1)
+        #expect(diagnostics.count == 1)
         #expect(
-            diags.first?.message.contains(
+            diagnostics.first?.message.contains(
                 """
                 foreign extension to 'Foo' in 'Foo.Bar.swift' must contain nothing except the definition of 'Bar'
                 """
@@ -210,12 +210,12 @@ import Testing
         let source: String = """
         public struct Bar {}
         """
-        let diags: [Diagnostic] = OneTypePerFile.check(
+        let diagnostics: [Diagnostic] = OneTypePerFile.check(
             source: source,
-            in: FilePath("Foo.Bar.swift")
+            in: FilePath.init("Foo.Bar.swift")
         )
         #expect(
-            diags.contains {
+            diagnostics.contains {
                 $0.message.contains("found top-level type 'Bar' in nested layout file")
             }
         )
@@ -227,11 +227,11 @@ import Testing
             public func extra() {}
         }
         """
-        let diags: [Diagnostic] = OneTypePerFile.check(
+        let diagnostics: [Diagnostic] = OneTypePerFile.check(
             source: source,
-            in: FilePath("Foo (ext).swift")
+            in: FilePath.init("Foo (ext).swift")
         )
-        #expect(diags.isEmpty)
+        #expect(diagnostics.isEmpty)
     }
 
     @Test static func ExtensionFileCollectionTypes() {
@@ -243,22 +243,22 @@ import Testing
             public func joinedNames() -> String { "" }
         }
         """
-        let arrayDiags: [Diagnostic] = OneTypePerFile.check(
+        let arrayDiagnostics: [Diagnostic] = OneTypePerFile.check(
             source: arraySource,
-            in: FilePath("Array (ext).swift")
+            in: FilePath.init("Array (ext).swift")
         )
-        #expect(arrayDiags.isEmpty)
+        #expect(arrayDiagnostics.isEmpty)
 
         let dictSource: String = """
         extension Dictionary where Key == String {
             public func lookup() {}
         }
         """
-        let dictDiags: [Diagnostic] = OneTypePerFile.check(
+        let dictDiagnostics: [Diagnostic] = OneTypePerFile.check(
             source: dictSource,
-            in: FilePath("Dictionary (ext).swift")
+            in: FilePath.init("Dictionary (ext).swift")
         )
-        #expect(dictDiags.isEmpty)
+        #expect(dictDiagnostics.isEmpty)
     }
 
     @Test static func ExtensionFileForeignViolation() {
@@ -270,24 +270,24 @@ import Testing
             public func b() {}
         }
         """
-        let diags: [Diagnostic] = OneTypePerFile.check(
+        let diagnostics: [Diagnostic] = OneTypePerFile.check(
             source: source,
-            in: FilePath("Foo (ext).swift")
+            in: FilePath.init("Foo (ext).swift")
         )
-        #expect(diags.count == 1)
-        #expect(diags.first?.message.contains("cannot contain extension to 'Bar'") == true)
+        #expect(diagnostics.count == 1)
+        #expect(diagnostics.first?.message.contains("cannot contain extension to 'Bar'") == true)
     }
 
     @Test static func ExtensionFilePrimaryTypeViolation() {
         let source: String = """
         public struct Foo {}
         """
-        let diags: [Diagnostic] = OneTypePerFile.check(
+        let diagnostics: [Diagnostic] = OneTypePerFile.check(
             source: source,
-            in: FilePath("Foo (ext).swift")
+            in: FilePath.init("Foo (ext).swift")
         )
-        #expect(diags.count == 1)
-        #expect(diags.first?.message.contains("cannot define primary type 'Foo'") == true)
+        #expect(diagnostics.count == 1)
+        #expect(diagnostics.first?.message.contains("cannot define primary type 'Foo'") == true)
     }
 
     @Test static func ExtensionFileWitnessTypealias() {
@@ -296,11 +296,11 @@ import Testing
             public typealias Witness = Int
         }
         """
-        let diags: [Diagnostic] = OneTypePerFile.check(
+        let diagnostics: [Diagnostic] = OneTypePerFile.check(
             source: source,
-            in: FilePath("Foo (ext).swift")
+            in: FilePath.init("Foo (ext).swift")
         )
-        #expect(diags.isEmpty)
+        #expect(diagnostics.isEmpty)
     }
 
     @Test static func FilenamePlusSignBanned() {
@@ -309,31 +309,31 @@ import Testing
             public func bar() {}
         }
         """
-        let diags: [Diagnostic] = OneTypePerFile.check(
+        let diagnostics: [Diagnostic] = OneTypePerFile.check(
             source: source,
-            in: FilePath("Foo+Bar.swift")
+            in: FilePath.init("Foo+Bar.swift")
         )
-        #expect(diags.count == 1)
+        #expect(diagnostics.count == 1)
         #expect(
-            diags.first?.message.contains(
+            diagnostics.first?.message.contains(
                 "plus signs ('+') are never allowed in filenames"
             ) == true
         )
     }
 
     @Test static func AnchorSwift() {
-        let emptyDiags: [Diagnostic] = OneTypePerFile.check(
+        let emptyDiagnostics: [Diagnostic] = OneTypePerFile.check(
             source: "",
-            in: FilePath("anchor.swift")
+            in: FilePath.init("anchor.swift")
         )
-        #expect(emptyDiags.isEmpty)
+        #expect(emptyDiagnostics.isEmpty)
 
-        let nonEmptyDiags: [Diagnostic] = OneTypePerFile.check(
+        let nonEmptyDiagnostics: [Diagnostic] = OneTypePerFile.check(
             source: "import Foundation",
-            in: FilePath("anchor.swift")
+            in: FilePath.init("anchor.swift")
         )
-        #expect(nonEmptyDiags.count == 1)
-        #expect(nonEmptyDiags.first?.message.contains("'anchor.swift' must be empty") == true)
+        #expect(nonEmptyDiagnostics.count == 1)
+        #expect(nonEmptyDiagnostics.first?.message.contains("'anchor.swift' must be empty") == true)
     }
 
     @Test static func ExportsSwift() {
@@ -341,22 +341,22 @@ import Testing
         @_exported import SystemIO
         @_exported import SwiftSyntax
         """
-        let validDiags: [Diagnostic] = OneTypePerFile.check(
+        let validDiagnostics: [Diagnostic] = OneTypePerFile.check(
             source: validSource,
-            in: FilePath("exports.swift")
+            in: FilePath.init("exports.swift")
         )
-        #expect(validDiags.isEmpty)
+        #expect(validDiagnostics.isEmpty)
 
         let invalidSource: String = """
         import SystemIO
         """
-        let invalidDiags: [Diagnostic] = OneTypePerFile.check(
+        let invalidDiagnostics: [Diagnostic] = OneTypePerFile.check(
             source: invalidSource,
-            in: FilePath("exports.swift")
+            in: FilePath.init("exports.swift")
         )
-        #expect(invalidDiags.count == 1)
+        #expect(invalidDiagnostics.count == 1)
         #expect(
-            invalidDiags.first?.message.contains(
+            invalidDiagnostics.first?.message.contains(
                 "'exports.swift' can only contain '@_exported import' statements"
             ) == true
         )
@@ -365,13 +365,13 @@ import Testing
         @_exported import SystemIO
         public struct Foo {}
         """
-        let misplacedDiags: [Diagnostic] = OneTypePerFile.check(
+        let misplacedDiagnostics: [Diagnostic] = OneTypePerFile.check(
             source: misplacedExport,
-            in: FilePath("Foo.swift")
+            in: FilePath.init("Foo.swift")
         )
-        #expect(misplacedDiags.count == 1)
+        #expect(misplacedDiagnostics.count == 1)
         #expect(
-            misplacedDiags.first?.message.contains(
+            misplacedDiagnostics.first?.message.contains(
                 "'@_exported import' is prohibited outside 'exports.swift'"
             ) == true
         )
@@ -384,22 +384,22 @@ import Testing
             higherThan: MultiplicationPrecedence
         }
         """
-        let lexemesDiags: [Diagnostic] = OneTypePerFile.check(
+        let lexemesDiagnostics: [Diagnostic] = OneTypePerFile.check(
             source: lexemesSource,
-            in: FilePath("lexemes.swift")
+            in: FilePath.init("lexemes.swift")
         )
-        #expect(lexemesDiags.isEmpty)
+        #expect(lexemesDiagnostics.isEmpty)
 
         let misplacedOperator: String = """
         infix operator >< : MultiplicationPrecedence
         public struct Foo {}
         """
-        let misplacedDiags: [Diagnostic] = OneTypePerFile.check(
+        let misplacedDiagnostics: [Diagnostic] = OneTypePerFile.check(
             source: misplacedOperator,
-            in: FilePath("Foo.swift")
+            in: FilePath.init("Foo.swift")
         )
         #expect(
-            misplacedDiags.contains {
+            misplacedDiagnostics.contains {
                 $0.message.contains(
                     """
                     operator and precedencegroup declarations are prohibited outside 'lexemes.swift'
@@ -411,22 +411,22 @@ import Testing
         let operatorsSource: String = """
         public func + (a: Foo, b: Foo) -> Foo { a }
         """
-        let operatorsDiags: [Diagnostic] = OneTypePerFile.check(
+        let operatorsDiagnostics: [Diagnostic] = OneTypePerFile.check(
             source: operatorsSource,
-            in: FilePath("operators.swift")
+            in: FilePath.init("operators.swift")
         )
-        #expect(operatorsDiags.isEmpty)
+        #expect(operatorsDiagnostics.isEmpty)
 
         let operatorsWithTypes: String = """
         public struct Foo {}
         """
-        let operatorsTypeDiags: [Diagnostic] = OneTypePerFile.check(
+        let operatorsTypeDiagnostics: [Diagnostic] = OneTypePerFile.check(
             source: operatorsWithTypes,
-            in: FilePath("operators.swift")
+            in: FilePath.init("operators.swift")
         )
-        #expect(operatorsTypeDiags.count == 1)
+        #expect(operatorsTypeDiagnostics.count == 1)
         #expect(
-            operatorsTypeDiags.first?.message.contains(
+            operatorsTypeDiagnostics.first?.message.contains(
                 "'operators.swift' cannot declare types"
             ) == true
         )
@@ -442,13 +442,13 @@ import Testing
             #endif
         }
         """
-        let diags: [Diagnostic] = OneTypePerFile.check(
+        let diagnostics: [Diagnostic] = OneTypePerFile.check(
             source: source,
-            in: FilePath("Foo.swift")
+            in: FilePath.init("Foo.swift")
         )
-        #expect(diags.count == 2)
-        #expect(diags.contains { $0.message.contains("NestedLinux") })
-        #expect(diags.contains { $0.message.contains("NestedDarwin") })
+        #expect(diagnostics.count == 2)
+        #expect(diagnostics.contains { $0.message.contains("NestedLinux") })
+        #expect(diagnostics.contains { $0.message.contains("NestedDarwin") })
     }
 
     @Test static func DiagnoseFormatting() {
@@ -456,12 +456,12 @@ import Testing
         public struct Foo {}
         public struct Bar {}
         """
-        let fileDiags: FileDiagnostics? = OneTypePerFile.diagnose(
+        let diagnostics: OneTypePerFile.Diagnostics? = OneTypePerFile.diagnose(
             source: source,
-            in: FilePath("Foo.swift")
+            in: FilePath.init("Foo.swift")
         )
-        #expect(fileDiags != nil)
-        let formatted: String = fileDiags?.description ?? ""
+        #expect(diagnostics != nil)
+        let formatted: String = diagnostics?.description ?? ""
         #expect(formatted.contains("error: in 'Foo.swift':"))
         #expect(formatted.contains("one type per file violation"))
     }

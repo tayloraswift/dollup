@@ -1,7 +1,7 @@
 import SwiftDiagnostics
 
 extension OneTypePerFile {
-    struct DiagnosticMessage: SwiftDiagnostics.DiagnosticMessage {
+    struct DiagnosticMessage {
         let message: String
         let diagnosticID: MessageID
         let severity: DiagnosticSeverity
@@ -13,3 +13,4 @@ extension OneTypePerFile {
         }
     }
 }
+extension OneTypePerFile.DiagnosticMessage: SwiftDiagnostics.DiagnosticMessage {}

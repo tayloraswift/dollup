@@ -23,15 +23,15 @@ public enum OneTypePerFile {
     public static func diagnose(
         source: String,
         in file: FilePath
-    ) -> FileDiagnostics? {
+    ) -> Diagnostics? {
         let tree: SourceFileSyntax = Parser.parse(source: source)
-        let diags: [Diagnostic] = self.check(tree: tree, in: file)
-        guard !diags.isEmpty else {
+        let diagnostics: [Diagnostic] = self.check(tree: tree, in: file)
+        guard !diagnostics.isEmpty else {
             return nil
         }
         let annotated: String = DiagnosticsFormatter.annotatedSource(
             tree: tree,
-            diags: diags
+            diags: diagnostics
         )
         return .init(file: file, message: annotated)
     }
