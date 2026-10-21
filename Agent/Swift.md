@@ -514,6 +514,79 @@ Use proper mathematical symbols for well-known concepts.
 | `stdDev` | bad for multiple reasons, as previously discussed |
 
 
+#### Boolean flags
+
+As a general rule, `is`- or `has`-prefixed variable names should be considered a code smell. This might be unintuitive to those accustomed to other style guides, but the Swift language has features that provide superior alternatives in almost all situations.
+
+Use optionals to directly model presence flags, by tying the indication of presence to the actual presence of a value.
+
+```swift
+// good — use the state of the optional to directly model the presence of the property!
+// avoid “sugaring” struct properties by adding a computed “hasFoo” or “isFoo” property,
+// instead check at the call site using `if case _? = $0.bio` or `if case nil = $0.bio`.
+struct Profile {
+    var bio: String?
+}
+// bad — if you see a `foo` paired with a `isFoo` or `hasFoo` property, refactor it.
+struct Profile {
+    var hasBio: Bool
+    var bio: String
+}
+```
+
+If a flag truly has no associated value, omit the prefix too, as this makes it easier to upgrade the field to an enum or introduce an associated value later, which happens quite frequently.
+
+```swift
+// good — if verification later turns out to be more complex than a boolean, we can swap out
+// the `Bool` with an enum or a value
+struct User {
+  var verified: Bool
+}
+
+// bad — what if we want to add the date of verification later?
+struct User {
+  var isVerified: Bool
+}
+```
+
+The main exception to this rule is witnesses to protocols that declare `is`- or `has`-prefixed requirements. A common example is ``Collection.isEmpty``. Don’t vend `empty` as a property forwarded by an `isEmpty` shim just to satisfy the protocol; just implement `isEmpty` directly. This only applies to standard library protocols. For APIs we design ourselves, avoid `is`- and `has`-prefixed names entirely.
+
+#### Boolean case indicators
+
+If you have an enum that you want to sugar with **case indicators**, use the same base names for the indicators as the cases themselves.
+
+```swift
+enum Access {
+    case vip(grandfathered: Bool)
+    case standard
+}
+extension Access {
+    // good — the indicator property is named after the case
+    var vip: Bool {
+        switch self {
+        case .vip(grandfathered: _): true
+        default: false
+        }
+    }
+
+    // bad — don’t perform a natural-language lettercasing transformation
+    // on something that is permanently tied to another API
+    var isVIP: Bool {
+        switch self {
+        case .vip(grandfathered: _): true
+        default: false
+        }
+    }
+}
+```
+
+Case indicators are most motivating on enums. They should be rare on structs — they won’t usually compile without a name permutation (as they would shadow a stored property name), and they rarely provide enough API value over caller-side pattern matching to justify their inclusion. If you do choose to add a case indicator to a struct, suffix it with -`Present` or -`Enabled` instead of prefixing it with `has`- or `is`-.
+
+For a struct field indicator to be motivating, the use case should generally involve:
+
+- an underlying field type that would otherwise need a viral ``Equatable`` if `==(_:_:)` were to be called on it, and
+- lots of callers (such as ``Sequence.filter(where:)`` predicates) that would be burdened by repeated use of language-level pattern matching.
+
 #### Avoid `lhs` and `rhs`
 
 The names `lhs` and `rhs` are terrible parameter names, and should never be used. Use `a` and `b` in binary operator signatures instead, or choose more descriptive names (discussed in the next subsection) if appropriate.
@@ -832,6 +905,19 @@ if  case .uint64(let uint64)? = magnitude {
 
 #expect(value == expected)
 ```
+
+#### Binding thrown errors
+
+When a test needs to inspect a thrown error, bind it with `try #require(throws:)`, which returns the error as a non-optional value. Do not bind the result of `#expect(throws:)`, which is optional. A test where nothing is thrown then reports one failure instead of two, and the error can be interpolated directly instead of reaching for `.description`.
+
+```swift
+let error: ParsingError = try #require(throws: ParsingError.self) {
+    try Version.init(parsing: "1.x")
+}
+#expect("\(error)" == "invalid component 'x'")
+```
+
+Use `#expect(throws:)` only when the error itself is not inspected, which is sometimes the case when one test makes several independent throw checks that should all be reported.
 
 
 ## Reviewing branches
